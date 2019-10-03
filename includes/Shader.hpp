@@ -8,6 +8,13 @@
 # include <fstream>
 # include <sstream>
 
+/*
+	Shader class used to manage shader compilation
+	It also adds some tools to set uniform and activate shader easier
+
+	Warning! before instantiating a Shader object you need to create the opengl contex
+	with glfwCreateWindow
+*/
 class Shader {
 	public:
 		Shader(const char *vsPath, const char *fsPath, const char *gsPath = nullptr);
