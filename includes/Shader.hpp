@@ -5,11 +5,12 @@
 # include <GLFW/glfw3.h>
 # include <string>
 # include <iostream>
+# include <fstream>
+# include <sstream>
 
 class Shader {
 	public:
-		Shader(const char *vertexPath, const char *fragmentPath, \
-		const char *geometryPath = nullptr);
+		Shader(const char *vsPath, const char *fsPath, const char *gsPath = nullptr);
 		Shader(Shader const &src);
 		virtual ~Shader();
 
@@ -25,7 +26,17 @@ class Shader {
 		// need to add matrix uniform functions when created
 
 		u_int32_t	id;
+
+		class ShaderCompileException : public std::exception {
+			public:
+				virtual const char* what() const throw();
+		};
+		class ShaderLinkingException : public std::exception {
+			public:
+				virtual const char* what() const throw();
+		};
 	private:
+		void	checkCompileErrors(GLuint shader, std::string type);
 };
 
 #endif

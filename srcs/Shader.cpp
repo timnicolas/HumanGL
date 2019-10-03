@@ -1,7 +1,98 @@
 #include "Shader.hpp"
 
-Shader::Shader(const char *vertexPath, const char *fragmentPath, \
-const char *geometryPath) {
+/*
+	load shader source code to string
+*/
+void	fillShaderStr(const char *vsPath, const char *fsPath, const char *gsPath,
+std::string *vsCode, std::string *fsCode, std::string *gsCode
+) {
+	std::ifstream		vsFile;
+	std::ifstream		fsFile;
+	std::ifstream		gsFile;
+	std::stringstream	sStream;
+
+	vsFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+	fsFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+	gsFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+	try
+	{
+		vsFile.open(vsPath);
+		sStream << vsFile.rdbuf();
+		*vsCode = sStream.str();
+		vsFile.close();
+
+		sStream.clear();
+		sStream.str(std::string());
+		fsFile.open(fsPath);
+		sStream << fsFile.rdbuf();
+		*fsCode = sStream.str();
+		fsFile.close();
+
+		if (gsPath != nullptr) {
+			sStream.clear();
+			sStream.str(std::string());
+			gsFile.open(gsPath);
+			sStream << gsFile.rdbuf();
+			*gsCode = sStream.str();
+			gsFile.close();
+		}
+	}
+	catch (std::ifstream::failure e)
+	{
+		std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+	}
+}
+
+Shader::Shader(const char *vsPath, const char *fsPath, const char *gsPath) {
+	std::string	vsCode;
+	std::string	fsCode;
+	std::string	gsCode;
+	const char	*vsData;
+	const char	*fsData;
+	const char	*gsData;
+	u_int32_t	vertex;
+	u_int32_t	fragment;
+	u_int32_t	geometry;
+
+	fillShaderStr(vsPath, fsPath, gsPath, &vsCode, &fsCode, &gsCode);
+
+	// vertex shader
+	vsData = vsCode.c_str();
+	vertex = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertex, 1, &vsData, NULL);
+	glCompileShader(vertex);
+	checkCompileErrors(vertex, "VERTEX");
+
+	// fragment shader
+	fsData = fsCode.c_str();
+	fragment = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragment, 1, &fsData, NULL);
+	glCompileShader(fragment);
+	checkCompileErrors(fragment, "FRAGMENT");
+
+	// geometry shader
+	if (gsPath != nullptr) {
+		gsData = gsCode.c_str();
+		geometry = glCreateShader(GL_GEOMETRY_SHADER);
+		glShaderSource(geometry, 1, &gsData, NULL);
+		glCompileShader(geometry);
+		checkCompileErrors(geometry, "GEOMETRY");
+	}
+
+	// shader Program
+	id = glCreateProgram();
+	glAttachShader(id, vertex);
+	glAttachShader(id, fragment);
+	if (gsPath != nullptr)
+		glAttachShader(id, geometry);
+	glLinkProgram(id);
+	checkCompileErrors(id, "PROGRAM");
+
+	// delete the shaders as they're linked into our program now and no longer necessery
+	glDeleteShader(vertex);
+	glDeleteShader(fragment);
+	if (gsPath != nullptr)
+		glDeleteShader(geometry);
 }
 
 Shader::Shader(Shader const &src) {
@@ -13,7 +104,9 @@ Shader::~Shader() {
 
 Shader &Shader::operator=(Shader const &rhs) {
 	if (this != &rhs)
-		;
+	{
+		this->id = rhs.id;
+	}
 	return *this;
 }
 
@@ -37,4 +130,44 @@ void	Shader::setVec3(const std::string &name, float x, float y, float z) const {
 }
 void	Shader::setVec4(const std::string &name, float x, float y, float z, float w) {
 	glUniform4f(glGetUniformLocation(id, name.c_str()), x, y, z, w);
+}
+
+/*
+	checking shader compilation/linking errors.
+*/
+void	Shader::checkCompileErrors(GLuint shader, std::string type)
+{
+	int		success;
+	char	infoLog[1024];
+
+	if (type != "PROGRAM")
+	{
+		glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+		if (!success)
+		{
+			glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+			std::cerr << "Error: Shader Compilation, type: " << type << "\n" \
+			<< infoLog << std::endl;
+			throw Shader::ShaderCompileException();
+		}
+	}
+	else
+	{
+		glGetProgramiv(shader, GL_LINK_STATUS, &success);
+		if (!success)
+		{
+			glGetProgramInfoLog(shader, 1024, NULL, infoLog);
+			std::cerr << "Error: Shader Linking, type: " << type << "\n" \
+			<< infoLog << std::endl;
+			throw Shader::ShaderCompileException();
+		}
+	}
+}
+
+const char* Shader::ShaderCompileException::what() const throw() {
+    return ("Shader failed to compile!");
+}
+
+const char* Shader::ShaderLinkingException::what() const throw() {
+    return ("Shader program failed to link!");
 }

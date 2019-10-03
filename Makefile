@@ -16,7 +16,7 @@ HEAD =	Matrix.hpp \
 
 CC = g++
 DEBUG_FLAGS = -g3 -fsanitize=address
-CFLAGS = -Wno-deprecated -Wall -Wextra -std=c++0x $(DEBUG_FLAGS)#-Werror
+CFLAGS = -Wno-deprecated -Wall -Wextra -std=c++0x#-Werror
 
 HEADS	= $(addprefix $(INC_DIR)/, $(HEAD))
 OBJS	= $(addprefix $(OBJS_DIR)/, $(SRC:.cpp=.o))
