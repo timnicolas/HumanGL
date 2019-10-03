@@ -1,28 +1,28 @@
 NAME = humanGL
-PROJECT_NAME = $(shell echo $(NAME) | tr a-z A-Z)  # name in MAJUSCULE
+PROJECT_NAME = $(shell echo $(NAME) | tr a-z A-Z)# name in MAJUSCULE
 
 ARGS =
 
-FILES = main.cpp \
-		Matrix.cpp
+SRCS_DIR	= srcs
+OBJS_DIR	= objs
+INC_DIR		= includes
 
-HFILES = includes/Matrix.hpp
+SRC =	main.cpp \
+		Matrix.cpp \
+		Shader.cpp
 
-LIBS_LIB = #-L ~/.brew/lib -framework OpenGL -lglfw
+HEAD =	Matrix.hpp \
+		Shader.hpp
 
 CC = g++
 DEBUG_FLAGS = -g3 -fsanitize=address
-CFLAGS = -Wno-deprecated -Wall -Wextra -std=c++0x $(DEBUG_FLAGS) #-Werror
+CFLAGS = -Wno-deprecated -Wall -Wextra -std=c++0x $(DEBUG_FLAGS)#-Werror
 
-OBJS_DIR = objs/
-SRCS_DIR = srcs/
+HEADS	= $(addprefix $(INC_DIR)/, $(HEAD))
+OBJS	= $(addprefix $(OBJS_DIR)/, $(SRC:.cpp=.o))
+INC		= -I $(INC_DIR) -I ~/.brew/include
 
-INC_DIR =	includes/ \
-			~/.brew/include
-
-INC := $(addprefix -I , $(INC_DIR))
-SRCS := $(addprefix $(SRCS_DIR), $(FILES))
-OBJS := $(addprefix $(OBJS_DIR), $(FILES:.cpp=.o))
+LIBS_FLAGS	= -L ~/.brew/lib -framework OpenGL -lglfw
 
 NORMAL = "\x1B[0m"
 RED = "\x1B[31m"
@@ -47,11 +47,12 @@ all:
 
 $(NAME): $(OBJS_DIR) $(OBJS)
 	@printf $(CYAN)"-> create program : $(NAME)\n"$(NORMAL)
-	@$(CC) -o $(NAME) $(OBJS) $(OBJS_COM) $(INC) $(CFLAGS) $(LIBS_LIB)
+	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(LIBS_FLAGS)
 
-$(OBJS_DIR)%.o: $(SRCS_DIR)%.cpp $(HFILES)
+$(OBJS_DIR)/%.o: $(SRCS_DIR)/%.cpp $(HEADS)
 	@printf $(YELLOW)"-> $<\n"$(NORMAL)
-	@$(CC) -c $(INC) $< -o $@ $(CFLAGS)
+	@$(CC) $(CFLAGS) -c $< -o $@ $(INC)
+
 
 $(OBJS_DIR):
 	@mkdir -p $(dir $(OBJS))
