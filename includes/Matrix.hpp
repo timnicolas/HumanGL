@@ -12,6 +12,8 @@ namespace mat {
 			BaseMat(const BaseMat &m);
 			~BaseMat();
 
+			void setLns(int lns);  // set number of lines
+			void setCols(int cols);  // set number of columns
 			int getLns() const;  // get number of lines
 			int getCols() const;  // get number of columns
 			const std::vector<float> &getData() const;  // get all data as a vector
@@ -22,12 +24,13 @@ namespace mat {
 
 			/* operators */
 			friend std::ostream &operator<<(std::ostream &out, const BaseMat &m);
-			friend BaseMat operator*(BaseMat m, const float other);
-			friend BaseMat operator*(BaseMat m, const BaseMat other);
-			friend BaseMat operator+(BaseMat m, const float other);
-			friend BaseMat operator+(BaseMat m, const BaseMat other);
-			friend BaseMat operator-(BaseMat m, const float other);
-			friend BaseMat operator-(BaseMat m, const BaseMat other);
+			friend BaseMat operator*(BaseMat &m, const float other);
+			friend BaseMat operator*(BaseMat &m, const BaseMat &other);
+			friend BaseMat operator+(BaseMat &m, const float other);
+			friend BaseMat operator+(BaseMat &m, const BaseMat &other);
+			friend BaseMat operator-(BaseMat &m, const float other);
+			friend BaseMat operator-(BaseMat &m, const BaseMat &other);
+			BaseMat &operator=(const BaseMat &other);
 		protected:
 			int _lns;  // number of lines (height)
 			int _cols;  // number of columns (width)

@@ -67,16 +67,16 @@ Mat4 Mat4::scale(Vec3 val) {
 
 Mat4 Mat4::translate(float valX, float valY, float valZ) {
 	Mat4 res = *this;
-	res.get(0, 3) = valX;
-	res.get(1, 3) = valY;
-	res.get(2, 3) = valZ;
+	res.get(0, 3) += valX;
+	res.get(1, 3) += valY;
+	res.get(2, 3) += valZ;
 	return res;
 }
 Mat4 Mat4::translate(Vec3 val) {
 	return translate(val.x, val.y, val.z);
 }
 Mat4 Mat4::rotateRad(float radians, float axX, float axY, float axZ) {
-	Mat4 res = *this;
+	Mat4 res = Mat4();
 	float cosA = std::cos(radians);
 	float sinA = std::sin(radians);
 	res.get(0, 0) = cosA + std::pow(axX, 2) * (1 - cosA);
@@ -88,6 +88,7 @@ Mat4 Mat4::rotateRad(float radians, float axX, float axY, float axZ) {
 	res.get(2, 0) = axZ * axX * (1 - cosA) - axY * sinA;
 	res.get(2, 1) = axZ * axY * (1 - cosA) + axX * sinA;
 	res.get(2, 2) = cosA + std::pow(axZ, 2) * (1 - cosA);
+	// res = *this * res;
 	return res;
 }
 Mat4 Mat4::rotateRad(float radians, Vec3 axis) {
@@ -184,11 +185,11 @@ BaseMat::BaseMat(const BaseMat &m) :
 _lns(m.getLns()),
 _cols(m.getCols()),
 _data(new std::vector<float>()) {
-	for (int i=0; i < getLns() * getCols(); i++) {
-		getData().push_back(m.getData()[i]);
-	}
+	*this = m;
 }
 
+void BaseMat::setLns(int lns) { _lns = lns; }
+void BaseMat::setCols(int cols) { _cols = cols; }
 int BaseMat::getCols() const { return _cols; }
 int BaseMat::getLns() const { return _lns; }
 const std::vector<float> &BaseMat::getData() const { return *_data; }
@@ -227,14 +228,14 @@ namespace mat {
 		}
 		return out;
 	}
-	BaseMat operator*(BaseMat m, const float other) {
+	BaseMat operator*(BaseMat &m, const float other) {
 		BaseMat res = m;
 		for (int i=0; i < m.getLns() * m.getCols(); i++) {
 			res.getData()[i] = res.getData()[i] * other;
 		}
 		return res;
 	}
-	BaseMat operator*(BaseMat m, const BaseMat other) {
+	BaseMat operator*(BaseMat &m, const BaseMat &other) {
 		if (m.getCols() != other.getLns()) {
 			throw std::invalid_argument("wrong matrix size");
 		}
@@ -250,14 +251,14 @@ namespace mat {
 		}
 		return res;
 	}
-	BaseMat operator+(BaseMat m, const float other) {
+	BaseMat operator+(BaseMat &m, const float other) {
 		BaseMat res = m;
 		for (int i=0; i < m.getLns() * m.getCols(); i++) {
 			res.getData()[i] = res.getData()[i] + other;
 		}
 		return res;
 	}
-	BaseMat operator+(BaseMat m, const BaseMat other) {
+	BaseMat operator+(BaseMat &m, const BaseMat &other) {
 		if (m.getLns() != other.getLns() || m.getCols() != other.getCols()) {
 			throw std::invalid_argument("wrong matrix size");
 		}
@@ -269,14 +270,14 @@ namespace mat {
 		}
 		return res;
 	}
-	BaseMat operator-(BaseMat m, const float other) {
+	BaseMat operator-(BaseMat &m, const float &other) {
 		BaseMat res = m;
 		for (int i=0; i < m.getLns() * m.getCols(); i++) {
 			res.getData()[i] = res.getData()[i] - other;
 		}
 		return res;
 	}
-	BaseMat operator-(BaseMat m, const BaseMat other) {
+	BaseMat operator-(BaseMat &m, const BaseMat &other) {
 		if (m.getLns() != other.getLns() || m.getCols() != other.getCols()) {
 			throw std::invalid_argument("wrong matrix size");
 		}
@@ -287,6 +288,14 @@ namespace mat {
 			}
 		}
 		return res;
+	}
+	BaseMat &BaseMat::operator=(const BaseMat &other) {
+        if(&other == this)
+            return *this;
+		this->setLns(other.getLns());
+		this->setCols(other.getCols());
+		this->getData() = other.getData();
+        return *this;
 	}
 }
 
