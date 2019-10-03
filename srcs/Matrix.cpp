@@ -53,9 +53,9 @@ Mat4::Mat4(std::vector<float> data) : SquareMat(4, data) {}
 
 Mat4 Mat4::scale(float valX, float valY, float valZ) {
 	Mat4 res = *this;
-	res.get(0, 0) = valX;
-	res.get(1, 1) = valY;
-	res.get(2, 2) = valZ;
+	res.get(0, 0) *= valX;
+	res.get(1, 1) *= valY;
+	res.get(2, 2) *= valZ;
 	return res;
 }
 Mat4 Mat4::scale(float val) {
@@ -198,15 +198,13 @@ float &BaseMat::get(int ln, int col) { return (*_data)[ln * _cols + col]; }
 
 std::string BaseMat::getPrintableNb(float nb) const {
 	char *str;
-	if (nb < 100000) {
-		if ((int)(nb * 100) / 100 == 0)
-			nb = 0;
+	if (nb < 100000 && nb > -10000) {
 		asprintf(&str, "%8.2f", nb);
 	}
-	else if (nb < 1000000) {
+	else if (nb < 1000000 && nb > -100000) {
 		asprintf(&str, "%8.1f", nb);
 	}
-	else if (nb < 100000000) {
+	else if (nb < 100000000 && nb > -10000000) {
 		asprintf(&str, "%8.0f", nb);
 	}
 	else {
