@@ -1,4 +1,4 @@
-NAME = HumanGL
+NAME = humanGL
 PROJECT_NAME = $(shell echo $(NAME) | tr a-z A-Z)  # name in MAJUSCULE
 
 ARGS =
