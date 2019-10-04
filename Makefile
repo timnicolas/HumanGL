@@ -4,9 +4,9 @@ PROJECT_NAME = $(shell echo $(NAME) | tr a-z A-Z)  # name in MAJUSCULE
 ARGS =
 
 FILES = main.cpp \
-		Matrix.cpp
+		matrix/Matrix.cpp
 
-HFILES = includes/Matrix.hpp
+HFILES = includes/matrix/Matrix.hpp
 
 LIBS_LIB = #-L ~/.brew/lib -framework OpenGL -lglfw
 
@@ -18,6 +18,7 @@ OBJS_DIR = objs/
 SRCS_DIR = srcs/
 
 INC_DIR =	includes/ \
+			includes/matrix \
 			~/.brew/include
 
 INC := $(addprefix -I , $(INC_DIR))
