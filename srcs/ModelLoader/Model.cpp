@@ -92,32 +92,30 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 	}
 
 	// process material
-    if (mesh->mMaterialIndex >= 0) {
-		material = scene->mMaterials[mesh->mMaterialIndex];
+	material = scene->mMaterials[mesh->mMaterialIndex];
 
-		diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, \
-		TextureT::difuse);
-		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+	diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, \
+	TextureT::difuse);
+	textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
-		specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, \
-		TextureT::specular);
-		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-    }
+	specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, \
+	TextureT::specular);
+	textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 
     return Mesh(vertices, indices, textures);
 }
 
-std::vector<Texture>	Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, TextureT textType) {
+std::vector<Texture>	Model::loadMaterialTextures(aiMaterial *mat, \
+aiTextureType type, TextureT textType) {
     std::vector<Texture>	textures;
 	aiString				str;
 	Texture					texture;
 
     for (u_int32_t i = 0; i < mat->GetTextureCount(type); ++i) {
         mat->GetTexture(type, i, &str);
-		// need a texture loading fonction
-        texture.id = 0;//TextureFromFile(str.C_Str(), directory);
+        texture.id = textureFromFile(str.C_Str(), directory);
         texture.type = textType;
-        texture.path = str;
+        texture.path = str.C_Str();
         textures.push_back(texture);
     }
     return textures;

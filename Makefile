@@ -13,13 +13,16 @@ SRC =	main.cpp \
 		windowEvents.cpp \
 \
 		ModelLoader/Mesh.cpp \
-		ModelLoader/Model.cpp
+		ModelLoader/Model.cpp \
+		ModelLoader/Texture.cpp
 
 HEAD =	Matrix.hpp \
 		Shader.hpp \
 		humanGL.hpp \
 		Mesh.hpp \
-		Model.hpp
+		Model.hpp \
+		Texture.hpp \
+		lib/stb_image.h
 
 CC = g++
 DEBUG_FLAGS = -g3 -fsanitize=address
@@ -29,7 +32,7 @@ HEADS	= $(addprefix $(INC_DIR)/, $(HEAD))
 OBJS	= $(addprefix $(OBJS_DIR)/, $(SRC:.cpp=.o))
 INC		= -I $(INC_DIR) -I ~/.brew/include
 
-LIBS_FLAGS	= -L ~/.brew/lib -framework OpenGL -lglfw
+LIBS_FLAGS	= -L ~/.brew/lib -framework OpenGL -lglfw -lassimp
 
 NORMAL = "\x1B[0m"
 RED = "\x1B[31m"
