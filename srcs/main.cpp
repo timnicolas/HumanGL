@@ -1,33 +1,25 @@
+#include "humanGL.hpp"
 #include "Shader.hpp"
-#include "defines.hpp"
 
-bool	init_window(GLFWwindow **window, const char *name)
-{
-	if (!glfwInit())
+void	game_loop(GLFWwindow *window) {
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	while (!glfwWindowShouldClose(window))
 	{
-		fprintf(stderr, "Could not start glfw3\n");
-		return (false);
+		process_input(window);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// drawing here
+
+		glfwSwapBuffers(window);
+		glfwPollEvents();
 	}
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	*window = glfwCreateWindow(SCREEN_W, SCREEN_H, name, NULL, NULL);
-	if (!(*window))
-	{
-		fprintf(stderr, "Fail to create glfw3 window\n");
-		glfwTerminate();
-		return (false);
-	}
-	glfwMakeContextCurrent(*window);
-	glEnable(GL_DEPTH_TEST);
-	return (true);
 }
 
 int main(void) {
 	GLFWwindow	*window;
+	t_win_user	win_u;
 
-	if (!init_window(&window, "humanGl"))
+	if (!init_window(&window, "humanGl", &win_u))
 		return (1);
 
 	try
@@ -38,6 +30,8 @@ int main(void) {
 	{
 		std::cerr << e.what() << '\n';
 	}
+
+	game_loop(window);
 
 	return 0;
 }

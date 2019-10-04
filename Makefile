@@ -9,10 +9,12 @@ INC_DIR		= includes
 
 SRC =	main.cpp \
 		Matrix.cpp \
-		Shader.cpp
+		Shader.cpp \
+		windowEvents.cpp
 
 HEAD =	Matrix.hpp \
-		Shader.hpp
+		Shader.hpp \
+		humanGL.hpp
 
 CC = g++
 DEBUG_FLAGS = -g3 -fsanitize=address

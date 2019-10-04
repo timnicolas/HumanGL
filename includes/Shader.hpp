@@ -1,10 +1,7 @@
 #ifndef SHADER_HPP
 # define SHADER_HPP
 
-# define GLFW_INCLUDE_GLCOREARB
-# include <GLFW/glfw3.h>
-# include <string>
-# include <iostream>
+# include "humanGL.hpp"
 # include <fstream>
 # include <sstream>
 
