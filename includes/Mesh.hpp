@@ -37,7 +37,7 @@ class Mesh {
 
 		Mesh &operator=(Mesh const &rhs);
 
-		void	Draw(Shader shader) const;
+		void	draw(Shader &shader) const;
 
 		std::vector<Vertex>		vertices;
 		std::vector<u_int32_t>	indices;

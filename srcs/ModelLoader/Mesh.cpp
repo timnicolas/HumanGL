@@ -22,7 +22,7 @@ Mesh &Mesh::operator=(Mesh const &rhs) {
 	return *this;
 }
 
-void	Mesh::Draw(Shader shader) const {
+void	Mesh::draw(Shader &shader) const {
 	u_int32_t	diffuseId;
 	u_int32_t	specularId;
 	std::string	nb;
@@ -38,7 +38,7 @@ void	Mesh::Draw(Shader shader) const {
 		else if (textures[i].type == TextureT::specular)
 			nb = std::to_string(++specularId);
 
-		shader.setInt(("material." + g_text_type[static_cast<int>(textures[i].type)] + nb).c_str(), i);
+		shader.setInt(("texture_" + g_text_type[static_cast<int>(textures[i].type)] + nb).c_str(), i);
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
 	glActiveTexture(GL_TEXTURE0);

@@ -1,6 +1,6 @@
 #include "Model.hpp"
 
-Model::Model(char *path) {
+Model::Model(const char *path) {
 	loadModel(path);
 }
 
@@ -17,11 +17,9 @@ Model &Model::operator=(Model const &rhs) {
 	return *this;
 }
 
-void	Model::Draw(Shader shader) {
+void	Model::draw(Shader &shader) {
 	for (auto &mesh : meshes)
-	{
-		mesh.Draw(shader);
-	}
+		mesh.draw(shader);
 }
 
 void	Model::loadModel(std::string path) {

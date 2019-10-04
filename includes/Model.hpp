@@ -9,13 +9,13 @@
 
 class Model {
 	public:
-        Model(char *path);
+        Model(const char *path);
 		Model(Model const &src);
 		virtual ~Model();
 
 		Model &operator=(Model const &rhs);
 
-		void Draw(Shader shader);
+		void draw(Shader &shader);
 	private:
 		void	loadModel(std::string path);
 		void	processNode(aiNode *node, const aiScene *scene);
