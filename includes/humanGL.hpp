@@ -6,6 +6,8 @@
 # include <string>
 # include <iostream>
 
+# include <glm/glm.hpp> // !!!!!!!!! NEED TO REMOVE LATER
+
 # define SCREEN_W 800
 # define SCREEN_H 600
 

@@ -10,11 +10,13 @@ INC_DIR		= includes
 SRC =	main.cpp \
 		Matrix.cpp \
 		Shader.cpp \
-		windowEvents.cpp
+		windowEvents.cpp \
+		ModelLoader/Mesh.cpp
 
 HEAD =	Matrix.hpp \
 		Shader.hpp \
-		humanGL.hpp
+		humanGL.hpp  \
+		Mesh.hpp
 
 CC = g++
 DEBUG_FLAGS = -g3 -fsanitize=address
