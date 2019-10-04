@@ -4,9 +4,11 @@ PROJECT_NAME = $(shell echo $(NAME) | tr a-z A-Z)  # name in MAJUSCULE
 ARGS =
 
 FILES = main.cpp \
-		matrix/Matrix.cpp
+		matrix/Matrix.cpp \
+		matrix/Quaternion.cpp
 
-HFILES = includes/matrix/Matrix.hpp
+HFILES = includes/matrix/Matrix.hpp \
+		 includes/matrix/Quaternion.hpp
 
 LIBS_LIB = #-L ~/.brew/lib -framework OpenGL -lglfw
 

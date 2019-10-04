@@ -24,12 +24,12 @@ namespace mat {
 
 			/* operators */
 			friend std::ostream &operator<<(std::ostream &out, const BaseMat &m);
-			friend BaseMat operator*(BaseMat &m, const float other);
-			friend BaseMat operator*(BaseMat &m, const BaseMat &other);
-			friend BaseMat operator+(BaseMat &m, const float other);
-			friend BaseMat operator+(BaseMat &m, const BaseMat &other);
-			friend BaseMat operator-(BaseMat &m, const float other);
-			friend BaseMat operator-(BaseMat &m, const BaseMat &other);
+			friend BaseMat operator*(BaseMat m, const float other);
+			friend BaseMat operator*(BaseMat m, const BaseMat other);
+			friend BaseMat operator+(BaseMat m, const float other);
+			friend BaseMat operator+(BaseMat m, const BaseMat other);
+			friend BaseMat operator-(BaseMat m, const float other);
+			friend BaseMat operator-(BaseMat m, const BaseMat other);
 			BaseMat &operator=(const BaseMat &other);
 			explicit operator std::vector<float>() const { return *_data; };
 			explicit operator float*() const { return static_cast<float*>(&(*_data)[0]); };
@@ -58,7 +58,9 @@ namespace mat {
 			float &get(int x);
 			const float &operator[](const int idx) const;
 			float &operator[](const int idx);
-			Vec &normalize();
+			Vec &operator=(const Vec &other);
+			float dot(const Vec &v) const;
+			Vec &normalize() const;
 
 			/*
 			xyzw and rgb are 'shortcut' to acces to the datas
@@ -90,6 +92,7 @@ namespace mat {
 			Vec3(Vec vec);
 			Vec3(std::vector<float> data);
 			~Vec3();
+			Vec3 cross(const Vec3 &v) const;
 		protected:
 		private:
 	};

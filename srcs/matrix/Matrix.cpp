@@ -23,6 +23,16 @@ Vec3::Vec3(Vec vec) : Vec(vec.getSize(), vec.getData()) {}
 Vec3::Vec3(float _x, float _y, float _z) : Vec(3, std::vector<float>{_x, _y, _z}) {}
 Vec3::Vec3(std::vector<float> data) : Vec(3, data) {}
 Vec3::~Vec3() {}
+Vec3 Vec3::cross(const Vec3 &v) const
+{
+	Vec3 c;
+
+	c.x = y * v.z - z * v.y;
+	c.y = z * v.x - x * v.z;
+	c.z = x * v.y - y * v.x;
+
+	return c;
+}
 
 /*
 --------------------------------------------------------------------------------
@@ -148,7 +158,23 @@ float &Vec::get(int x) { return (*_data)[x]; }
 float &Vec::operator[](const int idx) { return get(idx); }
 const float &Vec::operator[](const int idx) const { return get(idx); }
 
-Vec &Vec::normalize() {
+Vec &Vec::operator=(const Vec &other) {
+	if(&other == this)
+		return *this;
+	this->setLns(other.getLns());
+	this->setCols(other.getCols());
+	this->getData() = other.getData();
+	this->x = other.x;
+	this->y = other.y;
+	this->z = other.z;
+	this->w = other.w;
+	this->r = other.r;
+	this->g = other.g;
+	this->b = other.b;
+	return *this;
+}
+
+Vec &Vec::normalize() const {
 	Vec *norm = new Vec(getSize(), getData());
 	float len = 0;
 	for (int i=0; i < getSize(); i++) {
@@ -161,6 +187,18 @@ Vec &Vec::normalize() {
 		}
 	}
 	return *norm;
+}
+
+float Vec::dot(const Vec &v) const
+{
+	if (getSize() != v.getSize()) {
+		throw std::invalid_argument("wrong vector size");
+	}
+	float res = 0;
+	for (int i=0; i < getSize(); i++) {
+		res += get(i) * v.get(i);
+	}
+	return res;
 }
 
 Vec::~Vec() {}
@@ -258,14 +296,14 @@ namespace mat {
 		}
 		return out;
 	}
-	BaseMat operator*(BaseMat &m, const float other) {
+	BaseMat operator*(BaseMat m, const float other) {
 		BaseMat res = m;
 		for (int i=0; i < m.getLns() * m.getCols(); i++) {
 			res.getData()[i] = res.getData()[i] * other;
 		}
 		return res;
 	}
-	BaseMat operator*(BaseMat &m, const BaseMat &other) {
+	BaseMat operator*(BaseMat m, const BaseMat other) {
 		if (m.getCols() != other.getLns()) {
 			throw std::invalid_argument("wrong matrix size");
 		}
@@ -281,14 +319,14 @@ namespace mat {
 		}
 		return res;
 	}
-	BaseMat operator+(BaseMat &m, const float other) {
+	BaseMat operator+(BaseMat m, const float other) {
 		BaseMat res = m;
 		for (int i=0; i < m.getLns() * m.getCols(); i++) {
 			res.getData()[i] = res.getData()[i] + other;
 		}
 		return res;
 	}
-	BaseMat operator+(BaseMat &m, const BaseMat &other) {
+	BaseMat operator+(BaseMat m, const BaseMat other) {
 		if (m.getLns() != other.getLns() || m.getCols() != other.getCols()) {
 			throw std::invalid_argument("wrong matrix size");
 		}
@@ -300,14 +338,14 @@ namespace mat {
 		}
 		return res;
 	}
-	BaseMat operator-(BaseMat &m, const float &other) {
+	BaseMat operator-(BaseMat m, const float other) {
 		BaseMat res = m;
 		for (int i=0; i < m.getLns() * m.getCols(); i++) {
 			res.getData()[i] = res.getData()[i] - other;
 		}
 		return res;
 	}
-	BaseMat operator-(BaseMat &m, const BaseMat &other) {
+	BaseMat operator-(BaseMat m, const BaseMat other) {
 		if (m.getLns() != other.getLns() || m.getCols() != other.getCols()) {
 			throw std::invalid_argument("wrong matrix size");
 		}
