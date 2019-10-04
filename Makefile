@@ -11,12 +11,15 @@ SRC =	main.cpp \
 		Matrix.cpp \
 		Shader.cpp \
 		windowEvents.cpp \
-		ModelLoader/Mesh.cpp
+\
+		ModelLoader/Mesh.cpp \
+		ModelLoader/Model.cpp
 
 HEAD =	Matrix.hpp \
 		Shader.hpp \
-		humanGL.hpp  \
-		Mesh.hpp
+		humanGL.hpp \
+		Mesh.hpp \
+		Model.hpp
 
 CC = g++
 DEBUG_FLAGS = -g3 -fsanitize=address
