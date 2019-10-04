@@ -47,6 +47,7 @@ namespace mat {
 	class Vec : public BaseMat {
 		public:
 			Vec(int size);
+			Vec(BaseMat mat);
 			Vec(int size, std::vector<float> data);
 			~Vec();
 
@@ -55,6 +56,7 @@ namespace mat {
 			float &get(int x);
 			const float &operator[](const int idx) const;
 			float &operator[](const int idx);
+			Vec &normalize();
 
 			/*
 			xyzw and rgb are 'shortcut' to acces to the datas
@@ -72,6 +74,8 @@ namespace mat {
 	class Vec2 : public Vec {
 		public:
 			Vec2();  // 0 0
+			Vec2(Vec vec);
+			Vec2(float _x, float _y);
 			Vec2(std::vector<float> data);
 			~Vec2();
 		protected:
@@ -80,6 +84,8 @@ namespace mat {
 	class Vec3 : public Vec {
 		public:
 			Vec3();  // 0 0 0
+			Vec3(float _x, float _y, float _z);
+			Vec3(Vec vec);
 			Vec3(std::vector<float> data);
 			~Vec3();
 		protected:
@@ -88,6 +94,8 @@ namespace mat {
 	class Vec4 : public Vec {
 		public:
 			Vec4();  // 0 0 0 1
+			Vec4(Vec vec);
+			Vec4(float _x, float _y, float _z, float _w=1);
 			Vec4(std::vector<float> data);
 			~Vec4();
 		protected:
@@ -97,6 +105,7 @@ namespace mat {
 	class SquareMat : public BaseMat {
 		public:
 			SquareMat(int size, bool identity=true);
+			SquareMat(BaseMat mat);
 			SquareMat(int size, std::vector<float> data);
 			~SquareMat();
 
@@ -107,6 +116,7 @@ namespace mat {
 	class Mat2 : public SquareMat {
 		public:
 			Mat2(bool identity=true);
+			Mat2(SquareMat mat);
 			Mat2(std::vector<float> data);
 			~Mat2();
 		protected:
@@ -115,6 +125,7 @@ namespace mat {
 	class Mat3 : public SquareMat {
 		public:
 			Mat3(bool identity=true);
+			Mat3(SquareMat mat);
 			Mat3(std::vector<float> data);
 			~Mat3();
 		protected:
@@ -123,6 +134,7 @@ namespace mat {
 	class Mat4 : public SquareMat {
 		public:
 			Mat4(bool identity=true);
+			Mat4(SquareMat mat);
 			Mat4(std::vector<float> data);
 			~Mat4();
 

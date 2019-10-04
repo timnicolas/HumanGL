@@ -9,6 +9,8 @@ using namespace mat;
 Vec2
 */
 Vec2::Vec2() : Vec(2) {}
+Vec2::Vec2(Vec vec) : Vec(vec.getSize(), vec.getData()) {}
+Vec2::Vec2(float _x, float _y) : Vec(2, std::vector<float>{_x, _y}) {}
 Vec2::Vec2(std::vector<float> data) : Vec(2, data) {}
 Vec2::~Vec2() {}
 
@@ -17,6 +19,8 @@ Vec2::~Vec2() {}
 Vec3
 */
 Vec3::Vec3() : Vec(3) {}
+Vec3::Vec3(Vec vec) : Vec(vec.getSize(), vec.getData()) {}
+Vec3::Vec3(float _x, float _y, float _z) : Vec(3, std::vector<float>{_x, _y, _z}) {}
 Vec3::Vec3(std::vector<float> data) : Vec(3, data) {}
 Vec3::~Vec3() {}
 
@@ -25,6 +29,8 @@ Vec3::~Vec3() {}
 Vec4
 */
 Vec4::Vec4() : Vec(4, std::vector<float>{0, 0, 0, 1}) {}
+Vec4::Vec4(Vec vec) : Vec(vec.getSize(), vec.getData()) {}
+Vec4::Vec4(float _x, float _y, float _z, float _w) : Vec(4, std::vector<float>{_x, _y, _z, _w}) {}
 Vec4::Vec4(std::vector<float> data) : Vec(4, data) {}
 Vec4::~Vec4() {}
 
@@ -33,6 +39,7 @@ Vec4::~Vec4() {}
 Mat2
 */
 Mat2::Mat2(bool identity) : SquareMat(2, identity) {}
+Mat2::Mat2(SquareMat mat) : SquareMat(mat.getSize(), mat.getData()) {}
 Mat2::Mat2(std::vector<float> data) : SquareMat(2, data) {}
 Mat2::~Mat2() {}
 
@@ -41,6 +48,7 @@ Mat2::~Mat2() {}
 Mat3
 */
 Mat3::Mat3(bool identity) : SquareMat(3, identity) {}
+Mat3::Mat3(SquareMat mat) : SquareMat(mat.getSize(), mat.getData()) {}
 Mat3::Mat3(std::vector<float> data) : SquareMat(3, data) {}
 Mat3::~Mat3() {}
 
@@ -49,6 +57,7 @@ Mat3::~Mat3() {}
 Mat4
 */
 Mat4::Mat4(bool identity) : SquareMat(4, identity) {}
+Mat4::Mat4(SquareMat mat) : SquareMat(mat.getSize(), mat.getData()) {}
 Mat4::Mat4(std::vector<float> data) : SquareMat(4, data) {}
 
 Mat4 Mat4::scale(float valX, float valY, float valZ) {
@@ -76,6 +85,10 @@ Mat4 Mat4::translate(Vec3 val) {
 	return translate(val.x, val.y, val.z);
 }
 Mat4 Mat4::rotateRad(float radians, float axX, float axY, float axZ) {
+	Vec3 vec = Vec3(Vec3(axX, axY, axZ).normalize());
+	axX = vec.x;
+	axY = vec.y;
+	axZ = vec.z;
 	Mat4 res = Mat4();
 	float cosA = std::cos(radians);
 	float sinA = std::sin(radians);
@@ -88,7 +101,7 @@ Mat4 Mat4::rotateRad(float radians, float axX, float axY, float axZ) {
 	res.get(2, 0) = axZ * axX * (1 - cosA) - axY * sinA;
 	res.get(2, 1) = axZ * axY * (1 - cosA) + axX * sinA;
 	res.get(2, 2) = cosA + std::pow(axZ, 2) * (1 - cosA);
-	// res = *this * res;
+	res = Mat4(BaseMat(*this * res));
 	return res;
 }
 Mat4 Mat4::rotateRad(float radians, Vec3 axis) {
@@ -117,6 +130,7 @@ r(get(0)),
 g(get((getSize() >= 2) ? 1 : 0)),
 b(get((getSize() >= 3) ? 2 : 0)) {
 }
+Vec::Vec(BaseMat mat) : Vec(mat.getLns(), mat.getData()) {}
 Vec::Vec(int size, std::vector<float> data) :
 BaseMat(size, 1, data),
 x(get(0)),
@@ -134,6 +148,21 @@ float &Vec::get(int x) { return (*_data)[x]; }
 float &Vec::operator[](const int idx) { return get(idx); }
 const float &Vec::operator[](const int idx) const { return get(idx); }
 
+Vec &Vec::normalize() {
+	Vec *norm = new Vec(getSize(), getData());
+	float len = 0;
+	for (int i=0; i < getSize(); i++) {
+		len += get(i) * get(i);
+	}
+	if (len > 0) {
+		len = std::sqrt(len);
+		for (int i=0; i < getSize(); i++) {
+			norm->get(i) /= len;
+		}
+	}
+	return *norm;
+}
+
 Vec::~Vec() {}
 
 /*
@@ -147,6 +176,7 @@ SquareMat::SquareMat(int size, bool identity) : BaseMat(size) {
 		}
 	}
 }
+SquareMat::SquareMat(BaseMat mat) : BaseMat(mat.getLns(), mat.getCols(), mat.getData()) {}
 SquareMat::SquareMat(int size, std::vector<float> data) : BaseMat(size, size, data) {}
 int SquareMat::getSize() const { return getLns(); }
 SquareMat::~SquareMat() {}
