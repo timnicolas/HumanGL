@@ -110,13 +110,31 @@ aiTextureType type, TextureT textType) {
     std::vector<Texture>	textures;
 	aiString				str;
 	Texture					texture;
+	bool					skip;
 
     for (u_int32_t i = 0; i < mat->GetTextureCount(type); ++i) {
         mat->GetTexture(type, i, &str);
-        texture.id = textureFromFile(str.C_Str(), directory);
-        texture.type = textType;
-        texture.path = str.C_Str();
-        textures.push_back(texture);
+
+		skip = false;
+
+		// verify if the texture has been loaded already
+		for (u_int32_t j = 0; j < textures_loaded.size(); ++j) {
+			if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0) {
+				textures.push_back(textures_loaded[j]);
+				skip = true;
+				break;
+			}
+		}
+
+		// if not, load it
+		if (!skip) {
+			texture.id = textureFromFile(str.C_Str(), directory);
+			texture.type = textType;
+			texture.path = str.C_Str();
+			textures.push_back(texture);
+			// save to textures_loaded array to skip duplicate textures loading later
+			textures_loaded.push_back(texture);
+		}
     }
     return textures;
 }

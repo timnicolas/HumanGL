@@ -22,8 +22,9 @@ class Model {
 		Mesh	processMesh(aiMesh *mesh, const aiScene *scene);
 		std::vector<Texture>	loadMaterialTextures(aiMaterial *mat, aiTextureType type, TextureT textType);
 
-		std::vector<Mesh>	meshes;
-		std::string			directory;
+		std::vector<Mesh>		meshes;
+		std::string				directory;
+		std::vector<Texture>	textures_loaded;
 };
 
 #endif
