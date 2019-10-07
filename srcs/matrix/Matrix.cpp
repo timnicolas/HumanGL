@@ -9,9 +9,10 @@ using namespace mat;
 Vec2
 */
 Vec2::Vec2() : Vec(2) {}
-Vec2::Vec2(Vec vec) : Vec(vec.getSize(), vec.getData()) {}
-Vec2::Vec2(float _x, float _y) : Vec(2, std::vector<float>{_x, _y}) {}
+Vec2::Vec2(const Vec2 &vec) : Vec(vec.getSize(), vec.getData()) {}
+Vec2::Vec2(const BaseMat &mat) : Vec(2, mat.getData()) {}
 Vec2::Vec2(std::vector<float> data) : Vec(2, data) {}
+Vec2::Vec2(float _x, float _y) : Vec(2, std::vector<float>{_x, _y}) {}
 Vec2::~Vec2() {}
 
 /*
@@ -19,11 +20,12 @@ Vec2::~Vec2() {}
 Vec3
 */
 Vec3::Vec3() : Vec(3) {}
-Vec3::Vec3(Vec vec) : Vec(vec.getSize(), vec.getData()) {}
-Vec3::Vec3(Vec4 vec4) : Vec(3, std::vector<float>{vec4.x, vec4.y, vec4.z}) {}
-Vec3::Vec3(float _x, float _y, float _z) : Vec(3, std::vector<float>{_x, _y, _z}) {}
+Vec3::Vec3(const Vec3 &vec) : Vec(vec.getSize(), vec.getData()) {}
+Vec3::Vec3(const Vec4 &vec4) : Vec(3, std::vector<float>{vec4.x, vec4.y, vec4.z}) {}
+Vec3::Vec3(const BaseMat &mat) : Vec(3, mat.getData()) {}
 Vec3::Vec3(std::vector<float> data) : Vec(3, data) {}
-Vec3::~Vec3() {}
+Vec3::Vec3(float _x, float _y, float _z) : Vec(3, std::vector<float>{_x, _y, _z}) {}
+
 Vec3 Vec3::cross(const Vec3 &v) const
 {
 	Vec3 c;
@@ -35,15 +37,18 @@ Vec3 Vec3::cross(const Vec3 &v) const
 	return c;
 }
 
+Vec3::~Vec3() {}
+
 /*
 --------------------------------------------------------------------------------
 Vec4
 */
 Vec4::Vec4() : Vec(4, std::vector<float>{0, 0, 0, 1}) {}
-Vec4::Vec4(Vec vec) : Vec(vec.getSize(), vec.getData()) {}
-Vec4::Vec4(Vec3 vec3) : Vec(4, std::vector<float>{vec3.x, vec3.y, vec3.z, 1}) {}
-Vec4::Vec4(float _x, float _y, float _z, float _w) : Vec(4, std::vector<float>{_x, _y, _z, _w}) {}
+Vec4::Vec4(const Vec4 &vec) : Vec(vec.getSize(), vec.getData()) {}
+Vec4::Vec4(const Vec3 &vec3) : Vec(4, std::vector<float>{vec3.x, vec3.y, vec3.z, 1}) {}
+Vec4::Vec4(const BaseMat &mat) : Vec(4, mat.getData()) {}
 Vec4::Vec4(std::vector<float> data) : Vec(4, data) {}
+Vec4::Vec4(float _x, float _y, float _z, float _w) : Vec(4, std::vector<float>{_x, _y, _z, _w}) {}
 Vec4::~Vec4() {}
 
 /*
@@ -372,3 +377,9 @@ namespace mat {
 BaseMat::~BaseMat() {
 	delete _data;
 }
+
+/* all cast */
+BaseMat::operator 	Vec()	const { return Vec(*this); }
+BaseMat::operator	Vec2()	const { return Vec2(*this); }
+BaseMat::operator	Vec3()	const { return Vec3(*this); }
+BaseMat::operator	Vec4()	const { return Vec4(*this); }

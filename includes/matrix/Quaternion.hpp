@@ -30,7 +30,7 @@ namespace mat {
 
 /*
 // example -> creating quaternion
-mat::Vec3 lookat = mat::Vec3(mat::Vec3(1, 2, 0).normalize());
+mat::Vec3 lookat = mat::Vec3(1, 2, 0).normalize();
 float rotateDeg = 25;
 
 std::cout << "rotation of " << rotateDeg << "deg on vector:\n" << lookat;

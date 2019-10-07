@@ -4,6 +4,10 @@
 #include <vector>
 
 namespace mat {
+	class Vec;
+	class Vec2;
+	class Vec3;
+	class Vec4;
 	class BaseMat {
 		public:
 			BaseMat(int lns, int cols);  // init with zero matrix
@@ -33,6 +37,12 @@ namespace mat {
 			BaseMat &operator=(const BaseMat &other);
 			explicit operator std::vector<float>() const { return *_data; };
 			explicit operator float*() const { return static_cast<float*>(&(*_data)[0]); };
+
+			/* cast */
+			operator Vec() const;
+			operator Vec2() const;
+			operator Vec3() const;
+			operator Vec4() const;
 		protected:
 			int _lns;  // number of lines (height)
 			int _cols;  // number of columns (width)
@@ -78,21 +88,22 @@ namespace mat {
 	class Vec2 : public Vec {
 		public:
 			Vec2();  // 0 0
-			Vec2(Vec vec);
-			Vec2(float _x, float _y);
+			Vec2(const Vec2 &vec);
+			Vec2(const BaseMat &mat);
 			Vec2(std::vector<float> data);
+			Vec2(float _x, float _y);
 			~Vec2();
 		protected:
 		private:
 	};
-	class Vec4;
 	class Vec3 : public Vec {
 		public:
 			Vec3();  // 0 0 0
-			Vec3(float _x, float _y, float _z);
-			Vec3(Vec vec);
-			Vec3(Vec4 vec4);
+			Vec3(const Vec3 &vec);
+			Vec3(const Vec4 &vec4);
+			Vec3(const BaseMat &mat);
 			Vec3(std::vector<float> data);
+			Vec3(float _x, float _y, float _z);
 			~Vec3();
 			Vec3 cross(const Vec3 &v) const;
 		protected:
@@ -101,10 +112,11 @@ namespace mat {
 	class Vec4 : public Vec {
 		public:
 			Vec4();  // 0 0 0 1
-			Vec4(Vec vec);
-			Vec4(Vec3 vec3);
-			Vec4(float _x, float _y, float _z, float _w=1);
+			Vec4(const Vec4 &vec);
+			Vec4(const Vec3 &vec3);
+			Vec4(const BaseMat &mat);
 			Vec4(std::vector<float> data);
+			Vec4(float _x, float _y, float _z, float _w=1);
 			~Vec4();
 		protected:
 		private:
