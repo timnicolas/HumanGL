@@ -12,6 +12,7 @@ void	game_loop(GLFWwindow *window) {
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+		checkErrorExit();  // check if there is an error in the main loop
 	}
 }
 
@@ -21,10 +22,12 @@ int main(void) {
 
 	if (!init_window(&window, "humanGl", &win_u))
 		return (1);
+	checkErrorExit();
 
 	try
 	{
 		Shader sh1("shaders/basic_vs.glsl", "shaders/basic_fs.glsl");
+		checkErrorExit();
 	}
 	catch(const std::exception& e)
 	{
@@ -32,6 +35,7 @@ int main(void) {
 	}
 
 	game_loop(window);
+	checkErrorExit();
 
 	return 0;
 }

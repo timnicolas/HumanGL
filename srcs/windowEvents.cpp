@@ -64,6 +64,7 @@ bool	init_window(GLFWwindow **window, const char *name, t_win_user *win_u)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	*window = glfwCreateWindow(SCREEN_W, SCREEN_H, name, NULL, NULL);
+	checkErrorExit();
 	if (!(*window))
 	{
 		fprintf(stderr, "Fail to create glfw3 window\n");
@@ -79,5 +80,6 @@ bool	init_window(GLFWwindow **window, const char *name, t_win_user *win_u)
 	glEnable(GL_DEPTH_TEST);
 
 	glfwSetWindowUserPointer(*window, win_u);
+	checkErrorExit();
 	return (true);
 }

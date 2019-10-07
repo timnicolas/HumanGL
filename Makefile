@@ -12,7 +12,8 @@ SRC =	main.cpp \
 		matrix/Quaternion.cpp \
 		Shader.cpp \
 		windowEvents.cpp \
-		ModelLoader/Mesh.cpp
+		ModelLoader/Mesh.cpp \
+		utils.cpp
 
 HEAD =	matrix/Matrix.hpp \
 		matrix/Quaternion.hpp \
