@@ -8,25 +8,27 @@ OBJS_DIR	= objs
 INC_DIR		= includes
 
 SRC =	main.cpp \
-		Matrix.cpp \
+		matrix/Matrix.cpp \
+		matrix/Quaternion.cpp \
 		Shader.cpp \
 		windowEvents.cpp \
 		ModelLoader/Mesh.cpp
 
 HEAD =	Matrix.hpp \
+		Quaternion.hpp \
 		Shader.hpp \
 		humanGL.hpp  \
 		Mesh.hpp
 
 CC = g++
 DEBUG_FLAGS = -g3 -fsanitize=address
+LIBS_FLAGS	= -L ~/.brew/lib -framework OpenGL -lglfw
 CFLAGS = -Wno-deprecated -Wall -Wextra -std=c++0x#-Werror
 
 HEADS	= $(addprefix $(INC_DIR)/, $(HEAD))
 OBJS	= $(addprefix $(OBJS_DIR)/, $(SRC:.cpp=.o))
 INC		= -I $(INC_DIR) -I ~/.brew/include
 
-LIBS_FLAGS	= -L ~/.brew/lib -framework OpenGL -lglfw
 
 NORMAL = "\x1B[0m"
 RED = "\x1B[31m"
