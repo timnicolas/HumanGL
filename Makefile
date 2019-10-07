@@ -8,17 +8,20 @@ OBJS_DIR	= objs
 INC_DIR		= includes
 
 SRC =	main.cpp \
-		Matrix.cpp \
+		matrix/Matrix.cpp \
+		matrix/Quaternion.cpp \
 		Shader.cpp \
 		windowEvents.cpp \
 		Camera.cpp \
+		utils.cpp \
 \
 		ModelLoader/Mesh.cpp \
 		ModelLoader/Model.cpp \
 		ModelLoader/Texture.cpp
 
 HEAD =	commonInclude.hpp \
-		Matrix.hpp \
+		matrix/Matrix.hpp \
+		matrix/Quaternion.hpp \
 		Shader.hpp \
 		humanGL.hpp \
 		Mesh.hpp \
@@ -29,13 +32,12 @@ HEAD =	commonInclude.hpp \
 
 CC = g++
 DEBUG_FLAGS = -g3 -fsanitize=address
+LIBS_FLAGS	= -L ~/.brew/lib -framework OpenGL -lglfw -lassimp
 CFLAGS = -Wno-deprecated -Wall -Wextra -std=c++0x#-Werror
 
 HEADS	= $(addprefix $(INC_DIR)/, $(HEAD))
 OBJS	= $(addprefix $(OBJS_DIR)/, $(SRC:.cpp=.o))
-INC		= -I $(INC_DIR) -I ~/.brew/include
-
-LIBS_FLAGS	= -L ~/.brew/lib -framework OpenGL -lglfw -lassimp
+INC		= -I $(INC_DIR) $(addprefix -I , $(addprefix $(INC_DIR)/, $(dir $(HEAD)))) -I ~/.brew/include
 
 NORMAL = "\x1B[0m"
 RED = "\x1B[31m"

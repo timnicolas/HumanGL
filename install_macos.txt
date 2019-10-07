@@ -1,0 +1,3 @@
+brew install glfw3
+brew install glm
+brew install assimp

@@ -32,6 +32,7 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+		checkErrorExit();  // check if there is an error in the main loop
 	}
 }
 
@@ -59,6 +60,7 @@ int		main(int argc, char const **argv) {
 
 	if (!init(&window, "humanGl", &winU, &cam))
 		return (1);
+	checkErrorExit();
 
 	try
 	{
@@ -68,6 +70,7 @@ int		main(int argc, char const **argv) {
 
 		gameLoop(window, cam, sh1, model);
 
+		checkErrorExit();
 	}
 	catch(const std::exception& e)
 	{

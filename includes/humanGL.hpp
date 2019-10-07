@@ -15,4 +15,10 @@ typedef struct	sWinUser
 bool	initWindow(GLFWwindow **window, const char *name, tWinUser *winU);
 void	processInput(GLFWwindow *window);
 
+/* define error function */
+GLenum checkError_(const char *file, int line);
+void checkErrorExit_(const char *file, int line);
+#define checkError() checkError_(__FILE__, __LINE__)
+#define checkErrorExit() checkErrorExit_(__FILE__, __LINE__)
+
 #endif
