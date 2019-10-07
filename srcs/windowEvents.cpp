@@ -103,6 +103,8 @@ bool	initWindow(GLFWwindow **window, const char *name, tWinUser *winU)
 	glfwSetKeyCallback(*window, keyCb);
 	glfwSetScrollCallback(*window, scrollCb);
 
+	glfwSetInputMode(*window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	glEnable(GL_DEPTH_TEST);
 
 	glfwSetWindowUserPointer(*window, winU);

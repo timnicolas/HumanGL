@@ -8,18 +8,20 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {
 	tWinUser	*winU;
 
 	winU = (tWinUser *)glfwGetWindowUserPointer(window);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// enable the shader before setting uniform
 		sh.use();
+
 		// view matrix
-		glm::mat4 view = cam.getViewMatrix();
+		glm::mat4	view = cam.getViewMatrix();
         sh.setMat4("view", view);
 		// projection matrix
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), winU->width / winU->height, 0.1f, 100.0f);
+		glm::mat4	projection = glm::perspective(glm::radians(cam.zoom), winU->width / winU->height, 0.1f, 100.0f);
         sh.setMat4("projection", projection);
 		// model matrix
 		glm::mat4	model = glm::mat4(1.0f);
@@ -34,6 +36,8 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {
 		glfwPollEvents();
 		checkErrorExit();  // check if there is an error in the main loop
 	}
+
+	glfwTerminate();
 }
 
 bool	init(GLFWwindow **window, const char *name, tWinUser *winU, Camera *cam) {
