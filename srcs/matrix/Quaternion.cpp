@@ -10,7 +10,7 @@ vec(Vec3()) {
 	vec = v * sin(rad/2);
 	w = std::cos(rad/2);
 }
-Quaternion::Quaternion() : Quaternion(0, Vec3(1, 0, 0)) {}
+Quaternion::Quaternion() : Quaternion(1, Vec3(0, 0, 0)) {}
 
 const Quaternion Quaternion::inverted() const {
 	Quaternion ret;
