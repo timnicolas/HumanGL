@@ -8,6 +8,10 @@ namespace mat {
 	class Vec2;
 	class Vec3;
 	class Vec4;
+	class SquareMat;
+	class Mat2;
+	class Mat3;
+	class Mat4;
 	class BaseMat {
 		public:
 			BaseMat(int lns, int cols);  // init with zero matrix
@@ -37,12 +41,6 @@ namespace mat {
 			BaseMat &operator=(const BaseMat &other);
 			explicit operator std::vector<float>() const { return *_data; };
 			explicit operator float*() const { return static_cast<float*>(&(*_data)[0]); };
-
-			/* cast */
-			operator Vec() const;
-			operator Vec2() const;
-			operator Vec3() const;
-			operator Vec4() const;
 		protected:
 			int _lns;  // number of lines (height)
 			int _cols;  // number of columns (width)
@@ -82,6 +80,12 @@ namespace mat {
 			float &r;
 			float &g;
 			float &b;
+
+			friend Vec operator*(const Vec &v, const float other);
+			friend Vec operator+(const Vec &m, const float other);
+			friend Vec operator+(const Vec &m, const BaseMat other);
+			friend Vec operator-(const Vec &m, const float other);
+			friend Vec operator-(const Vec &m, const BaseMat other);
 		protected:
 		private:
 	};
@@ -93,6 +97,12 @@ namespace mat {
 			Vec2(std::vector<float> data);
 			Vec2(float _x, float _y);
 			~Vec2();
+
+			friend Vec2 operator*(const Vec2 &v, const float other);
+			friend Vec2 operator+(const Vec2 &m, const float other);
+			friend Vec2 operator+(const Vec2 &m, const BaseMat other);
+			friend Vec2 operator-(const Vec2 &m, const float other);
+			friend Vec2 operator-(const Vec2 &m, const BaseMat other);
 		protected:
 		private:
 	};
@@ -106,6 +116,12 @@ namespace mat {
 			Vec3(float _x, float _y, float _z);
 			~Vec3();
 			Vec3 cross(const Vec3 &v) const;
+
+			friend Vec3 operator*(const Vec3 &v, const float other);
+			friend Vec3 operator+(const Vec3 &m, const float other);
+			friend Vec3 operator+(const Vec3 &m, const BaseMat other);
+			friend Vec3 operator-(const Vec3 &m, const float other);
+			friend Vec3 operator-(const Vec3 &m, const BaseMat other);
 		protected:
 		private:
 	};
@@ -118,6 +134,12 @@ namespace mat {
 			Vec4(std::vector<float> data);
 			Vec4(float _x, float _y, float _z, float _w=1);
 			~Vec4();
+
+			friend Vec4 operator*(const Vec4 &v, const float other);
+			friend Vec4 operator+(const Vec4 &m, const float other);
+			friend Vec4 operator+(const Vec4 &m, const BaseMat other);
+			friend Vec4 operator-(const Vec4 &m, const float other);
+			friend Vec4 operator-(const Vec4 &m, const BaseMat other);
 		protected:
 		private:
 	};
@@ -130,6 +152,13 @@ namespace mat {
 			~SquareMat();
 
 			int getSize() const;
+
+			friend SquareMat operator*(SquareMat m, const float other);
+			friend SquareMat operator*(SquareMat m, const BaseMat other);
+			friend SquareMat operator+(SquareMat m, const float other);
+			friend SquareMat operator+(SquareMat m, const BaseMat other);
+			friend SquareMat operator-(SquareMat m, const float other);
+			friend SquareMat operator-(SquareMat m, const BaseMat other);
 		protected:
 		private:
 	};

@@ -13,6 +13,15 @@ Vec2::Vec2(const Vec2 &vec) : Vec(vec.getSize(), vec.getData()) {}
 Vec2::Vec2(const BaseMat &mat) : Vec(2, mat.getData()) {}
 Vec2::Vec2(std::vector<float> data) : Vec(2, data) {}
 Vec2::Vec2(float _x, float _y) : Vec(2, std::vector<float>{_x, _y}) {}
+
+namespace mat {
+	Vec2 operator*(const Vec2 &v, const float other) { return Vec2(BaseMat(v) * other); }
+	Vec2 operator+(const Vec2 &v, const float other) { return Vec2(BaseMat(v) + other); }
+	Vec2 operator+(const Vec2 &v, const BaseMat other) { return Vec2(BaseMat(v) + other); }
+	Vec2 operator-(const Vec2 &v, const float other) { return Vec2(BaseMat(v) - other); }
+	Vec2 operator-(const Vec2 &v, const BaseMat other) { return Vec2(BaseMat(v) - other); }
+}
+
 Vec2::~Vec2() {}
 
 /*
@@ -37,6 +46,14 @@ Vec3 Vec3::cross(const Vec3 &v) const
 	return c;
 }
 
+namespace mat {
+	Vec3 operator*(const Vec3 &v, const float other) { return Vec3(BaseMat(v) * other); }
+	Vec3 operator+(const Vec3 &v, const float other) { return Vec3(BaseMat(v) + other); }
+	Vec3 operator+(const Vec3 &v, const BaseMat other) { return Vec3(BaseMat(v) + other); }
+	Vec3 operator-(const Vec3 &v, const float other) { return Vec3(BaseMat(v) - other); }
+	Vec3 operator-(const Vec3 &v, const BaseMat other) { return Vec3(BaseMat(v) - other); }
+}
+
 Vec3::~Vec3() {}
 
 /*
@@ -49,6 +66,15 @@ Vec4::Vec4(const Vec3 &vec3) : Vec(4, std::vector<float>{vec3.x, vec3.y, vec3.z,
 Vec4::Vec4(const BaseMat &mat) : Vec(4, mat.getData()) {}
 Vec4::Vec4(std::vector<float> data) : Vec(4, data) {}
 Vec4::Vec4(float _x, float _y, float _z, float _w) : Vec(4, std::vector<float>{_x, _y, _z, _w}) {}
+
+namespace mat {
+	Vec4 operator*(const Vec4 &v, const float other) { return Vec4(BaseMat(v) * other); }
+	Vec4 operator+(const Vec4 &v, const float other) { return Vec4(BaseMat(v) + other); }
+	Vec4 operator+(const Vec4 &v, const BaseMat other) { return Vec4(BaseMat(v) + other); }
+	Vec4 operator-(const Vec4 &v, const float other) { return Vec4(BaseMat(v) - other); }
+	Vec4 operator-(const Vec4 &v, const BaseMat other) { return Vec4(BaseMat(v) - other); }
+}
+
 Vec4::~Vec4() {}
 
 /*
@@ -58,6 +84,16 @@ Mat2
 Mat2::Mat2(bool identity) : SquareMat(2, identity) {}
 Mat2::Mat2(SquareMat mat) : SquareMat(mat.getSize(), mat.getData()) {}
 Mat2::Mat2(std::vector<float> data) : SquareMat(2, data) {}
+
+namespace mat {
+	Mat2 operator*(Mat2 m, const float other) { return Mat2(BaseMat(m) * other); }
+	Mat2 operator*(Mat2 m, const BaseMat other) { return Mat2(BaseMat(m) * other); }
+	Mat2 operator+(Mat2 m, const float other) { return Mat2(BaseMat(m) + other); }
+	Mat2 operator+(Mat2 m, const BaseMat other) { return Mat2(BaseMat(m) + other); }
+	Mat2 operator-(Mat2 m, const float other) { return Mat2(BaseMat(m) - other); }
+	Mat2 operator-(Mat2 m, const BaseMat other) { return Mat2(BaseMat(m) - other); }
+}
+
 Mat2::~Mat2() {}
 
 /*
@@ -67,6 +103,16 @@ Mat3
 Mat3::Mat3(bool identity) : SquareMat(3, identity) {}
 Mat3::Mat3(SquareMat mat) : SquareMat(mat.getSize(), mat.getData()) {}
 Mat3::Mat3(std::vector<float> data) : SquareMat(3, data) {}
+
+namespace mat {
+	Mat3 operator*(Mat3 m, const float other) { return Mat3(BaseMat(m) * other); }
+	Mat3 operator*(Mat3 m, const BaseMat other) { return Mat3(BaseMat(m) * other); }
+	Mat3 operator+(Mat3 m, const float other) { return Mat3(BaseMat(m) + other); }
+	Mat3 operator+(Mat3 m, const BaseMat other) { return Mat3(BaseMat(m) + other); }
+	Mat3 operator-(Mat3 m, const float other) { return Mat3(BaseMat(m) - other); }
+	Mat3 operator-(Mat3 m, const BaseMat other) { return Mat3(BaseMat(m) - other); }
+}
+
 Mat3::~Mat3() {}
 
 /*
@@ -118,7 +164,7 @@ Mat4 Mat4::rotateRad(float radians, float axX, float axY, float axZ) {
 	res.get(2, 0) = axZ * axX * (1 - cosA) - axY * sinA;
 	res.get(2, 1) = axZ * axY * (1 - cosA) + axX * sinA;
 	res.get(2, 2) = cosA + std::pow(axZ, 2) * (1 - cosA);
-	res = Mat4(BaseMat(*this * res));
+	res = *this * res;
 	return res;
 }
 Mat4 Mat4::rotateRad(float radians, Vec3 axis) {
@@ -129,6 +175,15 @@ Mat4 Mat4::rotateDeg(float degrees, float axX, float axY, float axZ) {
 }
 Mat4 Mat4::rotateDeg(float degrees, Vec3 axis) {
 	return rotateDeg(degrees, axis.x, axis.y, axis.z);
+}
+
+namespace mat {
+	Mat4 operator*(Mat4 m, const float other) { return Mat4(BaseMat(m) * other); }
+	Mat4 operator*(Mat4 m, const BaseMat other) { return Mat4(BaseMat(m) * other); }
+	Mat4 operator+(Mat4 m, const float other) { return Mat4(BaseMat(m) + other); }
+	Mat4 operator+(Mat4 m, const BaseMat other) { return Mat4(BaseMat(m) + other); }
+	Mat4 operator-(Mat4 m, const float other) { return Mat4(BaseMat(m) - other); }
+	Mat4 operator-(Mat4 m, const BaseMat other) { return Mat4(BaseMat(m) - other); }
 }
 
 Mat4::~Mat4() {}
@@ -208,6 +263,14 @@ float Vec::dot(const Vec &v) const
 	return res;
 }
 
+namespace mat {
+	Vec operator*(const Vec &v, const float other) { return Vec(BaseMat(v) * other); }
+	Vec operator+(const Vec &v, const float other) { return Vec(BaseMat(v) + other); }
+	Vec operator+(const Vec &v, const BaseMat other) { return Vec(BaseMat(v) + other); }
+	Vec operator-(const Vec &v, const float other) { return Vec(BaseMat(v) - other); }
+	Vec operator-(const Vec &v, const BaseMat other) { return Vec(BaseMat(v) - other); }
+}
+
 Vec::~Vec() {}
 
 /*
@@ -224,6 +287,16 @@ SquareMat::SquareMat(int size, bool identity) : BaseMat(size) {
 SquareMat::SquareMat(BaseMat mat) : BaseMat(mat.getLns(), mat.getCols(), mat.getData()) {}
 SquareMat::SquareMat(int size, std::vector<float> data) : BaseMat(size, size, data) {}
 int SquareMat::getSize() const { return getLns(); }
+
+namespace mat {
+	SquareMat operator*(SquareMat m, const float other) { return SquareMat(BaseMat(m) * other); }
+	SquareMat operator*(SquareMat m, const BaseMat other) { return SquareMat(BaseMat(m) * other); }
+	SquareMat operator+(SquareMat m, const float other) { return SquareMat(BaseMat(m) + other); }
+	SquareMat operator+(SquareMat m, const BaseMat other) { return SquareMat(BaseMat(m) + other); }
+	SquareMat operator-(SquareMat m, const float other) { return SquareMat(BaseMat(m) - other); }
+	SquareMat operator-(SquareMat m, const BaseMat other) { return SquareMat(BaseMat(m) - other); }
+}
+
 SquareMat::~SquareMat() {}
 
 /*
@@ -377,9 +450,3 @@ namespace mat {
 BaseMat::~BaseMat() {
 	delete _data;
 }
-
-/* all cast */
-BaseMat::operator 	Vec()	const { return Vec(*this); }
-BaseMat::operator	Vec2()	const { return Vec2(*this); }
-BaseMat::operator	Vec3()	const { return Vec3(*this); }
-BaseMat::operator	Vec4()	const { return Vec4(*this); }

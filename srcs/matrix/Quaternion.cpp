@@ -7,7 +7,7 @@ using namespace mat;
 Quaternion::Quaternion(float degrees, const Vec3 &v) :
 vec(Vec3()) {
 	float rad = degrees / 360 * (float)M_PI * 2;
-	vec = Vec3(v * sin(rad/2));
+	vec = v * sin(rad/2);
 	w = std::cos(rad/2);
 }
 Quaternion::Quaternion() : Quaternion(0, Vec3(1, 0, 0)) {}
@@ -15,7 +15,7 @@ Quaternion::Quaternion() : Quaternion(0, Vec3(1, 0, 0)) {}
 const Quaternion Quaternion::inverted() const {
 	Quaternion ret;
 	ret.w = w;
-	ret.vec = Vec3(vec * -1);
+	ret.vec = vec * -1;
 	return ret;
 }
 
@@ -24,7 +24,7 @@ const Quaternion Quaternion::operator*(const Quaternion& other) const
 	Quaternion res;
 
 	res.w = w * other.w - vec.dot(other.vec);
-	res.vec = Vec3(vec * other.w + other.vec * w + vec.cross(other.vec));
+	res.vec = vec * other.w + other.vec * w + vec.cross(other.vec);
 
 	return res;
 }
@@ -46,7 +46,7 @@ const Vec4 Quaternion::operator*(const Vec4& other) const
 	p.vec = Vec3(other);
 
 	// basic formula = quat * vec * quat.inverted()
-	return Vec4((*this * p * this->inverted()).vec);
+	return (*this * p * this->inverted()).vec;
 }
 
 const Quaternion Quaternion::operator^(float t) const
@@ -75,7 +75,7 @@ void Quaternion::toAxisAngle(float &flAngle, Vec3 &vecAxis) const
 	if (vec.x * vec.x + vec.y * vec.y + vec.z * vec.z < 0.0001f)
 		vecAxis = Vec3(1, 0, 0);
 	else
-		vecAxis = Vec3(vec.normalize());
+		vecAxis = vec.normalize();
 
 	flAngle = std::acos(w) * 2;
 	flAngle *= 360 / ((float)M_PI * 2);
