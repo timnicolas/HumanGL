@@ -20,6 +20,7 @@ Vec3
 */
 Vec3::Vec3() : Vec(3) {}
 Vec3::Vec3(Vec vec) : Vec(vec.getSize(), vec.getData()) {}
+Vec3::Vec3(Vec4 vec4) : Vec(3, std::vector<float>{vec4.x, vec4.y, vec4.z}) {}
 Vec3::Vec3(float _x, float _y, float _z) : Vec(3, std::vector<float>{_x, _y, _z}) {}
 Vec3::Vec3(std::vector<float> data) : Vec(3, data) {}
 Vec3::~Vec3() {}
@@ -40,6 +41,7 @@ Vec4
 */
 Vec4::Vec4() : Vec(4, std::vector<float>{0, 0, 0, 1}) {}
 Vec4::Vec4(Vec vec) : Vec(vec.getSize(), vec.getData()) {}
+Vec4::Vec4(Vec3 vec3) : Vec(4, std::vector<float>{vec3.x, vec3.y, vec3.z, 1}) {}
 Vec4::Vec4(float _x, float _y, float _z, float _w) : Vec(4, std::vector<float>{_x, _y, _z, _w}) {}
 Vec4::Vec4(std::vector<float> data) : Vec(4, data) {}
 Vec4::~Vec4() {}

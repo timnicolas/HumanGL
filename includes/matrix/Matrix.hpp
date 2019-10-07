@@ -85,11 +85,13 @@ namespace mat {
 		protected:
 		private:
 	};
+	class Vec4;
 	class Vec3 : public Vec {
 		public:
 			Vec3();  // 0 0 0
 			Vec3(float _x, float _y, float _z);
 			Vec3(Vec vec);
+			Vec3(Vec4 vec4);
 			Vec3(std::vector<float> data);
 			~Vec3();
 			Vec3 cross(const Vec3 &v) const;
@@ -100,6 +102,7 @@ namespace mat {
 		public:
 			Vec4();  // 0 0 0 1
 			Vec4(Vec vec);
+			Vec4(Vec3 vec3);
 			Vec4(float _x, float _y, float _z, float _w=1);
 			Vec4(std::vector<float> data);
 			~Vec4();

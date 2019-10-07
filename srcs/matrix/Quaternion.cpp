@@ -35,12 +35,18 @@ const Vec3 Quaternion::operator*(const Vec3& other) const
 	p.w = 0;
 	p.vec = other;
 
-	/*
-	return (q * p * q.inverted()).vec;
-	*/
+	// basic formula = quat * vec * quat.inverted()
+	return (*this * p * this->inverted()).vec;
+}
 
-	Vec3 vcV = vec;
-	return Vec3(other + vcV * (2 * w) + vec.cross(vcV) * 2);
+const Vec4 Quaternion::operator*(const Vec4& other) const
+{
+	Quaternion p;
+	p.w = 0;
+	p.vec = Vec3(other);
+
+	// basic formula = quat * vec * quat.inverted()
+	return Vec4((*this * p * this->inverted()).vec);
 }
 
 const Quaternion Quaternion::operator^(float t) const
@@ -53,48 +59,14 @@ const Quaternion Quaternion::operator^(float t) const
 	return Quaternion(n, at);
 }
 
-const Quaternion Quaternion::slerp(const Quaternion &other, float t) const
+/*
+do a smooth rotation btw 2 points by varying step from 0 to 1
+*/
+const Quaternion Quaternion::slerp(const Quaternion &to, float step) const
 {
-	const Quaternion &q = *this;
-	Quaternion r = other;
+	const Quaternion &src = *this;
 
-	// return ((r * q.Inverted()) ^ t) * q;
-
-	float flCosOmega = w * r.w + r.vec.dot(vec);
-	if (flCosOmega < 0)
-	{
-		// Avoid going the long way around.
-		r.w = -r.w;
-		r.vec = Vec3(r.vec * -1);
-		flCosOmega = -flCosOmega;
-	}
-
-	float k0, k1;
-	if (flCosOmega > 0.9999f)
-	{
-		// Very close, use a linear interpolation.
-		k0 = 1 - t;
-		k1 = t;
-	}
-	else
-	{
-		// Trig identity, sin^2 + cos^2 = 1
-		float flSinOmega = std::sqrt(1 - flCosOmega * flCosOmega);
-
-		// Compute the angle omega
-		float flOmega = std::atan2(flSinOmega, flCosOmega);
-		float flOneOverSinOmega = 1 / flSinOmega;
-
-		k0 = std::sin((1 - t) * flOmega) * flOneOverSinOmega;
-		k1 = std::sin(t * flOmega) * flOneOverSinOmega;
-	}
-
-	// Interpolate
-	Quaternion result;
-	result.w = q.w * k0 + r.w * k1;
-	result.vec = Vec3(q.vec * k0 + r.vec * k1);
-
-	return result;
+	return ((to * src.inverted()) ^ step) * src;
 }
 
 void Quaternion::toAxisAngle(Vec3 &vecAxis, float &flAngle) const
@@ -107,4 +79,11 @@ void Quaternion::toAxisAngle(Vec3 &vecAxis, float &flAngle) const
 
 	flAngle = std::acos(w) * 2;
 	flAngle *= 360 / ((float)M_PI * 2);
+}
+
+namespace mat {
+	std::ostream &operator<<(std::ostream &out, const Quaternion &q) {
+		out << q.w << " + " << q.vec.x << "i + " << q.vec.y << "j + " << q.vec.z << "k";
+		return out;
+	}
 }

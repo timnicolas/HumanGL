@@ -1,16 +1,35 @@
 #include "Matrix.hpp"
+#include "Quaternion.hpp"
 
 int main(int ac, char **av) {
 	(void)ac;
 	(void)av;
-	mat::Mat4 mat4(true);
-	std::cout << mat4.translate(mat::Vec3(1, 3, 2)).rotateDeg(60, mat::Vec3(1, 2, 3));
-	mat::Vec3 vec3 = mat::Vec3(mat::Vec3(1, 3, 2) * 2);
-	mat::Vec3 vec = mat::Vec3(mat::Vec3(1, 2, 3).normalize());
-	std::cout << vec;
-	// std::vector<float> raw1 = static_cast<std::vector<float>>(mat4);
-	// float *raw2 = static_cast<float*>(mat4);
-	// std::cout << raw1[14] << raw1[15] << "\n";
-	// std::cout << raw2[14] << raw2[15] << "\n";
+	mat::Vec3 lookat = mat::Vec3(mat::Vec3(1, 2, 0).normalize());
+	float rotateDeg = 90;
+	std::cout << lookat;
+
+	mat::Mat4 rotateMat = mat::Mat4();  // identity
+	rotateMat = rotateMat.rotateDeg(rotateDeg, lookat);
+	std::cout << "rotation matrix:\n" << rotateMat;
+
+	mat::Quaternion rotateQuat = mat::Quaternion(lookat, rotateDeg);
+	std::cout << "quaterion: " << rotateQuat << "\n";
+
+	mat::Vec3 axisAngle;
+	float angle;
+	rotateQuat.toAxisAngle(axisAngle, angle);
+	std::cout << angle << "\n" << axisAngle;
+
+	mat::Vec4 basePoint = mat::Vec4(4, 1, 8);
+	std::cout << "rotate with matrix:\n" << rotateMat * basePoint;
+	std::cout << "rotate with Quaternion:\n" << rotateQuat * basePoint;
+
+	float rotateDegTo = 180;
+	mat::Quaternion to = mat::Quaternion(lookat, rotateDegTo);
+	std::cout << "\nbase point:\n" << basePoint << "\n";
+	std::cout << "to point:\n" << to * basePoint << "\n";
+	for (float i=0; i <= 1; i+= 0.2) {
+		std::cout << "rotate of " << i << ":\n" << rotateQuat.slerp(to, i) * basePoint << "\n";
+	}
 	return 0;
 }
