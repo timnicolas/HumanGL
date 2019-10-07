@@ -43,7 +43,7 @@ class Mesh {
 		std::vector<u_int32_t>	indices;
 		std::vector<Texture>	textures;
 	private:
-        void	setupMesh();
+        void	_setupMesh();
 
         u_int32_t	_vao;
         u_int32_t	_vbo;

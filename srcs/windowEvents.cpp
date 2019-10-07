@@ -32,7 +32,7 @@ void	keyCb(GLFWwindow *window, int key, int scancode, int action, int mods)
 		glfwSetWindowShouldClose(window, true);
 }
 
-void scrollCb(GLFWwindow *window, double xOffset, double yOffset) {
+void	scrollCb(GLFWwindow *window, double xOffset, double yOffset) {
 	tWinUser		*winU;
 
 	(void)xOffset;
