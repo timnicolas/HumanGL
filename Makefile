@@ -14,8 +14,8 @@ SRC =	main.cpp \
 		windowEvents.cpp \
 		ModelLoader/Mesh.cpp
 
-HEAD =	Matrix.hpp \
-		Quaternion.hpp \
+HEAD =	matrix/Matrix.hpp \
+		matrix/Quaternion.hpp \
 		Shader.hpp \
 		humanGL.hpp  \
 		Mesh.hpp
@@ -27,7 +27,7 @@ CFLAGS = -Wno-deprecated -Wall -Wextra -std=c++0x#-Werror
 
 HEADS	= $(addprefix $(INC_DIR)/, $(HEAD))
 OBJS	= $(addprefix $(OBJS_DIR)/, $(SRC:.cpp=.o))
-INC		= -I $(INC_DIR) -I ~/.brew/include
+INC		= -I $(INC_DIR) $(addprefix -I , $(addprefix $(INC_DIR)/, $(dir $(HEAD)))) -I ~/.brew/include
 
 
 NORMAL = "\x1B[0m"
