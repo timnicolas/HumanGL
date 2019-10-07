@@ -30,6 +30,7 @@ void	Mesh::draw(Shader &shader) const {
 	diffuseId = 0;
 	specularId = 0;
 
+	shader.use();
 	for (u_int16_t i = 0; i < textures.size(); ++i) {
 		glActiveTexture(GL_TEXTURE0 + i);
 

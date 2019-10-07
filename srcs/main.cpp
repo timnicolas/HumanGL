@@ -11,6 +11,7 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {
 		processInput(window);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		sh.use();
 		// view matrix
 		glm::mat4 view = cam.getViewMatrix();
         sh.setMat4("view", view);
