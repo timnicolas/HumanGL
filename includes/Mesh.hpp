@@ -37,7 +37,11 @@ class Mesh {
 
 		Mesh &operator=(Mesh const &rhs);
 
-		void	draw(Shader &shader) const;
+		u_int32_t	getVao() const;
+		u_int32_t	getVbo() const;
+		u_int32_t	getEbo() const;
+
+		void		draw(Shader &shader) const;
 
 		std::vector<Vertex>		vertices;
 		std::vector<u_int32_t>	indices;

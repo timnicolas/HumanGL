@@ -20,8 +20,18 @@ Camera::~Camera() {
 }
 
 Camera &Camera::operator=(Camera const &rhs) {
-	if (this != &rhs)
-		;
+	if (this != &rhs) {
+		pos = rhs.pos;
+		front = rhs.front;
+		up = rhs.up;
+		right = rhs.right;
+		worldUp = rhs.worldUp;
+		yaw = rhs.yaw;
+		pitch = rhs.pitch;
+		movementSpeed = rhs.movementSpeed;
+		mouseSensitivity = rhs.mouseSensitivity;
+		zoom = rhs.zoom;
+	}
 	return *this;
 }
 

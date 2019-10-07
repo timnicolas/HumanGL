@@ -12,13 +12,16 @@ Model::~Model() {
 }
 
 Model &Model::operator=(Model const &rhs) {
-	if (this != &rhs)
-		;
+	if (this != &rhs) {
+		_meshes = rhs.getMeshes();
+		_directory = rhs.getDirectory();
+		_texturesLoaded = rhs.getTexturesLoaded();
+	}
 	return *this;
 }
 
 void	Model::draw(Shader &shader) {
-	for (auto &mesh : meshes)
+	for (auto &mesh : _meshes)
 		mesh.draw(shader);
 }
 
@@ -36,7 +39,7 @@ void	Model::loadModel(std::string path) {
 		std::cerr << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
 		throw Model::AssimpError();
 	}
-	directory = path.substr(0, path.find_last_of('/'));
+	_directory = path.substr(0, path.find_last_of('/'));
 
 	processNode(scene->mRootNode, scene);
 }
@@ -44,10 +47,10 @@ void	Model::loadModel(std::string path) {
 void	Model::processNode(aiNode *node, const aiScene *scene) {
 	aiMesh	*mesh;
 
-	// process all the node's meshes (if any)
+	// process all the node's _meshes (if any)
 	for (u_int32_t i = 0; i < node->mNumMeshes; i++) {
 		mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(processMesh(mesh, scene));
+		_meshes.push_back(processMesh(mesh, scene));
 	}
 	// recursion with each of its children
 	for (u_int32_t i = 0; i < node->mNumChildren; ++i)
@@ -120,9 +123,9 @@ aiTextureType type, TextureT textType) {
 		skip = false;
 
 		// verify if the texture has been loaded already
-		for (u_int32_t j = 0; j < texturesLoaded.size(); ++j) {
-			if (std::strcmp(texturesLoaded[j].path.data(), str.C_Str()) == 0) {
-				textures.push_back(texturesLoaded[j]);
+		for (u_int32_t j = 0; j < _texturesLoaded.size(); ++j) {
+			if (std::strcmp(_texturesLoaded[j].path.data(), str.C_Str()) == 0) {
+				textures.push_back(_texturesLoaded[j]);
 				skip = true;
 				break;
 			}
@@ -130,12 +133,12 @@ aiTextureType type, TextureT textType) {
 
 		// if not, load it
 		if (!skip) {
-			texture.id = textureFromFile(str.C_Str(), directory);
+			texture.id = textureFromFile(str.C_Str(), _directory);
 			texture.type = textType;
 			texture.path = str.C_Str();
 			textures.push_back(texture);
-			// save to texturesLoaded array to skip duplicate textures loading later
-			texturesLoaded.push_back(texture);
+			// save to _texturesLoaded array to skip duplicate textures loading later
+			_texturesLoaded.push_back(texture);
 		}
     }
     return textures;
@@ -143,4 +146,14 @@ aiTextureType type, TextureT textType) {
 
 const char* Model::AssimpError::what() const throw() {
     return ("Assimp failed to load the model!");
+}
+
+std::vector<Mesh>		Model::getMeshes() const {
+	return _meshes;
+}
+std::string				Model::getDirectory() const {
+	return _directory;
+}
+std::vector<Texture>	Model::getTexturesLoaded() const {
+	return _texturesLoaded;
 }

@@ -15,6 +15,10 @@ class Model {
 
 		Model &operator=(Model const &rhs);
 
+		std::vector<Mesh>		getMeshes() const;
+		std::string				getDirectory() const;
+		std::vector<Texture>	getTexturesLoaded() const;
+
 		void draw(Shader &shader);
 
 		class AssimpError : public std::exception {
@@ -22,14 +26,15 @@ class Model {
 				virtual const char* what() const throw();
 		};
 	private:
-		void	loadModel(std::string path);
-		void	processNode(aiNode *node, const aiScene *scene);
-		Mesh	processMesh(aiMesh *mesh, const aiScene *scene);
-		std::vector<Texture>	loadMaterialTextures(aiMaterial *mat, aiTextureType type, TextureT textType);
+		void					loadModel(std::string path);
+		void					processNode(aiNode *node, const aiScene *scene);
+		Mesh					processMesh(aiMesh *mesh, const aiScene *scene);
+		std::vector<Texture>	loadMaterialTextures(aiMaterial *mat, \
+		aiTextureType type, TextureT textType);
 
-		std::vector<Mesh>		meshes;
-		std::string				directory;
-		std::vector<Texture>	texturesLoaded;
+		std::vector<Mesh>		_meshes;
+		std::string				_directory;
+		std::vector<Texture>	_texturesLoaded;
 };
 
 #endif

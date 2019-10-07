@@ -17,8 +17,14 @@ Mesh::~Mesh() {
 }
 
 Mesh &Mesh::operator=(Mesh const &rhs) {
-	if (this != &rhs)
-		;
+	if (this != &rhs) {
+		vertices = rhs.vertices;
+		indices = rhs.indices;
+		textures = rhs.textures;
+		_vao = rhs.getVao();
+		_vbo = rhs.getVbo();
+		_ebo = rhs.getEbo();
+	}
 	return *this;
 }
 
@@ -73,4 +79,14 @@ void	Mesh::_setupMesh() {
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, texCoords));
 
     glBindVertexArray(0);
+}
+
+u_int32_t	Mesh::getVao() const {
+	return _vao;
+}
+u_int32_t	Mesh::getVbo() const {
+	return _vbo;
+}
+u_int32_t	Mesh::getEbo() const {
+	return _ebo;
 }
