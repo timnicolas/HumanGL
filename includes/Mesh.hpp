@@ -1,7 +1,7 @@
 #ifndef MESH_HPP
 # define MESH_HPP
 
-#include "humanGL.hpp"
+#include "commonInclude.hpp"
 #include "Shader.hpp"
 #include <vector>
 
@@ -10,7 +10,7 @@ enum class TextureT {
 	specular,
 };
 
-static const std::string	g_text_type[] =
+static const std::string	gTextType[] =
 {
 	"diffuse",
 	"specular"

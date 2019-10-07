@@ -1,7 +1,7 @@
 #ifndef SHADER_HPP
 # define SHADER_HPP
 
-# include "humanGL.hpp"
+# include "commonInclude.hpp"
 # include <fstream>
 # include <sstream>
 

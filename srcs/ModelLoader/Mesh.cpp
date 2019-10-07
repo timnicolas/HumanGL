@@ -38,7 +38,7 @@ void	Mesh::draw(Shader &shader) const {
 		else if (textures[i].type == TextureT::specular)
 			nb = std::to_string(++specularId);
 
-		shader.setInt(("texture_" + g_text_type[static_cast<int>(textures[i].type)] + nb).c_str(), i);
+		shader.setInt(("texture_" + gTextType[static_cast<int>(textures[i].type)] + nb).c_str(), i);
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
 	glActiveTexture(GL_TEXTURE0);

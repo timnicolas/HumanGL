@@ -4,18 +4,27 @@
 /*
 	called every frame
 */
-void	process_input(GLFWwindow *window)
+void	processInput(GLFWwindow *window)
 {
-	t_win_user	*win_u;
-	float		crnt_frame;
+	tWinUser	*winU;
+	float		crntFrame;
 
-	win_u = (t_win_user *)glfwGetWindowUserPointer(window);
-	crnt_frame = glfwGetTime();
-	win_u->dt_time = crnt_frame - win_u->last_frame;
-	win_u->last_frame = crnt_frame;
+	winU = (tWinUser *)glfwGetWindowUserPointer(window);
+	crntFrame = glfwGetTime();
+	winU->dtTime = crntFrame - winU->lastFrame;
+	winU->lastFrame = crntFrame;
+
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        winU->cam->processKeyboard(CamMovement::Forward, winU->dtTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        winU->cam->processKeyboard(CamMovement::Backward, winU->dtTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        winU->cam->processKeyboard(CamMovement::Left, winU->dtTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        winU->cam->processKeyboard(CamMovement::Right, winU->dtTime);
 }
 
-void	key_cb(GLFWwindow *window, int key, int scancode, int action, int mods)
+void	keyCb(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
 	(void)scancode;
 	(void)mods;
@@ -23,36 +32,52 @@ void	key_cb(GLFWwindow *window, int key, int scancode, int action, int mods)
 		glfwSetWindowShouldClose(window, true);
 }
 
-void	mouse_cb(GLFWwindow *window, double x_pos, double y_pos)
-{
-	static float	last_x = SCREEN_W / 2.0;
-	static float	last_y = SCREEN_H / 2.0;
-	static bool		first_mouse = true;
+void scrollCb(GLFWwindow *window, double xOffset, double yOffset) {
+	tWinUser		*winU;
 
-	(void)window;
-	if (first_mouse)
-	{
-		last_x = x_pos;
-		last_y = y_pos;
-		first_mouse = false;
-	}
-	// std::cout << "mouse pos: {" << last_x << ", " << last_y << "}" \
-	// << " => {" << x_pos << ", " << y_pos << "}" << std::endl;
-	last_x = x_pos;
-	last_y = y_pos;
+	(void)xOffset;
+	winU = (tWinUser *)glfwGetWindowUserPointer(window);
+	winU->cam->processMouseScroll(yOffset);
 }
 
-void	frambuff_resize_cb(GLFWwindow *window, int width, int height)
+void	mouseCb(GLFWwindow *window, double xPos, double yPos)
 {
-	t_win_user	*win_u;
+	tWinUser		*winU;
+	static float	lastX = SCREEN_W / 2.0;
+	static float	lastY = SCREEN_H / 2.0;
+	static bool		firstMouse = true;
+	float			xOffset;
+	float			yOffset;
 
-	win_u = (t_win_user *)glfwGetWindowUserPointer(window);
-	win_u->width = width;
-	win_u->height = height;
+	winU = (tWinUser *)glfwGetWindowUserPointer(window);
+
+	if (firstMouse)
+	{
+		lastX = xPos;
+		lastY = yPos;
+		firstMouse = false;
+	}
+
+	xOffset = xPos - lastX;
+	// reversed since y-coordinates go from bottom to top
+	yOffset = lastY - yPos;
+	winU->cam->processMouseMovement(xOffset, yOffset);
+
+	lastX = xPos;
+	lastY = yPos;
+}
+
+void	frambuffResizeCb(GLFWwindow *window, int width, int height)
+{
+	tWinUser	*winU;
+
+	winU = (tWinUser *)glfwGetWindowUserPointer(window);
+	winU->width = width;
+	winU->height = height;
 	glViewport(0, 0, width, height);
 }
 
-bool	init_window(GLFWwindow **window, const char *name, t_win_user *win_u)
+bool	initWindow(GLFWwindow **window, const char *name, tWinUser *winU)
 {
 	if (!glfwInit())
 	{
@@ -72,12 +97,13 @@ bool	init_window(GLFWwindow **window, const char *name, t_win_user *win_u)
 	}
 	glfwMakeContextCurrent(*window);
 
-	glfwSetFramebufferSizeCallback(*window, frambuff_resize_cb);
-	glfwSetCursorPosCallback(*window, mouse_cb);
-	glfwSetKeyCallback(*window, key_cb);
+	glfwSetFramebufferSizeCallback(*window, frambuffResizeCb);
+	glfwSetCursorPosCallback(*window, mouseCb);
+	glfwSetKeyCallback(*window, keyCb);
+	glfwSetScrollCallback(*window, scrollCb);
 
 	glEnable(GL_DEPTH_TEST);
 
-	glfwSetWindowUserPointer(*window, win_u);
+	glfwSetWindowUserPointer(*window, winU);
 	return (true);
 }

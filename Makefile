@@ -17,7 +17,8 @@ SRC =	main.cpp \
 		ModelLoader/Model.cpp \
 		ModelLoader/Texture.cpp
 
-HEAD =	Matrix.hpp \
+HEAD =	commonInclude.hpp \
+		Matrix.hpp \
 		Shader.hpp \
 		humanGL.hpp \
 		Mesh.hpp \

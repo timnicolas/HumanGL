@@ -116,9 +116,9 @@ aiTextureType type, TextureT textType) {
 		skip = false;
 
 		// verify if the texture has been loaded already
-		for (u_int32_t j = 0; j < textures_loaded.size(); ++j) {
-			if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0) {
-				textures.push_back(textures_loaded[j]);
+		for (u_int32_t j = 0; j < texturesLoaded.size(); ++j) {
+			if (std::strcmp(texturesLoaded[j].path.data(), str.C_Str()) == 0) {
+				textures.push_back(texturesLoaded[j]);
 				skip = true;
 				break;
 			}
@@ -130,8 +130,8 @@ aiTextureType type, TextureT textType) {
 			texture.type = textType;
 			texture.path = str.C_Str();
 			textures.push_back(texture);
-			// save to textures_loaded array to skip duplicate textures loading later
-			textures_loaded.push_back(texture);
+			// save to texturesLoaded array to skip duplicate textures loading later
+			texturesLoaded.push_back(texture);
 		}
     }
     return textures;

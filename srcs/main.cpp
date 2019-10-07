@@ -4,11 +4,11 @@
 #include "Model.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
-void	game_loop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {
+void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	while (!glfwWindowShouldClose(window))
 	{
-		process_input(window);
+		processInput(window);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// view matrix
@@ -31,9 +31,21 @@ void	game_loop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {
 	}
 }
 
-int main(int argc, char const **argv) {
+bool	init(GLFWwindow **window, const char *name, tWinUser *winU, Camera *cam) {
+	winU->cam = cam;
+	winU->dtTime = 0.0f;
+	winU->lastFrame = 0.0f;
+	winU->width = SCREEN_W;
+	winU->height = SCREEN_H;
+
+	if (!initWindow(window, name, winU))
+		return (false);
+	return (true);
+}
+
+int		main(int argc, char const **argv) {
 	GLFWwindow	*window;
-	t_win_user	win_u;
+	tWinUser	winU;
 	Camera		cam(glm::vec3(0.0f, 0.0f, 3.0f));
 
 	if (argc != 2) {
@@ -41,7 +53,7 @@ int main(int argc, char const **argv) {
 		return (1);
 	}
 
-	if (!init_window(&window, "humanGl", &win_u))
+	if (!init(&window, "humanGl", &winU, &cam))
 		return (1);
 
 	try
@@ -50,7 +62,7 @@ int main(int argc, char const **argv) {
 
 		Model	model(argv[1]);
 
-		game_loop(window, cam, sh1, model);
+		gameLoop(window, cam, sh1, model);
 
 	}
 	catch(const std::exception& e)
