@@ -213,6 +213,9 @@ namespace mat {
 			Mat4 rotateDeg(float degrees, Vec3 axis);  // rotate around axis
 			Mat4 rotateDeg(float degrees, float axX, float axY, float axZ);  // rotate around axis
 
+			Mat4 lookAt(const Vec3 &src, const Vec3 &dst);  // look at a position
+			Mat4 perspective(float fov_y, float aspect, float z_near, float z_far);
+
 			friend Mat4 operator*(Mat4 m, const float other);
 			friend Mat4 operator*(Mat4 m, const BaseMat other);
 			friend Mat4 operator+(Mat4 m, const float other);

@@ -177,6 +177,47 @@ Mat4 Mat4::rotateDeg(float degrees, Vec3 axis) {
 	return rotateDeg(degrees, axis.x, axis.y, axis.z);
 }
 
+Mat4 Mat4::lookAt(const Vec3 &src, const Vec3 &dst) {
+	Mat4 res = Mat4(*this);
+	Vec3 tmpUp = Vec3(0, 1, 0);
+	Vec3 fwd = (dst - src).normalize();
+	Vec3 side = fwd.cross(tmpUp).normalize();
+	Vec3 up = fwd.cross(side);
+	res.get(0, 0) = side.x;
+	res.get(0, 1) = side.y;
+	res.get(0, 2) = side.z;
+	res.get(1, 0) = up.x;
+	res.get(1, 1) = up.y;
+	res.get(1, 2) = up.z;
+	res.get(2, 0) = fwd.x;
+	res.get(2, 1) = fwd.y;
+	res.get(2, 2) = fwd.z;
+
+	res.get(0, 3) = src.x;
+	res.get(1, 3) = src.y;
+	res.get(2, 3) = src.z;
+	return res;
+}
+Mat4 Mat4::perspective(float fov_y, float aspect, float z_near, float z_far) {
+	Mat4 res = *this;
+
+	if (aspect == 0) {
+		std::cout << "perspective aspect can't be set to 0.0" << std::endl;
+		return nullptr;
+	}
+	if (z_near >= z_far) {
+		std::cout << "perspective near is bigger than far value" << std::endl;
+		return nullptr;
+	}
+	float tanHalfFov = std::tan(fov_y / 2);
+	res.get(0, 0) = 1 / (aspect * tanHalfFov);
+	res.get(1, 1) = 1 / (tanHalfFov);
+	res.get(2, 2) = -(s_far + z_near) / (z_far - z_near);
+	res.get(2, 3) = -(2 * z_far * z_near) / (z_far - z_near);
+	res.get(3, 2) = -1;
+	return res;
+}
+
 namespace mat {
 	Mat4 operator*(Mat4 m, const float other) { return Mat4(BaseMat(m) * other); }
 	Mat4 operator*(Mat4 m, const BaseMat other) { return Mat4(BaseMat(m) * other); }
