@@ -1,7 +1,7 @@
 #ifndef MESH_HPP
 # define MESH_HPP
 
-#include "humanGL.hpp"
+#include "commonInclude.hpp"
 #include "Shader.hpp"
 #include <vector>
 
@@ -10,7 +10,7 @@ enum class TextureT {
 	specular,
 };
 
-static const std::string	g_text_type[] =
+static const std::string	gTextType[] =
 {
 	"diffuse",
 	"specular"
@@ -25,6 +25,7 @@ struct Vertex {
 struct Texture {
 	u_int32_t	id;
 	TextureT	type;
+	std::string	path;
 };
 
 class Mesh {
@@ -36,13 +37,17 @@ class Mesh {
 
 		Mesh &operator=(Mesh const &rhs);
 
-		void	Draw(Shader shader) const;
+		u_int32_t	getVao() const;
+		u_int32_t	getVbo() const;
+		u_int32_t	getEbo() const;
+
+		void		draw(Shader &shader) const;
 
 		std::vector<Vertex>		vertices;
 		std::vector<u_int32_t>	indices;
 		std::vector<Texture>	textures;
 	private:
-        void	setupMesh();
+        void	_setupMesh();
 
         u_int32_t	_vao;
         u_int32_t	_vbo;

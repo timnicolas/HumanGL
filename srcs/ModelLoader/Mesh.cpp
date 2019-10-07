@@ -6,7 +6,7 @@ std::vector<Texture> textures)
 	indices(indices),
 	textures(textures)
 {
-	setupMesh();
+	_setupMesh();
 }
 
 Mesh::Mesh(Mesh const &src) {
@@ -17,12 +17,18 @@ Mesh::~Mesh() {
 }
 
 Mesh &Mesh::operator=(Mesh const &rhs) {
-	if (this != &rhs)
-		;
+	if (this != &rhs) {
+		vertices = rhs.vertices;
+		indices = rhs.indices;
+		textures = rhs.textures;
+		_vao = rhs.getVao();
+		_vbo = rhs.getVbo();
+		_ebo = rhs.getEbo();
+	}
 	return *this;
 }
 
-void	Mesh::Draw(Shader shader) const {
+void	Mesh::draw(Shader &shader) const {
 	u_int32_t	diffuseId;
 	u_int32_t	specularId;
 	std::string	nb;
@@ -30,6 +36,7 @@ void	Mesh::Draw(Shader shader) const {
 	diffuseId = 0;
 	specularId = 0;
 
+	shader.use();
 	for (u_int16_t i = 0; i < textures.size(); ++i) {
 		glActiveTexture(GL_TEXTURE0 + i);
 
@@ -38,7 +45,7 @@ void	Mesh::Draw(Shader shader) const {
 		else if (textures[i].type == TextureT::specular)
 			nb = std::to_string(++specularId);
 
-		shader.setInt(("material." + g_text_type[static_cast<int>(textures[i].type)] + nb).c_str(), i);
+		shader.setInt(("texture_" + gTextType[static_cast<int>(textures[i].type)] + nb).c_str(), i);
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
 	glActiveTexture(GL_TEXTURE0);
@@ -49,7 +56,7 @@ void	Mesh::Draw(Shader shader) const {
 	glBindVertexArray(0);
 }
 
-void	Mesh::setupMesh() {
+void	Mesh::_setupMesh() {
 	glGenVertexArrays(1, &_vao);
 	glGenBuffers(1, &_vbo);
 	glGenBuffers(1, &_ebo);
@@ -58,7 +65,7 @@ void	Mesh::setupMesh() {
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &(vertices[0]), GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ARRAY_BUFFER, _ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(u_int32_t), &indices[0], GL_STATIC_DRAW);
 
 	// vertex pos
@@ -72,4 +79,14 @@ void	Mesh::setupMesh() {
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, texCoords));
 
     glBindVertexArray(0);
+}
+
+u_int32_t	Mesh::getVao() const {
+	return _vao;
+}
+u_int32_t	Mesh::getVbo() const {
+	return _vbo;
+}
+u_int32_t	Mesh::getEbo() const {
+	return _ebo;
 }

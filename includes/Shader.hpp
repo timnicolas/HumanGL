@@ -1,7 +1,7 @@
 #ifndef SHADER_HPP
 # define SHADER_HPP
 
-# include "humanGL.hpp"
+# include "commonInclude.hpp"
 # include <fstream>
 # include <sstream>
 
@@ -28,8 +28,9 @@ class Shader {
 		void	setVec3(const std::string &name, float x, float y, float z) const;
 		void	setVec4(const std::string &name, float x, float y, float z, float w);
 		// need to add matrix uniform functions when created
-
-		u_int32_t	id;
+		void	setMat2(const std::string &name, const glm::mat2 &mat) const;
+		void	setMat3(const std::string &name, const glm::mat3 &mat) const;
+		void	setMat4(const std::string &name, const glm::mat4 &mat) const;
 
 		class ShaderCompileException : public std::exception {
 			public:
@@ -39,6 +40,8 @@ class Shader {
 			public:
 				virtual const char* what() const throw();
 		};
+
+		u_int32_t	id;
 	private:
 		void	checkCompileErrors(GLuint shader, std::string type);
 };
