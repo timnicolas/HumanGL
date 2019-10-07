@@ -16,6 +16,11 @@ class Model {
 		Model &operator=(Model const &rhs);
 
 		void draw(Shader &shader);
+
+		class AssimpError : public std::exception {
+			public:
+				virtual const char* what() const throw();
+		};
 	private:
 		void	loadModel(std::string path);
 		void	processNode(aiNode *node, const aiScene *scene);

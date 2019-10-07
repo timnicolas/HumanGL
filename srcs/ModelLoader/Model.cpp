@@ -30,7 +30,7 @@ void	Model::loadModel(std::string path) {
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		std::cerr << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
-		return;
+		throw Model::AssimpError();
 	}
 	directory = path.substr(0, path.find_last_of('/'));
 
@@ -135,4 +135,8 @@ aiTextureType type, TextureT textType) {
 		}
     }
     return textures;
+}
+
+const char* Model::AssimpError::what() const throw() {
+    return ("Assimp failed to load the model!");
 }
