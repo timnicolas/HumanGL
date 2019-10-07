@@ -26,7 +26,11 @@ void	Model::loadModel(std::string path) {
 	Assimp::Importer	import;
 	const aiScene		*scene;
 
-	scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+	scene = import.ReadFile(path, \
+	aiProcess_Triangulate | \
+	aiProcess_FlipUVs | \
+	aiProcess_GenNormals |
+	aiProcess_GenUVCoords);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		std::cerr << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
@@ -62,7 +66,7 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 	std::vector<Texture>	diffuseMaps;
 	std::vector<Texture>	specularMaps;
 
-	for (u_int32_t i = 0; i < mesh->mNumVertices; i++) {
+	for (u_int32_t i = 0; i < mesh->mNumVertices; ++i) {
 		// process vertex positions
 		vertex.pos.x = mesh->mVertices[i].x;
 		vertex.pos.y = mesh->mVertices[i].y;
