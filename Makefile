@@ -11,6 +11,7 @@ SRC =	main.cpp \
 		Matrix.cpp \
 		Shader.cpp \
 		windowEvents.cpp \
+		Camera.cpp \
 \
 		ModelLoader/Mesh.cpp \
 		ModelLoader/Model.cpp \
@@ -22,7 +23,8 @@ HEAD =	Matrix.hpp \
 		Mesh.hpp \
 		Model.hpp \
 		Texture.hpp \
-		lib/stb_image.h
+		lib/stb_image.h \
+		Camera.hpp
 
 CC = g++
 DEBUG_FLAGS = -g3 -fsanitize=address
