@@ -168,6 +168,13 @@ namespace mat {
 			Mat2(SquareMat mat);
 			Mat2(std::vector<float> data);
 			~Mat2();
+
+			friend Mat2 operator*(Mat2 m, const float other);
+			friend Mat2 operator*(Mat2 m, const BaseMat other);
+			friend Mat2 operator+(Mat2 m, const float other);
+			friend Mat2 operator+(Mat2 m, const BaseMat other);
+			friend Mat2 operator-(Mat2 m, const float other);
+			friend Mat2 operator-(Mat2 m, const BaseMat other);
 		protected:
 		private:
 	};
@@ -177,6 +184,13 @@ namespace mat {
 			Mat3(SquareMat mat);
 			Mat3(std::vector<float> data);
 			~Mat3();
+
+			friend Mat3 operator*(Mat3 m, const float other);
+			friend Mat3 operator*(Mat3 m, const BaseMat other);
+			friend Mat3 operator+(Mat3 m, const float other);
+			friend Mat3 operator+(Mat3 m, const BaseMat other);
+			friend Mat3 operator-(Mat3 m, const float other);
+			friend Mat3 operator-(Mat3 m, const BaseMat other);
 		protected:
 		private:
 	};
@@ -198,6 +212,13 @@ namespace mat {
 			Mat4 rotateRad(float radians, float axX, float axY, float axZ);  // rotate around axis
 			Mat4 rotateDeg(float degrees, Vec3 axis);  // rotate around axis
 			Mat4 rotateDeg(float degrees, float axX, float axY, float axZ);  // rotate around axis
+
+			friend Mat4 operator*(Mat4 m, const float other);
+			friend Mat4 operator*(Mat4 m, const BaseMat other);
+			friend Mat4 operator+(Mat4 m, const float other);
+			friend Mat4 operator+(Mat4 m, const BaseMat other);
+			friend Mat4 operator-(Mat4 m, const float other);
+			friend Mat4 operator-(Mat4 m, const BaseMat other);
 		protected:
 		private:
 	};
