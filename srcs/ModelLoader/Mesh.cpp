@@ -68,15 +68,18 @@ void	Mesh::_setupMesh() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(u_int32_t), &indices[0], GL_STATIC_DRAW);
 
+	void *dataoffsetVec3 = &(((mat::Vec3 *)0)->_data);
+	void *dataoffsetVec2 = &(((mat::Vec2 *)0)->_data);
+	size_t vec3size = sizeof(mat::Vec3);
 	// vertex pos
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)dataoffsetVec3);
 	// vertex norm
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, norm));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)(static_cast<char*>(dataoffsetVec3) + vec3size));
 	// vertex textCoords
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, texCoords));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)(static_cast<char*>(dataoffsetVec2) + vec3size * 2));
 
     glBindVertexArray(0);
 }
