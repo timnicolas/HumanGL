@@ -130,7 +130,9 @@ namespace mat {
 			Vec3(std::vector<float> data);
 			Vec3(float _x, float _y, float _z);
 			~Vec3();
+
 			Vec3 cross(const Vec3 &v) const;
+			float dot(const Vec3 &v) const;
 
 			friend Vec3 operator*(const Vec3 &v, const float other);
 			friend Vec3 operator+(const Vec3 &m, const float other);
@@ -247,5 +249,6 @@ namespace mat {
 	Vec3 normalize(const Vec3 &vec);
 	Mat4 lookAt(const Vec3 &src, const Vec3 &dst);
 	Vec3 cross(const Vec3 &vec1, const Vec3 &vec2);
+	float dot(const Vec3 &vec1, const Vec3 &vec2);
 	Mat4 perspective(float fov_y, float aspect, float z_near, float z_far);
 }

@@ -45,6 +45,14 @@ Vec3 Vec3::cross(const Vec3 &v) const
 
 	return c;
 }
+float Vec3::dot(const Vec3 &v) const
+{
+	float res = 0;
+	for (int i=0; i < getSize(); i++) {
+		res += get(i) * v.get(i);
+	}
+	return res;
+}
 
 namespace mat {
 	Vec3 operator*(const Vec3 &v, const float other) { return Vec3(BaseMat(v) * other); }
@@ -178,24 +186,24 @@ Mat4 Mat4::rotateDeg(float degrees, Vec3 axis) {
 }
 
 Mat4 Mat4::lookAt(const Vec3 &src, const Vec3 &dst) {
-	Mat4 res = Mat4(*this);
+	Mat4 res = Mat4();
 	Vec3 tmpUp = Vec3(0, 1, 0);
-	Vec3 fwd = (dst - src).normalize();
-	Vec3 side = fwd.cross(tmpUp).normalize();
-	Vec3 up = fwd.cross(side);
+	Vec3 fwd = normalize(dst - src);
+	Vec3 side = normalize(cross(fwd, tmpUp));
+	Vec3 up = normalize(cross(side, fwd));
 	res.get(0, 0) = side.x;
 	res.get(0, 1) = side.y;
 	res.get(0, 2) = side.z;
 	res.get(1, 0) = up.x;
 	res.get(1, 1) = up.y;
 	res.get(1, 2) = up.z;
-	res.get(2, 0) = fwd.x;
-	res.get(2, 1) = fwd.y;
-	res.get(2, 2) = fwd.z;
+	res.get(2, 0) = -fwd.x;
+	res.get(2, 1) = -fwd.y;
+	res.get(2, 2) = -fwd.z;
 
-	res.get(0, 3) = src.x;
-	res.get(1, 3) = src.y;
-	res.get(2, 3) = src.z;
+	res.get(0, 3) = -dot(side, src);
+	res.get(1, 3) = -dot(up, src);
+	res.get(2, 3) = dot(fwd, src);
 	return res;
 }
 Mat4 Mat4::perspective(float fov_y, float aspect, float z_near, float z_far) {
@@ -503,7 +511,8 @@ namespace mat {
 	Vec3 normalize(const Vec3 &vec) { return vec.normalize(); }
 	Mat4 lookAt(const Vec3 &src, const Vec3 &dst) { return Mat4().lookAt(src, dst); }
 	Vec3 cross(const Vec3 &vec1, const Vec3 &vec2) { return vec1.cross(vec2); }
+	float dot(const Vec3 &vec1, const Vec3 &vec2) { return vec1.dot(vec2); }
 	Mat4 perspective(float fov_y, float aspect, float z_near, float z_far) {
-		return Mat4().perspective(fov_y, aspect, z_near, z_far);
+		return Mat4(false).perspective(fov_y, aspect, z_near, z_far);
 	}
 }
