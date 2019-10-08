@@ -81,13 +81,13 @@ void Camera::processMouseScroll(float yOffset) {
 }
 
 void Camera::updateCameraVectors() {
-	mat::Vec3 front;
+	mat::Vec3 nFront;
 
-	front.x = cos(mat::radians(yaw)) * cos(mat::radians(pitch));
-	front.y = sin(mat::radians(pitch));
-	front.z = sin(mat::radians(yaw)) * cos(mat::radians(pitch));
+	nFront.x = cos(mat::radians(yaw)) * cos(mat::radians(pitch));
+	nFront.y = sin(mat::radians(pitch));
+	nFront.z = sin(mat::radians(yaw)) * cos(mat::radians(pitch));
 
-	front = mat::normalize(front);
+	front = mat::normalize(nFront);
 
 	right = mat::normalize(mat::cross(front, worldUp));
 	up = mat::normalize(mat::cross(right, front));
