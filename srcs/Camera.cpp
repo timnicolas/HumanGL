@@ -1,8 +1,8 @@
 #include "Camera.hpp"
 
-Camera::Camera(glm::vec3 pos, glm::vec3 up, float yaw, float pitch)
+Camera::Camera(mat::Vec3 pos, mat::Vec3 up, float yaw, float pitch)
 : pos(pos),
-  front(glm::vec3(0.0f, 0.0f, -1.0f)),
+  front(mat::Vec3(0.0f, 0.0f, -1.0f)),
   worldUp(up),
   yaw(yaw),
   pitch(pitch),
@@ -35,8 +35,8 @@ Camera &Camera::operator=(Camera const &rhs) {
 	return *this;
 }
 
-glm::mat4 Camera::getViewMatrix() const {
-	return glm::lookAt(pos, pos + front, up);
+mat::Mat4 Camera::getViewMatrix() const {
+	return mat::lookAt(pos, pos + front);
 }
 
 void Camera::processKeyboard(CamMovement direction, float dtTime) {
@@ -44,13 +44,13 @@ void Camera::processKeyboard(CamMovement direction, float dtTime) {
 
 	velocity = movementSpeed * dtTime;
 	if (direction == CamMovement::Forward)
-		pos += front * velocity;
+		pos = pos + front * velocity;
 	if (direction == CamMovement::Backward)
-		pos -= front * velocity;
+		pos = pos - front * velocity;
 	if (direction == CamMovement::Left)
-		pos -= right * velocity;
+		pos = pos - right * velocity;
 	if (direction == CamMovement::Right)
-		pos += right * velocity;
+		pos = pos + right * velocity;
 }
 
 void Camera::processMouseMovement(float xOffset, float yOffset, bool constrainPitch) {
@@ -81,14 +81,14 @@ void Camera::processMouseScroll(float yOffset) {
 }
 
 void Camera::updateCameraVectors() {
-	glm::vec3 front;
+	mat::Vec3 front;
 
-	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	front.y = sin(glm::radians(pitch));
-	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	front.x = cos(mat::radians(yaw)) * cos(mat::radians(pitch));
+	front.y = sin(mat::radians(pitch));
+	front.z = sin(mat::radians(yaw)) * cos(mat::radians(pitch));
 
-	front = glm::normalize(front);
+	front = mat::normalize(front);
 
-	right = glm::normalize(glm::cross(front, worldUp));
-	up = glm::normalize(glm::cross(right, front));
+	right = mat::normalize(mat::cross(front, worldUp));
+	up = mat::normalize(mat::cross(right, front));
 }

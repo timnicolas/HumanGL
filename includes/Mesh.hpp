@@ -17,9 +17,9 @@ static const std::string	gTextType[] =
 };
 
 struct Vertex {
-	glm::vec3	pos;
-	glm::vec3	norm;
-	glm::vec2	texCoords;
+	mat::Vec3	pos;
+	mat::Vec3	norm;
+	mat::Vec2	texCoords;
 };
 
 struct Texture {

@@ -132,13 +132,13 @@ void	Shader::setVec4(const std::string &name, float x, float y, float z, float w
 	glUniform4f(glGetUniformLocation(id, name.c_str()), x, y, z, w);
 }
 // need to add matrix uniform functions when created
-void	Shader::setMat2(const std::string &name, const glm::mat2 &mat) const {
+void	Shader::setMat2(const std::string &name, const mat::Mat2 &mat) const {
 	glUniformMatrix2fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
-void	Shader::setMat3(const std::string &name, const glm::mat3 &mat) const {
+void	Shader::setMat3(const std::string &name, const mat::Mat3 &mat) const {
 	glUniformMatrix3fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
-void	Shader::setMat4(const std::string &name, const glm::mat4 &mat) const {
+void	Shader::setMat4(const std::string &name, const mat::Mat4 &mat) const {
 	glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
 

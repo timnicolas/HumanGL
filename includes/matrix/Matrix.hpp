@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 namespace mat {
 	class Vec;
@@ -41,6 +42,20 @@ namespace mat {
 			BaseMat &operator=(const BaseMat &other);
 			explicit operator std::vector<float>() const { return *_data; };
 			explicit operator float*() const { return static_cast<float*>(&(*_data)[0]); };
+
+			// operator [][]
+			class Dim2 {
+				public:
+					Dim2(std::vector<float> *mat, int offset) : _mat(mat), _offset(offset) {}
+					float &operator[](int col) { return (*_mat)[_offset + col]; }
+					const float &operator[](int col) const { return (*_mat)[_offset + col]; }
+				private:
+					std::vector<float> *_mat;
+					int _offset;
+			};
+			Dim2 operator[](int line) { return Dim2(_data, line * _cols); }
+			const Dim2 operator[](int line) const { return Dim2(_data, line * _cols); }
+
 		protected:
 			int _lns;  // number of lines (height)
 			int _cols;  // number of columns (width)
@@ -225,4 +240,12 @@ namespace mat {
 		protected:
 		private:
 	};
+
+	float radians(float deg);
+	float degrees(float rad);
+
+	Vec3 normalize(const Vec3 &vec);
+	Mat4 lookAt(const Vec3 &src, const Vec3 &dst);
+	Vec3 cross(const Vec3 &vec1, const Vec3 &vec2);
+	Mat4 perspective(float fov_y, float aspect, float z_near, float z_far);
 }

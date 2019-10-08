@@ -2,7 +2,7 @@
 # define CAMERA_HPP
 
 # include "commonInclude.hpp"
-# include "glm/gtc/matrix_transform.hpp"
+#include "Matrix.hpp"
 
 enum class CamMovement {
 	Forward,
@@ -13,24 +13,24 @@ enum class CamMovement {
 
 class Camera {
 	public:
-		Camera(glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = \
-		glm::vec3(0.0f, 1.0f, 0.0f), float yaw = -90.0f, float pitch = 0.0f);
+		Camera(mat::Vec3 pos = mat::Vec3(0.0f, 0.0f, 0.0f), mat::Vec3 up = \
+		mat::Vec3(0.0f, 1.0f, 0.0f), float yaw = -90.0f, float pitch = 0.0f);
 		Camera(Camera const &src);
 		virtual ~Camera();
 
 		Camera &operator=(Camera const &rhs);
 
-		glm::mat4 getViewMatrix() const;
+		mat::Mat4 getViewMatrix() const;
 		void processKeyboard(CamMovement direction, float dtTime);
 		void processMouseMovement(float xOffset, float yOffset, bool \
 		constrainPitch = true);
 		void processMouseScroll(float yOffset);
 
-		glm::vec3	pos;
-		glm::vec3	front;
-		glm::vec3	up;
-		glm::vec3	right;
-		glm::vec3	worldUp;
+		mat::Vec3	pos;
+		mat::Vec3	front;
+		mat::Vec3	up;
+		mat::Vec3	right;
+		mat::Vec3	worldUp;
 
 		float		yaw;
 		float		pitch;

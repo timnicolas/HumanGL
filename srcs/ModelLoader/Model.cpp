@@ -79,7 +79,7 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 		vertex.norm.y = mesh->mNormals[i].y;
 		vertex.norm.z = mesh->mNormals[i].z;
 		// process vertex texture coordinates
-		vertex.texCoords = glm::vec2(0.0f, 0.0f);
+		vertex.texCoords = mat::Vec2(0.0f, 0.0f);
 		if (mesh->mTextureCoords[0]) {
 			vertex.texCoords.x = mesh->mTextureCoords[0][i].x;
 			vertex.texCoords.y = mesh->mTextureCoords[0][i].y;

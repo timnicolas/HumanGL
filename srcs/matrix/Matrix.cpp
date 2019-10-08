@@ -491,3 +491,19 @@ namespace mat {
 BaseMat::~BaseMat() {
 	delete _data;
 }
+
+/*
+--------------------------------------------------------------------------------
+utils
+*/
+namespace mat {
+	float radians(float deg) { return deg / (180 / M_PI); }
+	float degrees(float rad) { return rad * (180 / M_PI); }
+
+	Vec3 normalize(const Vec3 &vec) { return vec.normalize(); }
+	Mat4 lookAt(const Vec3 &src, const Vec3 &dst) { return Mat4().lookAt(src, dst); }
+	Vec3 cross(const Vec3 &vec1, const Vec3 &vec2) { return vec1.cross(vec2); }
+	Mat4 perspective(float fov_y, float aspect, float z_near, float z_far) {
+		return Mat4().perspective(fov_y, aspect, z_near, z_far);
+	}
+}

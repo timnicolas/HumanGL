@@ -2,7 +2,8 @@
 #include "Shader.hpp"
 #include "Camera.hpp"
 #include "Model.hpp"
-#include "glm/gtc/matrix_transform.hpp"
+// #include "glm/gtc/matrix_transform.hpp"
+#include "Matrix.hpp"
 
 void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {
 	tWinUser	*winU;
@@ -18,15 +19,15 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {
 		sh.use();
 
 		// view matrix
-		glm::mat4	view = cam.getViewMatrix();
+		mat::Mat4	view = cam.getViewMatrix();
         sh.setMat4("view", view);
 		// projection matrix
-		glm::mat4	projection = glm::perspective(glm::radians(cam.zoom), winU->width / winU->height, 0.1f, 100.0f);
+		mat::Mat4	projection = mat::perspective(mat::radians(cam.zoom), winU->width / winU->height, 0.1f, 100.0f);
         sh.setMat4("projection", projection);
 		// model matrix
-		glm::mat4	model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+		mat::Mat4	model = mat::Mat4(1.0f);
+		model = model.translate(mat::Vec3(0.0f, -1.75f, 0.0f));
+		model = model.scale(mat::Vec3(0.2f, 0.2f, 0.2f));
 		sh.setMat4("model", model);
 
 		// draw the model
@@ -54,7 +55,7 @@ bool	init(GLFWwindow **window, const char *name, tWinUser *winU, Camera *cam) {
 int		main(int argc, char const **argv) {
 	GLFWwindow	*window;
 	tWinUser	winU;
-	Camera		cam(glm::vec3(0.0f, 0.0f, 3.0f));
+	Camera		cam(mat::Vec3(0.0f, 0.0f, 3.0f));
 
 	if (argc != 2) {
 		std::cout << "usage: ./humanGL modelFile\n" << std::endl;
