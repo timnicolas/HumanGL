@@ -52,69 +52,31 @@ bool	init(GLFWwindow **window, const char *name, tWinUser *winU, Camera *cam) {
 	return (true);
 }
 
-// int		main(int argc, char const **argv) {
-// 	GLFWwindow	*window;
-// 	tWinUser	winU;
-// 	Camera		cam(mat::Vec3(0.0f, 0.0f, 3.0f));
+int		main(int argc, char const **argv) {
+	GLFWwindow	*window;
+	tWinUser	winU;
+	Camera		cam(mat::Vec3(0.0f, 0.0f, 3.0f));
 
-// 	if (argc != 2) {
-// 		std::cout << "usage: ./humanGL modelFile\n" << std::endl;
-// 		return (1);
-// 	}
+	if (argc != 2) {
+		std::cout << "usage: ./humanGL modelFile\n" << std::endl;
+		return (1);
+	}
 
-// 	if (!init(&window, "humanGl", &winU, &cam))
-// 		return (1);
+	if (!init(&window, "humanGl", &winU, &cam))
+		return (1);
 
-// 	try
-// 	{
-// 		Shader sh1("shaders/basic_vs.glsl", "shaders/basic_fs.glsl");
+	try
+	{
+		Shader sh1("shaders/basic_vs.glsl", "shaders/basic_fs.glsl");
 
-// 		Model	model(argv[1]);
+		Model	model(argv[1]);
 
-// 		gameLoop(window, cam, sh1, model);
-// 	}
-// 	catch(const std::exception& e)
-// 	{
-// 		std::cerr << e.what() << '\n';
-// 	}
+		gameLoop(window, cam, sh1, model);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
 
-// 	return 0;
-// }
-
-#include <glm/glm.hpp>
-
-void    printMat4(glm::mat4 &mat) {
-    std::cout << "(" << std::endl;
-    for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            std::cout << "    " << mat[j][i];
-        }
-        std::cout << std::endl;
-    }
-    std::cout << ")" << std::endl;
-}
-
-void    printMat4(mat::Mat4 &mat) {
-    std::cout << "(" << std::endl;
-    for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            std::cout << "    " << mat[i][j];
-        }
-        std::cout << std::endl;
-    }
-    std::cout << ")" << std::endl;
-}
-
-int		main(void) {
-	glm::mat4	glmprojection = glm::perspective(mat::radians(45), (float)SCREEN_W / SCREEN_H, 0.1f, 100.0f);
-	mat::Mat4	matprojection = mat::perspective(mat::radians(45), (float)SCREEN_W / SCREEN_H, 0.1f, 100.0f);
-
-	glm::mat4	glmlook = glm::lookAt(glm::vec3(1, 0, 4), glm::vec3(5, 5, 1), glm::vec3(0, 1, 0));
-	mat::Mat4	matlook = mat::lookAt(mat::Vec3(1, 0, 4), mat::Vec3(5, 5, 1));
-
-	// printMat4(glmprojection);
-	// printMat4(matprojection);
-	printMat4(glmlook);
-	printMat4(matlook);
 	return 0;
 }
