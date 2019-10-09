@@ -45,17 +45,16 @@ void	mouseCb(GLFWwindow *window, double xPos, double yPos)
 	tWinUser		*winU;
 	static float	lastX = SCREEN_W / 2.0;
 	static float	lastY = SCREEN_H / 2.0;
-	static bool		firstMouse = true;
+	static u_int8_t	firstTwoCall = 2;
 	float			xOffset;
 	float			yOffset;
 
 	winU = (tWinUser *)glfwGetWindowUserPointer(window);
 
-	if (firstMouse)
-	{
+	if (firstTwoCall) {
 		lastX = xPos;
 		lastY = yPos;
-		firstMouse = false;
+		--firstTwoCall;
 	}
 
 	xOffset = xPos - lastX;
