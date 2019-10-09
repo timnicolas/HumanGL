@@ -42,7 +42,6 @@ namespace mat {
 			BaseMat &operator=(const BaseMat &other);
 			explicit operator std::vector<float>() const { return *_data; };
 			explicit operator float*() const { return static_cast<float*>(&(*_data)[0]); };
-			// operator float*() const { return static_cast<float*>(&(*_data)[0]); };
 
 			// operator [][]
 			class Dim2 {
@@ -57,6 +56,7 @@ namespace mat {
 			Dim2 operator[](int line) { return Dim2(_data, line * _cols); }
 			const Dim2 operator[](int line) const { return Dim2(_data, line * _cols); }
 
+		protected:
 			int _lns;  // number of lines (height)
 			int _cols;  // number of columns (width)
 			/*
@@ -66,7 +66,6 @@ namespace mat {
 			float *data = {1, 2, 3, 4};
 			*/
 			std::vector<float> *_data;  // all data
-		protected:
 		private:
 	};
 
