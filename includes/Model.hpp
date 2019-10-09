@@ -48,8 +48,8 @@ class Model {
 			mat::Mat4 boneOffset;
 			mat::Mat4 finalTransformation;
 			BoneInfo() {
-				boneOffset = mat::Mat4(false);
-				finalTransformation = mat::Mat4(false);
+				boneOffset = mat::Mat4();
+				finalTransformation = mat::Mat4();
 			}
 		};
 		std::map<std::string, int> boneMap; // maps a bone name to its index
