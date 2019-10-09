@@ -218,6 +218,7 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 			ret.addBoneData(boneIndex, weight, vertexID);
 		}
 	}
+	ret.setupMesh();
 	return ret;
 }
 

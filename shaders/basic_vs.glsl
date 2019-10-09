@@ -18,10 +18,10 @@ uniform mat4 bones[MAX_BONES];
 
 void main() {
 
-    mat4 boneTransform = bones[1] * 0.3;
-    boneTransform += bones[2] * 0.3;
+    mat4 boneTransform = bones[0] * 0.3;
+    boneTransform += bones[1] * 0.3;
+    boneTransform += bones[2] * 0.2;
     boneTransform += bones[3] * 0.2;
-    boneTransform += bones[4] * 0.2;
 
     // mat4 boneTransform = bones[bonesID[0]] * bonesWeight[0];
     // boneTransform += bones[bonesID[1]] * bonesWeight[1];

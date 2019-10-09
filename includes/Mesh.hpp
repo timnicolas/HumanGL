@@ -23,6 +23,14 @@ struct VertexMat {  // contain matrix objects
 	mat::Vec2	texCoords;
 	uint bonesID[NUM_BONES_PER_VERTEX];
 	float bonesW[NUM_BONES_PER_VERTEX];
+
+	VertexMat() :
+		pos(mat::Vec3()),
+		norm(mat::Vec3()),
+		texCoords(mat::Vec2()),
+		bonesID{0, 0, 0, 0},
+		bonesW{0, 0, 0, 0} {
+	}
 };
 struct Vertex {  // contain pointer on data on matrix object
 	float posx, posy, posz;
@@ -58,8 +66,8 @@ class Mesh {
 		std::vector<u_int32_t>	indices;
 		std::vector<Texture>	textures;
 		Material				material;
+        void	setupMesh();
 	private:
-        void	_setupMesh();
 
         u_int32_t	_vao;
         u_int32_t	_vbo;

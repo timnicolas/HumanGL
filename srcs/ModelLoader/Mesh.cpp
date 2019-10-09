@@ -6,9 +6,7 @@ std::vector<Texture> textures, Material material)
 	indices(indices),
 	textures(textures),
 	material(material)
-{
-	_setupMesh();
-}
+{}
 
 Mesh::Mesh(Mesh const &src) {
 	*this = src;
@@ -69,7 +67,7 @@ void	Mesh::draw(Shader &sh) const {
 	glBindVertexArray(0);
 }
 
-void	Mesh::_setupMesh() {
+void	Mesh::setupMesh() {
 	// create real vertex object to send to the bufferData in openGL
 	std::vector<Vertex> vert;
 	for (size_t i=0; i < vertices.size(); i++) {
