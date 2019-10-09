@@ -43,7 +43,7 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {
 		if (time_loop.count() > LOOP_TIME) {
 			#if DEBUG == true
 				if (!firstLoop)
-					std::cout << "loop slow -> " << time_loop.count() << "ms / " << LOOP_TIME << "ms (" << FPS << "fps)\n";
+					std::cerr << "loop slow -> " << time_loop.count() << "ms / " << LOOP_TIME << "ms (" << FPS << "fps)\n";
 			#endif
 		}
 		else {
