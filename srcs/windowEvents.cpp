@@ -22,6 +22,10 @@ void	processInput(GLFWwindow *window)
         winU->cam->processKeyboard(CamMovement::Left, winU->dtTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         winU->cam->processKeyboard(CamMovement::Right, winU->dtTime);
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+        winU->cam->processKeyboard(CamMovement::Up, winU->dtTime);
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+        winU->cam->processKeyboard(CamMovement::Down, winU->dtTime);
 }
 
 void	keyCb(GLFWwindow *window, int key, int scancode, int action, int mods)
