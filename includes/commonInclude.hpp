@@ -12,6 +12,5 @@
 # include <iostream>
 
 # include "Matrix.hpp"
-# include <glm/gtx/string_cast.hpp>
 
 #endif

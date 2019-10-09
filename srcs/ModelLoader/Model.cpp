@@ -58,8 +58,8 @@ void	Model::processNode(aiNode *node, const aiScene *scene) {
 }
 
 Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
-	std::vector<Vertex>		vertices;
-	Vertex					vertex;
+	std::vector<VertexMat>	vertices;
+	VertexMat				vertex;
 
 	std::vector<u_int32_t>	indices;
 	aiFace					face;

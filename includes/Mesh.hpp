@@ -16,10 +16,15 @@ static const std::string	gTextType[] =
 	"specular"
 };
 
-struct Vertex {
+struct VertexMat {  // contain matrix objects
 	mat::Vec3	pos;
 	mat::Vec3	norm;
 	mat::Vec2	texCoords;
+};
+struct Vertex {  // contain pointer on data on matrix object
+	float posx, posy, posz;
+	float normx, normy, normz;
+	float texCoordsx, texCoordsy;
 };
 
 struct Texture {
@@ -30,7 +35,7 @@ struct Texture {
 
 class Mesh {
 	public:
-		Mesh(std::vector<Vertex> vertices, std::vector<u_int32_t> indices, \
+		Mesh(std::vector<VertexMat> vertices, std::vector<u_int32_t> indices, \
 		std::vector<Texture> textures);
 		Mesh(Mesh const &src);
 		virtual ~Mesh();
@@ -43,7 +48,7 @@ class Mesh {
 
 		void		draw(Shader &shader) const;
 
-		std::vector<Vertex>		vertices;
+		std::vector<VertexMat>		vertices;
 		std::vector<u_int32_t>	indices;
 		std::vector<Texture>	textures;
 	private:

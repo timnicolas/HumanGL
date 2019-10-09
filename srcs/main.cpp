@@ -2,7 +2,6 @@
 #include "Shader.hpp"
 #include "Camera.hpp"
 #include "Model.hpp"
-// #include "glm/gtc/matrix_transform.hpp"
 #include "Matrix.hpp"
 
 void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {

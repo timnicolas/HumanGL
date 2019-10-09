@@ -42,6 +42,7 @@ namespace mat {
 			BaseMat &operator=(const BaseMat &other);
 			explicit operator std::vector<float>() const { return *_data; };
 			explicit operator float*() const { return static_cast<float*>(&(*_data)[0]); };
+			// operator float*() const { return static_cast<float*>(&(*_data)[0]); };
 
 			// operator [][]
 			class Dim2 {
