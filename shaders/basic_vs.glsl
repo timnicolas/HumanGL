@@ -18,21 +18,21 @@ uniform mat4 bones[MAX_BONES];
 
 void main() {
 
-    // mat4 boneTransform = bones[1] * 0.3;
-    // boneTransform += bones[2] * 0.3;
-    // boneTransform += bones[3] * 0.2;
-    // boneTransform += bones[4] * 0.2;
+    mat4 boneTransform = bones[1] * 0.3;
+    boneTransform += bones[2] * 0.3;
+    boneTransform += bones[3] * 0.2;
+    boneTransform += bones[4] * 0.2;
 
-    mat4 boneTransform = bones[bonesID[0]] * bonesWeight[0];
-    boneTransform += bones[bonesID[1]] * bonesWeight[1];
-    boneTransform += bones[bonesID[2]] * bonesWeight[2];
-    boneTransform += bones[bonesID[3]] * bonesWeight[3];
+    // mat4 boneTransform = bones[bonesID[0]] * bonesWeight[0];
+    // boneTransform += bones[bonesID[1]] * bonesWeight[1];
+    // boneTransform += bones[bonesID[2]] * bonesWeight[2];
+    // boneTransform += bones[bonesID[3]] * bonesWeight[3];
 
     vec4 pos = boneTransform * vec4(aPos, 1.0);
 
 	texCoords = aTexCoords;
 	fragPos = vec3(model * vec4(aPos, 1.0));
 	normal = mat3(transpose(inverse(model))) * aNormal;
-	gl_Position = projection * view * model * vec4(aPos, 1.0);
-	// gl_Position = projection * view * model * pos;
+	// gl_Position = projection * view * model * vec4(aPos, 1.0);
+	gl_Position = projection * view * model * pos;
 }

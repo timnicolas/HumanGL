@@ -27,7 +27,7 @@ Model &Model::operator=(Model const &rhs) {
 }
 
 void	Model::draw(Shader &shader) {
-	glUniformMatrix4fv(glGetUniformLocation(shader.id, "bones"), MAX_BONES, MAT_SHADER_TRANSPOSE, boneInfoUniform);
+	glUniformMatrix4fv(glGetUniformLocation(shader.id, "bones"), MAX_BONES, GL_TRUE, boneInfoUniform);
 	for (auto &mesh : _meshes)
 		mesh.draw(shader);
 }
