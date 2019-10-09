@@ -1,6 +1,9 @@
 #include "Model.hpp"
+#include <limits>
 
-Model::Model(const char *path) {
+Model::Model(const char *path)
+: _minPos(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()),
+  _maxPos(std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), std::numeric_limits<float>::min()) {
 	loadModel(path);
 }
 
@@ -77,6 +80,56 @@ Material	loadMaterial(aiMaterial *mat) {
 	return material;
 }
 
+// update min/max pos to use later to scale and center the model
+void	Model::updateMinMaxPos(mat::Vec3 pos) {
+	if (pos.x > _maxPos.x)
+		_maxPos.x = pos.x;
+	if (pos.y > _maxPos.y)
+		_maxPos.y = pos.y;
+	if (pos.z > _maxPos.z)
+		_maxPos.z = pos.z;
+
+	if (pos.x < _minPos.x)
+		_minPos.x = pos.x;
+	if (pos.y < _minPos.y)
+		_minPos.y = pos.y;
+	if (pos.z < _minPos.z)
+		_minPos.z = pos.z;
+}
+
+// return the model matrix to scale and center the model
+mat::Mat4	Model::getModelM() {
+	mat::Mat4	model = mat::Mat4(1.0f);
+	float		maxDiff;
+	float		scale;
+	mat::Vec3	transl;
+
+	// calculate scale
+	maxDiff = _maxPos.x - _minPos.x;
+	if (maxDiff < _maxPos.y - _minPos.y)
+		maxDiff = _maxPos.y - _minPos.y;
+	if (maxDiff < _maxPos.z - _minPos.z)
+		maxDiff = _maxPos.z - _minPos.z;
+	maxDiff /= 2;
+	scale = 1.0f / maxDiff;
+	// apply the scale
+	model = model.scale(mat::Vec3(scale, scale, scale));
+
+	// calculate the translation
+	transl.x = -((_minPos.x + _maxPos.x) / 2);
+	transl.y = -((_minPos.y + _maxPos.y) / 2);
+	transl.z = -((_minPos.z + _maxPos.z) / 2);
+	// verification due to float precision
+	transl.x = scale * ((transl.x < 0.00001f && transl.x > -0.00001f) ? 0.0f : transl.x);
+	transl.y = scale * ((transl.y < 0.00001f && transl.y > -0.00001f) ? 0.0f : transl.y);
+	transl.z = scale * ((transl.z < 0.00001f && transl.z > -0.00001f) ? 0.0f : transl.z);
+	// apply the translation
+	model = model.translate(transl);
+
+	return model;
+}
+
+
 Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 	std::vector<VertexMat>	vertices;
 	VertexMat				vertex;
@@ -94,6 +147,8 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 		vertex.pos.x = mesh->mVertices[i].x;
 		vertex.pos.y = mesh->mVertices[i].y;
 		vertex.pos.z = mesh->mVertices[i].z;
+		// update the min/max pos
+		updateMinMaxPos(vertex.pos);
 		// process vertex normals
 		vertex.norm.x = mesh->mNormals[i].x;
 		vertex.norm.y = mesh->mNormals[i].y;

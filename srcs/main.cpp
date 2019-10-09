@@ -21,7 +21,7 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {
 	bool firstLoop = true;
 
 	winU = (tWinUser *)glfwGetWindowUserPointer(window);
-	glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+	glClearColor(0.11373f, 0.17647f, 0.27059f, 1.0f);
 	setupDirLight(sh);
 	while (!glfwWindowShouldClose(window)) {
 		time_start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
@@ -38,9 +38,7 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {
 		mat::Mat4	projection = mat::perspective(mat::radians(cam.zoom), winU->width / winU->height, 0.1f, 100.0f);
         sh.setMat4("projection", projection);
 		// model matrix
-		mat::Mat4	model = mat::Mat4(1.0f);
-		model = model.translate(mat::Vec3(0.0f, -1.75f, 0.0f));
-		model = model.scale(mat::Vec3(0.2f, 0.2f, 0.2f));
+		mat::Mat4	model = objModel.getModelM();
 		sh.setMat4("model", model);
 
         sh.setVec3("viewPos", cam.pos.x, cam.pos.y, cam.pos.z);

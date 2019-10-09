@@ -19,7 +19,8 @@ class Model {
 		std::string				getDirectory() const;
 		std::vector<Texture>	getTexturesLoaded() const;
 
-		void draw(Shader &shader);
+		void		draw(Shader &shader);
+		mat::Mat4	getModelM();
 
 		class AssimpError : public std::exception {
 			public:
@@ -32,9 +33,15 @@ class Model {
 		std::vector<Texture>	loadMaterialTextures(aiMaterial *mat, \
 		aiTextureType type, TextureT textType);
 
+		void					updateMinMaxPos(mat::Vec3 pos);
+
+
 		std::vector<Mesh>		_meshes;
 		std::string				_directory;
 		std::vector<Texture>	_texturesLoaded;
+
+		mat::Vec3				_minPos;
+		mat::Vec3				_maxPos;
 };
 
 #endif
