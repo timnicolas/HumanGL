@@ -57,14 +57,16 @@ void	Mesh::draw(Shader &shader) const {
 }
 
 void	Mesh::_setupMesh() {
-	// create real vertex object
+	// create real vertex object to send to the bufferData in openGL
 	std::vector<Vertex> vert;
 	for (size_t i=0; i < vertices.size(); i++) {
 		Vertex v = Vertex{
 			vertices[i].pos.x, vertices[i].pos.y, vertices[i].pos.z,
 			vertices[i].norm.x, vertices[i].norm.y, vertices[i].norm.z,
-			vertices[i].texCoords.x, vertices[i].texCoords.y
-			};
+			vertices[i].texCoords.x, vertices[i].texCoords.y,
+			{vertices[i].bonesID[0], vertices[i].bonesID[1], vertices[i].bonesID[2], vertices[i].bonesID[3]},
+			{vertices[i].bonesW[0], vertices[i].bonesW[1], vertices[i].bonesW[2], vertices[i].bonesW[3]}
+		};
 		vert.push_back(v);
 	}
 
@@ -88,6 +90,12 @@ void	Mesh::_setupMesh() {
 	// vertex textCoords
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, texCoordsx));
+	// vertex bones IDs
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, NUM_BONES_PER_VERTEX, GL_INT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, bonesID));
+	// vertex bones weight
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, NUM_BONES_PER_VERTEX, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, bonesW));
 
     glBindVertexArray(0);
 }
@@ -100,4 +108,15 @@ u_int32_t	Mesh::getVbo() const {
 }
 u_int32_t	Mesh::getEbo() const {
 	return _ebo;
+}
+
+void Mesh::addBoneData(uint boneID, float weight, GLuint vertexID) {  // add a bone ID ad weight to model
+	for (GLuint i = 0; i < NUM_BONES_PER_VERTEX; i++) {
+		if (vertices[vertexID].bonesW[i] == 0.0f) {
+			vertices[vertexID].bonesID[i] = boneID;
+			vertices[vertexID].bonesW[i] = weight;
+			return;
+		}
+	}
+	std::cerr << "too many bones in Mesh -> max: " << NUM_BONES_PER_VERTEX << "\n";
 }

@@ -35,6 +35,19 @@ class Model {
 		std::vector<Mesh>		_meshes;
 		std::string				_directory;
 		std::vector<Texture>	_texturesLoaded;
+
+		struct BoneInfo {
+			mat::Mat4 boneOffset;
+			mat::Mat4 finalTransformation;
+			BoneInfo() {
+				boneOffset = mat::Mat4(false);
+				finalTransformation = mat::Mat4(false);
+			}
+		};
+		std::map<std::string, int> boneMap; // maps a bone name to its index
+		BoneInfo boneInfo[MAX_BONES];  // all bones
+		float *boneInfoUniform;  // all datas ready to send to vertex shader (uniform mat4[MAX_BONES])
+		uint actBoneId = 0;
 };
 
 #endif

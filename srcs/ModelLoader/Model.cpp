@@ -9,6 +9,7 @@ Model::Model(Model const &src) {
 }
 
 Model::~Model() {
+	free(boneInfoUniform);
 }
 
 Model &Model::operator=(Model const &rhs) {
@@ -21,6 +22,7 @@ Model &Model::operator=(Model const &rhs) {
 }
 
 void	Model::draw(Shader &shader) {
+	glUniformMatrix4fv(glGetUniformLocation(shader.id, "bones"), MAX_BONES, MAT_SHADER_TRANSPOSE, boneInfoUniform);
 	for (auto &mesh : _meshes)
 		mesh.draw(shader);
 }
@@ -42,6 +44,13 @@ void	Model::loadModel(std::string path) {
 	_directory = path.substr(0, path.find_last_of('/'));
 
 	processNode(scene->mRootNode, scene);
+
+	boneInfoUniform = static_cast<float*>(malloc(sizeof(float) * MAX_BONES * 16));
+	for (uint i=0; i < MAX_BONES; i++) {
+		for (uint j=0; j < 16; j++) {
+			boneInfoUniform[i*16 + j] = boneInfo[i].boneOffset.getData()[j];
+		}
+	}
 }
 
 void	Model::processNode(aiNode *node, const aiScene *scene) {
@@ -107,7 +116,33 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 	TextureT::specular);
 	textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 
-    return Mesh(vertices, indices, textures);
+    Mesh ret = Mesh(vertices, indices, textures);
+	for (uint i=0; i < mesh->mNumBones; i++) {
+        uint boneIndex = 0;
+        std::string boneName(mesh->mBones[i]->mName.data);
+
+        if (boneMap.find(boneName) == boneMap.end()) {
+            boneIndex = actBoneId;
+            actBoneId++;
+            BoneInfo bi;
+            boneInfo[actBoneId] = bi;
+        }
+        else {
+            boneIndex = boneMap[boneName];
+        }
+
+        boneMap[boneName] = boneIndex;
+        boneInfo[boneIndex].boneOffset = aiToMat4(mesh->mBones[i]->mOffsetMatrix);
+
+		for (uint j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
+			int vertexID = mesh->mBones[i]->mWeights[j].mVertexId;
+			float weight = mesh->mBones[i]->mWeights[j].mWeight;
+			if (weight <= 0.1)
+				continue;
+			ret.addBoneData(boneIndex, weight, vertexID);
+		}
+	}
+	return ret;
 }
 
 std::vector<Texture>	Model::loadMaterialTextures(aiMaterial *mat, \

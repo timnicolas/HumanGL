@@ -10,11 +10,22 @@
 // GL_TRUE if we need to reverse the matrix data. else GL_FALSE
 # define MAT_SHADER_TRANSPOSE GL_TRUE  // type: bool -> GL_FALSE | GL_TRUE
 
+# define NUM_BONES_PER_VERTEX 4 // type: int -> number of bones per vertex
+# define MAX_BONES 100 // maximum bones on the model
+
 # define GLFW_INCLUDE_GLCOREARB
 # include <GLFW/glfw3.h>
 # include <string>
 # include <iostream>
 
+# include <assimp/scene.h>
 # include "Matrix.hpp"
+
+/* matrix conversion */
+aiMatrix4x4 mat4ToAi(mat::Mat4 mat);
+mat::Mat4 aiToMat4(aiMatrix4x4& in_mat);
+
+#define ZERO_MEM(a) memset(a, 0, sizeof(a))
+#define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))
 
 #endif

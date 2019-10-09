@@ -4,6 +4,7 @@
 #include "commonInclude.hpp"
 #include "Shader.hpp"
 #include <vector>
+#include <map>
 
 enum class TextureT {
 	difuse,
@@ -15,16 +16,19 @@ static const std::string	gTextType[] =
 	"diffuse",
 	"specular"
 };
-
 struct VertexMat {  // contain matrix objects
 	mat::Vec3	pos;
 	mat::Vec3	norm;
 	mat::Vec2	texCoords;
+	uint bonesID[NUM_BONES_PER_VERTEX];
+	float bonesW[NUM_BONES_PER_VERTEX];
 };
 struct Vertex {  // contain pointer on data on matrix object
 	float posx, posy, posz;
 	float normx, normy, normz;
 	float texCoordsx, texCoordsy;
+	uint bonesID[NUM_BONES_PER_VERTEX];
+	float bonesW[NUM_BONES_PER_VERTEX];
 };
 
 struct Texture {
@@ -47,6 +51,7 @@ class Mesh {
 		u_int32_t	getEbo() const;
 
 		void		draw(Shader &shader) const;
+		void		addBoneData(uint boneID, float weight, GLuint vertexID);
 
 		std::vector<VertexMat>		vertices;
 		std::vector<u_int32_t>	indices;
