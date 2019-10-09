@@ -25,9 +25,11 @@ class Shader {
 		void	setInt(const std::string &name, int value) const;
 		void	setFloat(const std::string &name, float value) const;
 		void	setVec2(const std::string &name, float x, float y) const;
+		void	setVec2(const std::string &name, const mat::Vec2 &vec) const;
 		void	setVec3(const std::string &name, float x, float y, float z) const;
+		void	setVec3(const std::string &name, const mat::Vec3 &vec) const;
 		void	setVec4(const std::string &name, float x, float y, float z, float w);
-		// need to add matrix uniform functions when created
+		void	setVec4(const std::string &name, const mat::Vec4 &vec);
 		void	setMat2(const std::string &name, const mat::Mat2 &mat) const;
 		void	setMat3(const std::string &name, const mat::Mat3 &mat) const;
 		void	setMat4(const std::string &name, const mat::Mat4 &mat) const;

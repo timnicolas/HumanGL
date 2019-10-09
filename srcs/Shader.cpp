@@ -125,11 +125,20 @@ void	Shader::setFloat(const std::string &name, float value) const {
 void	Shader::setVec2(const std::string &name, float x, float y) const {
 	glUniform2f(glGetUniformLocation(id, name.c_str()), x, y);
 }
+void	Shader::setVec2(const std::string &name, const mat::Vec2 &vec) const {
+	glUniform2fv(glGetUniformLocation(id, name.c_str()), 1, static_cast<float*>(vec));
+}
 void	Shader::setVec3(const std::string &name, float x, float y, float z) const {
 	glUniform3f(glGetUniformLocation(id, name.c_str()), x, y, z);
 }
+void	Shader::setVec3(const std::string &name, const mat::Vec3 &vec) const {
+	glUniform3fv(glGetUniformLocation(id, name.c_str()), 1, static_cast<float*>(vec));
+}
 void	Shader::setVec4(const std::string &name, float x, float y, float z, float w) {
 	glUniform4f(glGetUniformLocation(id, name.c_str()), x, y, z, w);
+}
+void	Shader::setVec4(const std::string &name, const mat::Vec4 &vec) {
+	glUniform4fv(glGetUniformLocation(id, name.c_str()), 1, static_cast<float*>(vec));
 }
 // need to add matrix uniform functions when created
 void	Shader::setMat2(const std::string &name, const mat::Mat2 &mat) const {
