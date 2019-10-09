@@ -8,6 +8,8 @@ layout (location = 4) in vec4 bonesWeight;
 const int MAX_BONES = 100;
 
 out vec2 texCoords;
+out	vec3 fragPos;
+out	vec3 normal;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -29,6 +31,8 @@ void main() {
     vec4 pos = boneTransform * vec4(aPos, 1.0);
 
 	texCoords = aTexCoords;
+	fragPos = vec3(model * vec4(aPos, 1.0));
+	normal = mat3(transpose(inverse(model))) * aNormal;
 	gl_Position = projection * view * model * vec4(aPos, 1.0);
 	// gl_Position = projection * view * model * pos;
 }

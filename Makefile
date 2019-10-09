@@ -17,7 +17,8 @@ SRC =	main.cpp \
 \
 		ModelLoader/Mesh.cpp \
 		ModelLoader/Model.cpp \
-		ModelLoader/Texture.cpp
+		ModelLoader/Texture.cpp \
+		ModelLoader/Material.cpp
 
 HEAD =	commonInclude.hpp \
 		matrix/Matrix.hpp \
@@ -28,7 +29,8 @@ HEAD =	commonInclude.hpp \
 		Model.hpp \
 		Texture.hpp \
 		lib/stb_image.h \
-		Camera.hpp
+		Camera.hpp \
+		Material.hpp
 
 CC = g++
 DEBUG_FLAGS = -g3 -fsanitize=address

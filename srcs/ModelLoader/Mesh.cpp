@@ -1,10 +1,11 @@
 #include "Mesh.hpp"
 
 Mesh::Mesh(std::vector<VertexMat> vertices, std::vector<u_int32_t> indices, \
-std::vector<Texture> textures)
+std::vector<Texture> textures, Material material)
 :	vertices(vertices),
 	indices(indices),
-	textures(textures)
+	textures(textures),
+	material(material)
 {
 	_setupMesh();
 }
@@ -21,6 +22,7 @@ Mesh &Mesh::operator=(Mesh const &rhs) {
 		vertices = rhs.vertices;
 		indices = rhs.indices;
 		textures = rhs.textures;
+		material = rhs.material;
 		_vao = rhs.getVao();
 		_vbo = rhs.getVbo();
 		_ebo = rhs.getEbo();
@@ -28,27 +30,38 @@ Mesh &Mesh::operator=(Mesh const &rhs) {
 	return *this;
 }
 
-void	Mesh::draw(Shader &shader) const {
-	u_int32_t	diffuseId;
-	u_int32_t	specularId;
-	std::string	nb;
+void	Mesh::draw(Shader &sh) const {
+	bool	diffuseText = false;
+	bool	specularText = false;
 
-	diffuseId = 0;
-	specularId = 0;
-
-	shader.use();
+	sh.use();
 	for (u_int16_t i = 0; i < textures.size(); ++i) {
 		glActiveTexture(GL_TEXTURE0 + i);
 
-		if (textures[i].type == TextureT::difuse)
-			nb = std::to_string(++diffuseId);
-		else if (textures[i].type == TextureT::specular)
-			nb = std::to_string(++specularId);
-
-		shader.setInt(("texture_" + gTextType[static_cast<int>(textures[i].type)] + nb).c_str(), i);
-		glBindTexture(GL_TEXTURE_2D, textures[i].id);
+		if (textures[i].type == TextureT::difuse && !diffuseText) {
+			diffuseText = true;
+			sh.setBool("material.diffuse.isTexture", true);
+			sh.setInt("material.diffuse.texture", i);
+			glBindTexture(GL_TEXTURE_2D, textures[i].id);
+		}
+		else if (textures[i].type == TextureT::specular && !specularText) {
+			specularText = true;
+			sh.setBool("material.specular.isTexture", true);
+			sh.setInt("material.specular.texture", i);
+			glBindTexture(GL_TEXTURE_2D, textures[i].id);
+		}
 	}
 	glActiveTexture(GL_TEXTURE0);
+
+	if (!diffuseText) {
+		sh.setBool("material.diffuse.isTexture", false);
+		sh.setVec3("material.diffuse.color", material.diffuse);
+	}
+	if (!specularText) {
+		sh.setBool("material.specular.isTexture", false);
+		sh.setVec3("material.specular.color", material.specular);
+	}
+	sh.setFloat("material.shininess", material.shininess);
 
 	// drawing mesh
 	glBindVertexArray(_vao);
