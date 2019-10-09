@@ -4,9 +4,9 @@
 Model::Model(const char *path)
 : _minPos(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()),
   _maxPos(std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), std::numeric_limits<float>::min()),
-  _model(mat::Mat4(1.0f)) {
+  _model(mat::Mat4(1.0f)),
+  _modelScale(1) {
 	loadModel(path);
-	calcModelMatrix();
 }
 
 Model::Model(Model const &src) {
@@ -48,14 +48,20 @@ void	Model::loadModel(std::string path) {
 	}
 	_directory = path.substr(0, path.find_last_of('/'));
 
+	globalTransform = aiToMat4(scene->mRootNode->mTransformation);  // get global transform
 	processNode(scene->mRootNode, scene);
+	initScale();
+	setBonesTransform(scene->mRootNode, globalTransform);
 
 	boneInfoUniform = static_cast<float*>(malloc(sizeof(float) * MAX_BONES * 16));
 	for (uint i=0; i < MAX_BONES; i++) {
 		for (uint j=0; j < 16; j++) {
-			boneInfoUniform[i*16 + j] = boneInfo[i].boneOffset.getData()[j];
+			boneInfoUniform[i*16 + j] = boneInfo[i].finalTransformation.getData()[j];
+			// std::cout << boneInfoUniform[i*16 + j] << " ";  // 1/2 show all bones matrix
 		}
+		// std::cout << "\n";  // 2/2 show all bones matrix
 	}
+	calcModelMatrix();
 }
 
 void	Model::processNode(aiNode *node, const aiScene *scene) {
@@ -69,6 +75,25 @@ void	Model::processNode(aiNode *node, const aiScene *scene) {
 	// recursion with each of its children
 	for (u_int32_t i = 0; i < node->mNumChildren; ++i)
 		processNode(node->mChildren[i], scene);
+}
+
+void	Model::setBonesTransform(aiNode *node, mat::Mat4 parentTransform) {
+	mat::Mat4 newParent = parentTransform;
+	// std::cout << node->mName.data << "\n";  // print node name
+	if (boneMap.find(node->mName.data) != boneMap.end()) { // if there is a bone (same name as the node)
+		BoneInfo &bone = boneInfo[boneMap[node->mName.data]];
+		bone.finalTransformation = parentTransform * bone.boneOffset;
+		newParent = bone.finalTransformation;
+		bone.finalTransformation[0][3] *= _modelScale;
+		bone.finalTransformation[1][3] *= _modelScale;
+		bone.finalTransformation[2][3] *= _modelScale;
+		// std::cout << bone.finalTransformation << "\n";  // print transformation
+	}
+
+	// recursion with each of its children
+	for (u_int32_t i = 0; i < node->mNumChildren; ++i) {
+		setBonesTransform(node->mChildren[i], newParent);
+	}
 }
 
 Material	loadMaterial(aiMaterial *mat) {
@@ -108,14 +133,9 @@ void	Model::updateMinMaxPos(mat::Vec3 pos) {
 		_minPos.z = pos.z;
 }
 
-// calculate the model matrix to scale and center the Model
-void	Model::calcModelMatrix() {
+// init the object scale
+void	Model::initScale() {
 	float		maxDiff;
-	float		scale;
-	mat::Vec3	transl;
-
-	_model = mat::Mat4(1.0f);
-
 	// calculate scale
 	maxDiff = _maxPos.x - _minPos.x;
 	if (maxDiff < _maxPos.y - _minPos.y)
@@ -123,18 +143,26 @@ void	Model::calcModelMatrix() {
 	if (maxDiff < _maxPos.z - _minPos.z)
 		maxDiff = _maxPos.z - _minPos.z;
 	maxDiff /= 2;
-	scale = 1.0f / maxDiff;
+	_modelScale = 1.0f / maxDiff;
+}
+
+// calculate the model matrix to scale and center the Model
+void	Model::calcModelMatrix() {
+	mat::Vec3	transl;
+
+	_model = mat::Mat4(1.0f);
+
 	// apply the scale
-	_model = _model.scale(mat::Vec3(scale, scale, scale));
+	_model = _model.scale(mat::Vec3(_modelScale, _modelScale, _modelScale));
 
 	// calculate the translation
 	transl.x = -((_minPos.x + _maxPos.x) / 2);
 	transl.y = -((_minPos.y + _maxPos.y) / 2);
 	transl.z = -((_minPos.z + _maxPos.z) / 2);
 	// verification due to float precision
-	transl.x = scale * ((transl.x < 0.00001f && transl.x > -0.00001f) ? 0.0f : transl.x);
-	transl.y = scale * ((transl.y < 0.00001f && transl.y > -0.00001f) ? 0.0f : transl.y);
-	transl.z = scale * ((transl.z < 0.00001f && transl.z > -0.00001f) ? 0.0f : transl.z);
+	transl.x = _modelScale * ((transl.x < 0.00001f && transl.x > -0.00001f) ? 0.0f : transl.x);
+	transl.y = _modelScale * ((transl.y < 0.00001f && transl.y > -0.00001f) ? 0.0f : transl.y);
+	transl.z = _modelScale * ((transl.z < 0.00001f && transl.z > -0.00001f) ? 0.0f : transl.z);
 	// apply the translation
 	_model = _model.translate(transl);
 }
@@ -202,6 +230,7 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
             actBoneId++;
             BoneInfo bi;
             boneInfo[actBoneId] = bi;
+			// std::cout << boneName << "\n";  // show all bones names
         }
         else {
             boneIndex = boneMap[boneName];

@@ -129,5 +129,5 @@ void Mesh::addBoneData(uint boneID, float weight, GLuint vertexID) {  // add a b
 			return;
 		}
 	}
-	std::cerr << "too many bones in Mesh -> max: " << NUM_BONES_PER_VERTEX << "\n";
+	// std::cerr << "too many bones in Mesh -> max: " << NUM_BONES_PER_VERTEX << "\n";
 }

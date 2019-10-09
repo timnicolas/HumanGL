@@ -27,23 +27,7 @@ class Model {
 				virtual const char* what() const throw();
 		};
 	private:
-		void					loadModel(std::string path);
-		void					processNode(aiNode *node, const aiScene *scene);
-		Mesh					processMesh(aiMesh *mesh, const aiScene *scene);
-		std::vector<Texture>	loadMaterialTextures(aiMaterial *mat, \
-		aiTextureType type, TextureT textType);
-
-		void					updateMinMaxPos(mat::Vec3 pos);
-		void					calcModelMatrix();
-
-		std::vector<Mesh>		_meshes;
-		std::string				_directory;
-		std::vector<Texture>	_texturesLoaded;
-
-		mat::Vec3				_minPos;
-		mat::Vec3				_maxPos;
-		mat::Mat4				_model;
-
+		/* bones */
 		struct BoneInfo {
 			mat::Mat4 boneOffset;
 			mat::Mat4 finalTransformation;
@@ -56,6 +40,27 @@ class Model {
 		BoneInfo boneInfo[MAX_BONES];  // all bones
 		float *boneInfoUniform;  // all datas ready to send to vertex shader (uniform mat4[MAX_BONES])
 		uint actBoneId = 0;
+		mat::Mat4 globalTransform;
+
+		void					loadModel(std::string path);
+		void					processNode(aiNode *node, const aiScene *scene);
+		Mesh					processMesh(aiMesh *mesh, const aiScene *scene);
+		std::vector<Texture>	loadMaterialTextures(aiMaterial *mat, \
+		aiTextureType type, TextureT textType);
+		void					setBonesTransform(aiNode *node, mat::Mat4 parentTransform);
+
+		void					updateMinMaxPos(mat::Vec3 pos);
+		void					initScale();
+		void					calcModelMatrix();
+
+		std::vector<Mesh>		_meshes;
+		std::string				_directory;
+		std::vector<Texture>	_texturesLoaded;
+
+		mat::Vec3				_minPos;
+		mat::Vec3				_maxPos;
+		mat::Mat4				_model;
+		float					_modelScale;
 };
 
 #endif
