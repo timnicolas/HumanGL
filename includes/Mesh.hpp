@@ -1,9 +1,10 @@
 #ifndef MESH_HPP
 # define MESH_HPP
 
-#include "commonInclude.hpp"
-#include "Shader.hpp"
-#include <vector>
+# include "commonInclude.hpp"
+# include "Shader.hpp"
+# include "Material.hpp"
+# include <vector>
 
 enum class TextureT {
 	difuse,
@@ -36,7 +37,7 @@ struct Texture {
 class Mesh {
 	public:
 		Mesh(std::vector<VertexMat> vertices, std::vector<u_int32_t> indices, \
-		std::vector<Texture> textures);
+		std::vector<Texture> textures, Material material);
 		Mesh(Mesh const &src);
 		virtual ~Mesh();
 
@@ -48,9 +49,10 @@ class Mesh {
 
 		void		draw(Shader &sh) const;
 
-		std::vector<VertexMat>		vertices;
+		std::vector<VertexMat>	vertices;
 		std::vector<u_int32_t>	indices;
 		std::vector<Texture>	textures;
+		Material				material;
 	private:
         void	_setupMesh();
 

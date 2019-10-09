@@ -57,6 +57,26 @@ void	Model::processNode(aiNode *node, const aiScene *scene) {
 		processNode(node->mChildren[i], scene);
 }
 
+Material	loadMaterial(aiMaterial *mat) {
+	Material material;
+	aiColor3D color(0.f, 0.f, 0.f);
+	float shininess;
+
+	mat->Get(AI_MATKEY_COLOR_DIFFUSE, color);
+	material.diffuse = mat::Vec3(color.r, color.g, color.b);
+
+	mat->Get(AI_MATKEY_COLOR_AMBIENT, color);
+	material.ambient = mat::Vec3(color.r, color.g, color.b);
+
+	mat->Get(AI_MATKEY_COLOR_SPECULAR, color);
+	material.specular = mat::Vec3(color.r, color.g, color.b);
+
+	mat->Get(AI_MATKEY_SHININESS, shininess);
+	material.shininess = shininess;
+
+	return material;
+}
+
 Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 	std::vector<VertexMat>	vertices;
 	VertexMat				vertex;
@@ -107,7 +127,7 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 	TextureT::specular);
 	textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 
-    return Mesh(vertices, indices, textures);
+    return Mesh(vertices, indices, textures, loadMaterial(material));
 }
 
 std::vector<Texture>	Model::loadMaterialTextures(aiMaterial *mat, \

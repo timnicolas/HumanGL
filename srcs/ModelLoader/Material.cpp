@@ -2,10 +2,10 @@
 
 Material::Material(const mat::Vec3 diffuse, const mat::Vec3 specular, \
 const mat::Vec3 ambient, const float shininess)
-: _diffuse(diffuse),
-  _specular(specular),
-  _ambient(ambient),
-  _shininess(shininess) {
+: diffuse(diffuse),
+  specular(specular),
+  ambient(ambient),
+  shininess(shininess) {
 }
 
 Material::Material(Material const &src) {
@@ -17,24 +17,20 @@ Material::~Material() {
 
 Material &Material::operator=(Material const &rhs) {
 	if (this != &rhs) {
-		_diffuse = rhs.getDiffuse();
-		_specular = rhs.getSpecular();
-		_ambient = rhs.getAmbient();
-		_shininess = rhs.getShininess();
+		diffuse = rhs.diffuse;
+		specular = rhs.specular;
+		ambient = rhs.ambient;
+		shininess = rhs.shininess;
 	}
 	return *this;
 }
 
-mat::Vec3	Material::getDiffuse() const {
-	return _diffuse;
-}
-mat::Vec3	Material::getSpecular() const {
-	return _specular;
-}
-mat::Vec3	Material::getAmbient() const {
-	return _ambient;
-}
-float		Material::getShininess() const {
-	return _shininess;
-}
 
+std::ostream & operator << (std::ostream &out, const Material &m) {
+	out << "material_____________" << std::endl;
+	out << " diffuse: (" << m.diffuse.x << ", " << m.diffuse.y << ", " << m.diffuse.z << ")" << std::endl;
+	out << " specular: (" << m.specular.x << ", " << m.specular.y << ", " << m.specular.z << ")" << std::endl;
+	out << " ambient: (" << m.ambient.x << ", " << m.ambient.y << ", " << m.ambient.z << ")" << std::endl;
+	out << " shininess: " << m.shininess << std::endl;
+	return out;
+}

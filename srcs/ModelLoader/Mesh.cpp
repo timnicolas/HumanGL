@@ -1,10 +1,11 @@
 #include "Mesh.hpp"
 
 Mesh::Mesh(std::vector<VertexMat> vertices, std::vector<u_int32_t> indices, \
-std::vector<Texture> textures)
+std::vector<Texture> textures, Material material)
 :	vertices(vertices),
 	indices(indices),
-	textures(textures)
+	textures(textures),
+	material(material)
 {
 	_setupMesh();
 }
@@ -21,6 +22,7 @@ Mesh &Mesh::operator=(Mesh const &rhs) {
 		vertices = rhs.vertices;
 		indices = rhs.indices;
 		textures = rhs.textures;
+		material = rhs.material;
 		_vao = rhs.getVao();
 		_vbo = rhs.getVbo();
 		_ebo = rhs.getEbo();
@@ -51,16 +53,15 @@ void	Mesh::draw(Shader &sh) const {
 	}
 	glActiveTexture(GL_TEXTURE0);
 
-
 	if (!diffuseText) {
 		sh.setBool("material.diffuse.isTexture", false);
-		sh.setVec3("material.diffuse.color", 0.906f, 0.906f, 0.906f);
+		sh.setVec3("material.diffuse.color", material.diffuse);
 	}
 	if (!specularText) {
 		sh.setBool("material.specular.isTexture", false);
-		sh.setVec3("material.specular.color", 0.1, 0.1, 0.1);
+		sh.setVec3("material.specular.color", material.specular);
 	}
-	sh.setFloat("material.shininess", 0.15f);
+	sh.setFloat("material.shininess", material.shininess);
 
 	// drawing mesh
 	glBindVertexArray(_vao);
@@ -113,25 +114,3 @@ u_int32_t	Mesh::getVbo() const {
 u_int32_t	Mesh::getEbo() const {
 	return _ebo;
 }
-
-
-
-// Material loadMaterial(aiMaterial* mat) {
-// 	Material material;
-// 	aiColor3D color(0.f, 0.f, 0.f);
-// 	float shininess;
-
-// 	mat->Get(AI_MATKEY_COLOR_DIFFUSE, color);
-// 	material.Diffuse = glm::vec3(color.r, color.b, color.g);
-
-// 	mat->Get(AI_MATKEY_COLOR_AMBIENT, color);
-// 	material.Ambient = glm::vec3(color.r, color.b, color.g);
-
-// 	mat->Get(AI_MATKEY_COLOR_SPECULAR, color);
-// 	material.Specular = glm::vec3(color.r, color.b, color.g);
-
-// 	mat->Get(AI_MATKEY_SHININESS, shininess);
-// 	material.Shininess = shininess;
-
-// 	return material;
-// }
