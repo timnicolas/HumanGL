@@ -6,6 +6,15 @@
 #include <chrono>
 #include <unistd.h>
 
+void	setupDirLight(Shader &sh) {
+	sh.use();
+
+	sh.setVec3("dirLight.direction", -0.2f, -0.8f, -0.6f);
+	sh.setVec3("dirLight.ambient", 0.5, 0.5, 0.5);
+	sh.setVec3("dirLight.diffuse", 0.99f, 0.98f, 0.94f);
+	sh.setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
+}
+
 void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {
 	tWinUser	*winU;
 	std::chrono::milliseconds time_start;
@@ -13,6 +22,7 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {
 
 	winU = (tWinUser *)glfwGetWindowUserPointer(window);
 	glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+	setupDirLight(sh);
 	while (!glfwWindowShouldClose(window)) {
 		time_start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 		processInput(window);
@@ -33,6 +43,7 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {
 		model = model.scale(mat::Vec3(0.2f, 0.2f, 0.2f));
 		sh.setMat4("model", model);
 
+        sh.setVec3("viewPos", cam.pos.x, cam.pos.y, cam.pos.z);
 		// draw the model
 		objModel.draw(sh);
 

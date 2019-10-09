@@ -46,7 +46,7 @@ class Mesh {
 		u_int32_t	getVbo() const;
 		u_int32_t	getEbo() const;
 
-		void		draw(Shader &shader) const;
+		void		draw(Shader &sh) const;
 
 		std::vector<VertexMat>		vertices;
 		std::vector<u_int32_t>	indices;
