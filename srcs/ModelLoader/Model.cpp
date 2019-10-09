@@ -3,8 +3,10 @@
 
 Model::Model(const char *path)
 : _minPos(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()),
-  _maxPos(std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), std::numeric_limits<float>::min()) {
+  _maxPos(std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), std::numeric_limits<float>::min()),
+  _model(mat::Mat4(1.0f)) {
 	loadModel(path);
+	calcModelMatrix();
 }
 
 Model::Model(Model const &src) {
@@ -97,12 +99,13 @@ void	Model::updateMinMaxPos(mat::Vec3 pos) {
 		_minPos.z = pos.z;
 }
 
-// return the model matrix to scale and center the model
-mat::Mat4	Model::getModelM() {
-	mat::Mat4	model = mat::Mat4(1.0f);
+// calculate the model matrix to scale and center the Model
+void	Model::calcModelMatrix() {
 	float		maxDiff;
 	float		scale;
 	mat::Vec3	transl;
+
+	_model = mat::Mat4(1.0f);
 
 	// calculate scale
 	maxDiff = _maxPos.x - _minPos.x;
@@ -113,7 +116,7 @@ mat::Mat4	Model::getModelM() {
 	maxDiff /= 2;
 	scale = 1.0f / maxDiff;
 	// apply the scale
-	model = model.scale(mat::Vec3(scale, scale, scale));
+	_model = _model.scale(mat::Vec3(scale, scale, scale));
 
 	// calculate the translation
 	transl.x = -((_minPos.x + _maxPos.x) / 2);
@@ -124,9 +127,7 @@ mat::Mat4	Model::getModelM() {
 	transl.y = scale * ((transl.y < 0.00001f && transl.y > -0.00001f) ? 0.0f : transl.y);
 	transl.z = scale * ((transl.z < 0.00001f && transl.z > -0.00001f) ? 0.0f : transl.z);
 	// apply the translation
-	model = model.translate(transl);
-
-	return model;
+	_model = _model.translate(transl);
 }
 
 
@@ -231,4 +232,7 @@ std::string				Model::getDirectory() const {
 }
 std::vector<Texture>	Model::getTexturesLoaded() const {
 	return _texturesLoaded;
+}
+mat::Mat4	Model::getModelM() const {
+	return _model;
 }
