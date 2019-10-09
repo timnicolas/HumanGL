@@ -3,13 +3,18 @@
 #include "Camera.hpp"
 #include "Model.hpp"
 #include "Matrix.hpp"
+#include <chrono>
+#include <unistd.h>
 
 void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {
 	tWinUser	*winU;
+	std::chrono::milliseconds time_start;
+	bool firstLoop = true;
 
 	winU = (tWinUser *)glfwGetWindowUserPointer(window);
 	glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 	while (!glfwWindowShouldClose(window)) {
+		time_start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 		processInput(window);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -33,6 +38,18 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+
+		std::chrono::milliseconds time_loop = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()) - time_start;
+		if (time_loop.count() > LOOP_TIME) {
+			#if DEBUG == true
+				if (!firstLoop)
+					std::cout << "loop slow -> " << time_loop.count() << "ms / " << LOOP_TIME << "ms (" << FPS << "fps)\n";
+			#endif
+		}
+		else {
+			usleep((LOOP_TIME - time_loop.count()) * 1000);
+		}
+		firstLoop = false;
 	}
 	glfwDestroyWindow(window);
 	glfwPollEvents();
