@@ -51,6 +51,10 @@ void Camera::processKeyboard(CamMovement direction, float dtTime) {
 		pos = pos - right * velocity;
 	if (direction == CamMovement::Right)
 		pos = pos + right * velocity;
+	if (direction == CamMovement::Up)
+		pos = pos + mat::Vec3(0, 1, 0) * velocity;
+	if (direction == CamMovement::Down)
+		pos = pos - mat::Vec3(0, 1, 0) * velocity;
 }
 
 void Camera::processMouseMovement(float xOffset, float yOffset, bool constrainPitch) {
