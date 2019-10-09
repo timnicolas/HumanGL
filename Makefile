@@ -33,7 +33,7 @@ HEAD =	commonInclude.hpp \
 CC = g++
 DEBUG_FLAGS = -g3 -fsanitize=address
 LIBS_FLAGS	= -L ~/.brew/lib -framework OpenGL -lglfw -lassimp
-CFLAGS = -Wno-deprecated -Wall -Wextra -std=c++0x#-Werror
+CFLAGS = -Wno-deprecated -Ofast -Wall -Wextra -std=c++0x#-Werror
 
 HEADS	= $(addprefix $(INC_DIR)/, $(HEAD))
 OBJS	= $(addprefix $(OBJS_DIR)/, $(SRC:.cpp=.o))
