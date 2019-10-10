@@ -17,9 +17,8 @@ uniform mat4 projection;
 uniform mat4 bones[MAX_BONES];
 
 void main() {
-    mat4 boneTransform;
+    mat4 boneTransform = mat4(1.0);
     for (int i=0; i < 4; i++) {
-    //     // boneTransform += bones[bonesID[i]] * 1;
         boneTransform += bones[bonesID[i]] * bonesWeight[i];
     }
 
