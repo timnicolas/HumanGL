@@ -91,15 +91,18 @@ void	Model::processNode(aiNode *node, const aiScene *scene) {
 }
 
 void	Model::setBonesTransform(aiNode *node, mat::Mat4 parentTransform) {
-	mat::Mat4 newParent = parentTransform;
+	mat::Mat4	newParent = parentTransform;
+	BoneInfo	*bone;
+
 	// std::cout << node->mName.data << "\n";  // print node name
-	if (_boneMap.find(node->mName.data) != _boneMap.end()) { // if there is a bone (same name as the node)
-		BoneInfo &bone = _boneInfo[_boneMap[node->mName.data]];
-		bone.finalTransformation = parentTransform * bone.boneOffset;
-		newParent = bone.finalTransformation;
-		bone.finalTransformation[0][3] *= _modelScale;
-		bone.finalTransformation[1][3] *= _modelScale;
-		bone.finalTransformation[2][3] *= _modelScale;
+	// if there is a bone (same name as the node)
+	if (_boneMap.find(node->mName.data) != _boneMap.end()) {
+		bone = &(_boneInfo[_boneMap[node->mName.data]]);
+		bone->finalTransformation = parentTransform * bone->boneOffset;
+		newParent = bone->finalTransformation;
+		bone->finalTransformation[0][3] *= _modelScale;
+		bone->finalTransformation[1][3] *= _modelScale;
+		bone->finalTransformation[2][3] *= _modelScale;
 		// std::cout << bone.finalTransformation << "\n";  // print transformation
 	}
 
