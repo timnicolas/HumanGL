@@ -40,7 +40,8 @@ void	Model::loadModel(std::string path) {
 	aiProcess_Triangulate | \
 	aiProcess_FlipUVs | \
 	aiProcess_GenNormals | \
-	aiProcess_GenUVCoords);
+	aiProcess_GenUVCoords | \
+	aiProcess_LimitBoneWeights);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		std::cerr << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
