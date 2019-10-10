@@ -39,6 +39,7 @@ Model &Model::operator=(Model const &rhs) {
 }
 
 std::chrono::milliseconds startAnimTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+
 void	Model::draw(Shader &shader) {
 	std::chrono::milliseconds curTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 	std::chrono::milliseconds runningTime = (curTime - startAnimTime);
