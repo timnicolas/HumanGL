@@ -38,43 +38,206 @@ Model &Model::operator=(Model const &rhs) {
 	return *this;
 }
 
+std::chrono::milliseconds startAnimTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 void	Model::draw(Shader &shader) {
+	std::chrono::milliseconds curTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+	std::chrono::milliseconds runningTime = (curTime - startAnimTime);
+	float timeInMillis = runningTime.count();
+	float ticksPerSecond = (_curAnimation->mTicksPerSecond != 0) ? _curAnimation->mTicksPerSecond : 25.0f;
+	float timeInTicks = (timeInMillis / 1000.0) * ticksPerSecond;
+	//loops the animation
+	float animationTime = fmod(timeInTicks, 413);
+
+	// std::cout << "animTime " << animationTime << "\ttimeInMillis " << timeInMillis << "\ttimeInTicks " << timeInTicks << "\n";
+
+	setBonesTransform(animationTime, _scene->mRootNode, _scene, _globalTransform);
+	_boneInfoUniform = static_cast<float*>(malloc(sizeof(float) * MAX_BONES * 16));
+	for (u_int32_t i=0; i < MAX_BONES; ++i) {
+		for (u_int32_t j=0; j < 16; ++j) {
+			_boneInfoUniform[i*16 + j] = _boneInfo[i].finalTransformation.getData()[j];
+			// std::cout << boneInfoUniform[i*16 + j] << " ";  // 1/2 show all bones matrix
+		}
+		// std::cout << "\n";  // 2/2 show all bones matrix
+	}
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "bones"), MAX_BONES, GL_TRUE, _boneInfoUniform);
+
 	for (auto &mesh : _meshes)
 		mesh.draw(shader);
 }
 
 void	Model::loadModel(std::string path) {
-	Assimp::Importer	import;
-	const aiScene		*scene;
-
-	scene = import.ReadFile(path, \
+	_scene = _importer.ReadFile(path, \
 	aiProcess_Triangulate | \
 	aiProcess_FlipUVs | \
 	aiProcess_GenNormals | \
 	aiProcess_GenUVCoords | \
 	aiProcess_LimitBoneWeights);
 
-	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-		std::cerr << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
+	if (!_scene || _scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !_scene->mRootNode) {
+		std::cerr << "ERROR::ASSIMP::" << _importer.GetErrorString() << std::endl;
 		throw Model::AssimpError();
 	}
 	_directory = path.substr(0, path.find_last_of('/'));
 
-	_globalTransform = aiToMat4(scene->mRootNode->mTransformation);  // get global transform
-	processNode(scene->mRootNode, scene);
-	initScale();
-	setBonesTransform(scene->mRootNode, _globalTransform);
+	_globalTransform = aiToMat4(_scene->mRootNode->mTransformation);  // get global transform
+	_globalInverseTransform = _globalTransform;
 
-	_boneInfoUniform = static_cast<float*>(malloc(sizeof(float) * MAX_BONES * 16));
-	for (u_int32_t i=0; i < MAX_BONES; ++i) {
-		for (u_int32_t j=0; j < 16; ++j) {
-			_boneInfoUniform[i*16 + j] = _boneInfo[i].finalTransformation.getData()[j];
-			// std::cout << _boneInfoUniform[i*16 + j] << " ";  // 1/2 show all bones matrix
-		}
-		// std::cout << "\n";  // 2/2 show all bones matrix
-	}
+	processNode(_scene->mRootNode, _scene);
+	_curAnimation = _scene->mAnimations[0];  // set the current animation
+
+	// set scale
+	initScale();
 	calcModelMatrix();
+}
+
+void	Model::setBonesTransform(float animationTime, aiNode *node, const aiScene *scene, mat::Mat4 parentTransform) {
+	std::string nodeName(node->mName.data);
+    mat::Mat4 nodeTransformation = aiToMat4(node->mTransformation);
+
+    const aiNodeAnim* nodeAnim = findNodeAnim(_curAnimation, nodeName);
+
+    if (nodeAnim) {
+        // Interpolate scaling and generate scaling transformation matrix
+        aiVector3D scaling;
+        calcInterpolatedScaling(scaling, animationTime, nodeAnim);
+        mat::Mat4 scalingM = mat::Mat4();
+		scalingM = scalingM.scale(scaling.x, scaling.y, scaling.z);
+
+        // Interpolate rotation and generate rotation transformation matrix
+        aiQuaternion rotationQ_;
+        calcInterpolatedRotation(rotationQ_, animationTime, nodeAnim);
+        mat::Quaternion rotationQ = aiToQuat(rotationQ_);
+        mat::Mat4 rotationM = rotationQ.toMatrix();
+
+        // Interpolate translation and generate translation transformation matrix
+        aiVector3D translation;
+        calcInterpolatedPosition(translation, animationTime, nodeAnim);
+        mat::Mat4 translationM = mat::Mat4();
+        translationM = translationM.translate(translation.x, translation.y, translation.z);
+
+        // Combine the above transformations
+        nodeTransformation = translationM * rotationM * scalingM;
+    }
+
+    mat::Mat4 globalTransformation = parentTransform * nodeTransformation;
+
+    if (_boneMap.find(nodeName) != _boneMap.end()) {
+        uint boneIndex = _boneMap[nodeName];
+        _boneInfo[boneIndex].finalTransformation = _globalInverseTransform * globalTransformation *
+                                                  _boneInfo[boneIndex].boneOffset;
+    }
+
+
+	// recursion with each of its children
+	for (u_int32_t i = 0; i < node->mNumChildren; ++i) {
+		setBonesTransform(animationTime, node->mChildren[i], scene, globalTransformation);
+	}
+}
+
+const aiNodeAnim*	Model::findNodeAnim(const aiAnimation* animation, const std::string nodeName)
+{
+    for (uint i = 0 ; i < animation->mNumChannels ; i++) {
+        const aiNodeAnim* nodeAnim = animation->mChannels[i];
+
+        if (std::string(nodeAnim->mNodeName.data) == nodeName) {
+            return nodeAnim;
+        }
+    }
+
+    return NULL;
+}
+
+u_int32_t	Model::findPosition(float animationTime, const aiNodeAnim* nodeAnim)
+{
+    for (uint i = 0 ; i < nodeAnim->mNumPositionKeys - 1 ; i++) {
+        if (animationTime < (float)nodeAnim->mPositionKeys[i + 1].mTime) {
+            return i;
+        }
+    }
+    assert(0);
+    return 0;
+}
+
+u_int32_t	Model::findRotation(float animationTime, const aiNodeAnim* nodeAnim)
+{
+    assert(nodeAnim->mNumRotationKeys > 0);
+    for (uint i = 0 ; i < nodeAnim->mNumRotationKeys - 1 ; i++) {
+        if (animationTime < (float)nodeAnim->mRotationKeys[i + 1].mTime) {
+            return i;
+        }
+    }
+    assert(0);
+    return 0;
+}
+
+u_int32_t	Model::findScaling(float animationTime, const aiNodeAnim* nodeAnim)
+{
+    assert(nodeAnim->mNumScalingKeys > 0);
+    for (uint i = 0 ; i < nodeAnim->mNumScalingKeys - 1 ; i++) {
+        if (animationTime < (float)nodeAnim->mScalingKeys[i + 1].mTime) {
+            return i;
+        }
+    }
+    assert(0);
+    return 0;
+}
+
+void	Model::calcInterpolatedPosition(aiVector3D &out, float animationTime, const aiNodeAnim* nodeAnim)
+{
+    if (nodeAnim->mNumPositionKeys == 1) {
+        out = nodeAnim->mPositionKeys[0].mValue;
+        return;
+    }
+
+    uint positionIndex = findPosition(animationTime, nodeAnim);
+    uint nextPositionIndex = (positionIndex + 1);
+    assert(nextPositionIndex < nodeAnim->mNumPositionKeys);
+    float deltaTime = (float)(nodeAnim->mPositionKeys[nextPositionIndex].mTime - nodeAnim->mPositionKeys[positionIndex].mTime);
+    float factor = (animationTime - (float)nodeAnim->mPositionKeys[positionIndex].mTime) / deltaTime;
+    assert(factor >= 0.0f && factor <= 1.0f);
+    const aiVector3D &start = nodeAnim->mPositionKeys[positionIndex].mValue;
+    const aiVector3D &end = nodeAnim->mPositionKeys[nextPositionIndex].mValue;
+    aiVector3D delta = end - start;
+    out = start + factor * delta;
+}
+
+void	Model::calcInterpolatedRotation(aiQuaternion &out, float animationTime, const aiNodeAnim* nodeAnim)
+{
+	// we need at least two values to interpolate...
+    if (nodeAnim->mNumRotationKeys == 1) {
+        out = nodeAnim->mRotationKeys[0].mValue;
+        return;
+    }
+
+    uint rotationIndex = findRotation(animationTime, nodeAnim);
+    uint nextRotationIndex = (rotationIndex + 1);
+    assert(nextRotationIndex < nodeAnim->mNumRotationKeys);
+    float deltaTime = (float)(nodeAnim->mRotationKeys[nextRotationIndex].mTime - nodeAnim->mRotationKeys[rotationIndex].mTime);
+    float factor = (animationTime - (float)nodeAnim->mRotationKeys[rotationIndex].mTime) / deltaTime;
+    assert(factor >= 0.0f && factor <= 1.0f);
+    const aiQuaternion& startRotationQ = nodeAnim->mRotationKeys[rotationIndex].mValue;
+    const aiQuaternion& endRotationQ   = nodeAnim->mRotationKeys[nextRotationIndex].mValue;
+    aiQuaternion::Interpolate(out, startRotationQ, endRotationQ, factor);
+    out = out.Normalize();
+}
+
+void	Model::calcInterpolatedScaling(aiVector3D &out, float animationTime, const aiNodeAnim* nodeAnim)
+{
+    if (nodeAnim->mNumScalingKeys == 1) {
+        out = nodeAnim->mScalingKeys[0].mValue;
+        return;
+    }
+
+    uint ScalingIndex = findScaling(animationTime, nodeAnim);
+    uint NextScalingIndex = (ScalingIndex + 1);
+    assert(NextScalingIndex < nodeAnim->mNumScalingKeys);
+    float deltaTime = (float)(nodeAnim->mScalingKeys[NextScalingIndex].mTime - nodeAnim->mScalingKeys[ScalingIndex].mTime);
+    float factor = (animationTime - (float)nodeAnim->mScalingKeys[ScalingIndex].mTime) / deltaTime;
+    assert(factor >= 0.0f && factor <= 1.0f);
+    const aiVector3D& Start = nodeAnim->mScalingKeys[ScalingIndex].mValue;
+    const aiVector3D& End   = nodeAnim->mScalingKeys[NextScalingIndex].mValue;
+    aiVector3D Delta = End - Start;
+    out = Start + factor * Delta;
 }
 
 void	Model::processNode(aiNode *node, const aiScene *scene) {
@@ -88,25 +251,6 @@ void	Model::processNode(aiNode *node, const aiScene *scene) {
 	// recursion with each of its children
 	for (u_int32_t i = 0; i < node->mNumChildren; ++i)
 		processNode(node->mChildren[i], scene);
-}
-
-void	Model::setBonesTransform(aiNode *node, mat::Mat4 parentTransform) {
-	mat::Mat4 newParent = parentTransform;
-	// std::cout << node->mName.data << "\n";  // print node name
-	if (_boneMap.find(node->mName.data) != _boneMap.end()) { // if there is a bone (same name as the node)
-		BoneInfo &bone = _boneInfo[_boneMap[node->mName.data]];
-		bone.finalTransformation = parentTransform * bone.boneOffset;
-		newParent = bone.finalTransformation;
-		bone.finalTransformation[0][3] *= _modelScale;
-		bone.finalTransformation[1][3] *= _modelScale;
-		bone.finalTransformation[2][3] *= _modelScale;
-		// std::cout << bone.finalTransformation << "\n";  // print transformation
-	}
-
-	// recursion with each of its children
-	for (u_int32_t i = 0; i < node->mNumChildren; ++i) {
-		setBonesTransform(node->mChildren[i], newParent);
-	}
 }
 
 Material	loadMaterial(aiMaterial *mat) {

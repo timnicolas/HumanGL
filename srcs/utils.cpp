@@ -62,3 +62,16 @@ mat::Mat4 aiToMat4(aiMatrix4x4& in_mat)
     tmp[3][3] = in_mat.d4;
     return tmp;
 }
+
+
+aiQuaternion quatToAi(mat::Quaternion quat) {
+    return aiQuaternion(quat.w, quat.vec.x, quat.vec.y, quat.vec.z);
+}
+mat::Quaternion aiToQuat(aiQuaternion& in_quat) {
+    mat::Quaternion q = mat::Quaternion();
+    q.w = in_quat.w;
+    q.vec.x = in_quat.x;
+    q.vec.y = in_quat.y;
+    q.vec.z = in_quat.z;
+    return q;
+}

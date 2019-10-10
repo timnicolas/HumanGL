@@ -20,10 +20,13 @@
 
 # include <assimp/scene.h>
 # include "Matrix.hpp"
+# include "Quaternion.hpp"
 
 /* matrix conversion */
 aiMatrix4x4 mat4ToAi(mat::Mat4 mat);
 mat::Mat4 aiToMat4(aiMatrix4x4& in_mat);
+aiQuaternion quatToAi(mat::Quaternion quat);
+mat::Quaternion aiToQuat(aiQuaternion& in_quat);
 
 #define ZERO_MEM(a) memset(a, 0, sizeof(a))
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))
