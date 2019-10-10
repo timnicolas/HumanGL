@@ -238,7 +238,7 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 		// if the bone don't exist yet
         if (boneMap.find(boneName) == boneMap.end()) {
             boneIndex = actBoneId;
-            actBoneId++;
+            ++actBoneId;
             boneInfo[actBoneId] = BoneInfo();
 			// std::cout << boneName << "\n";  // show all bones names
         }

@@ -45,7 +45,7 @@ class Shader {
 
 		u_int32_t	id;
 	private:
-		void	checkCompileErrors(GLuint shader, std::string type);
+		void	checkCompileErrors(u_int32_t shader, std::string type);
 };
 
 #endif

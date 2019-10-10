@@ -155,7 +155,7 @@ void	Shader::setMat4(const std::string &name, const mat::Mat4 &mat) const {
 /*
 	checking shader compilation/linking errors.
 */
-void	Shader::checkCompileErrors(GLuint shader, std::string type)
+void	Shader::checkCompileErrors(u_int32_t shader, std::string type)
 {
 	int		success;
 	char	infoLog[1024];

@@ -60,7 +60,7 @@ class Mesh {
 		u_int32_t	getEbo() const;
 
 		void		draw(Shader &sh) const;
-		void		addBoneData(u_int32_t boneID, float weight, GLuint vertexID);
+		void		addBoneData(u_int32_t boneID, float weight, u_int32_t vertexID);
 
 		std::vector<VertexMat>	vertices;
 		std::vector<u_int32_t>	indices;
