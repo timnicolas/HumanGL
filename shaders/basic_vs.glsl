@@ -1,11 +1,14 @@
 #version 410 core
+
+#define MAX_BONES 100
+#define NUM_BONES_PER_VERTEX 4  // update locations !!!
+
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoords;
-layout (location = 3) in ivec4 bonesID;
-layout (location = 4) in vec4 bonesWeight;
+layout (location = 3) in int bonesID[NUM_BONES_PER_VERTEX];
+layout (location = 7) in float bonesWeight[NUM_BONES_PER_VERTEX];  // 3 + NUM_BONES_PER_VERTEX
 
-const int MAX_BONES = 100;
 
 out vec2 texCoords;
 out	vec3 fragPos;
@@ -18,7 +21,7 @@ uniform mat4 bones[MAX_BONES];
 
 void main() {
     mat4 boneTransform = mat4(1.0);
-    for (int i=0; i < 4; i++) {
+    for (int i=0; i < NUM_BONES_PER_VERTEX; i++) {
         boneTransform += bones[bonesID[i]] * bonesWeight[i];
     }
 

@@ -55,11 +55,15 @@ void	Model::draw(Shader &shader) {
 	for (u_int32_t i=0; i < MAX_BONES; ++i) {
 		for (u_int32_t j=0; j < 16; ++j) {
 			_boneInfoUniform[i*16 + j] = _boneInfo[i].finalTransformation.getData()[j];
-			// std::cout << boneInfoUniform[i*16 + j] << " ";  // 1/2 show all bones matrix
+			// std::cout << _boneInfoUniform[i*16 + j] << " ";  // 1/2 show all bones matrix
 		}
 		// std::cout << "\n";  // 2/2 show all bones matrix
 	}
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "bones"), MAX_BONES, GL_TRUE, _boneInfoUniform);
+	// for (u_int32_t i=0; i < MAX_BONES; i++) {
+	// 	std::string name = "bones[" + std::to_string(i) + "]";
+	// 	shader.setMat4(name, _boneInfo[i].finalTransformation);
+	// }
 
 	for (auto &mesh : _meshes)
 		mesh.draw(shader);
@@ -124,7 +128,7 @@ void	Model::setBonesTransform(float animationTime, aiNode *node, const aiScene *
     if (_boneMap.find(nodeName) != _boneMap.end()) {
         uint boneIndex = _boneMap[nodeName];
         _boneInfo[boneIndex].finalTransformation = _globalInverseTransform * globalTransformation *
-                                                  _boneInfo[boneIndex].boneOffset;
+                                                   _boneInfo[boneIndex].boneOffset;
     }
 
 

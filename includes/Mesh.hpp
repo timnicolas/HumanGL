@@ -28,8 +28,8 @@ struct VertexMat {  // contain matrix objects
 		pos(mat::Vec3()),
 		norm(mat::Vec3()),
 		texCoords(mat::Vec2()),
-		bonesID{0, 0, 0, 0},
-		bonesW{0, 0, 0, 0} {
+		bonesID{0},
+		bonesW{0} {
 	}
 };
 struct Vertex {  // contain pointer on data on matrix object
