@@ -14,7 +14,7 @@ Model::Model(Model const &src) {
 }
 
 Model::~Model() {
-	free(boneInfoUniform);
+	free(_boneInfoUniform);
 }
 
 Model &Model::operator=(Model const &rhs) {
@@ -22,12 +22,24 @@ Model &Model::operator=(Model const &rhs) {
 		_meshes = rhs.getMeshes();
 		_directory = rhs.getDirectory();
 		_texturesLoaded = rhs.getTexturesLoaded();
+
+		_minPos = rhs.getMinPos();
+		_maxPos = rhs.getMaxPos();
+		_model = rhs.getModel();
+		_modelScale = rhs.getModelScale();
+
+		_boneMap = rhs.getBoneMap();
+		_boneInfo = rhs.getBoneInfo();
+
+		_boneInfoUniform = rhs.getBoneInfoUniform();
+		_actBoneId = rhs.getActBoneId();
+		_globalTransform = rhs.getGlobalTransform();
 	}
 	return *this;
 }
 
 void	Model::draw(Shader &shader) {
-	glUniformMatrix4fv(glGetUniformLocation(shader.id, "bones"), MAX_BONES, GL_TRUE, boneInfoUniform);
+	glUniformMatrix4fv(glGetUniformLocation(shader.id, "bones"), MAX_BONES, GL_TRUE, _boneInfoUniform);
 	for (auto &mesh : _meshes)
 		mesh.draw(shader);
 }
@@ -49,16 +61,16 @@ void	Model::loadModel(std::string path) {
 	}
 	_directory = path.substr(0, path.find_last_of('/'));
 
-	globalTransform = aiToMat4(scene->mRootNode->mTransformation);  // get global transform
+	_globalTransform = aiToMat4(scene->mRootNode->mTransformation);  // get global transform
 	processNode(scene->mRootNode, scene);
 	initScale();
-	setBonesTransform(scene->mRootNode, globalTransform);
+	setBonesTransform(scene->mRootNode, _globalTransform);
 
-	boneInfoUniform = static_cast<float*>(malloc(sizeof(float) * MAX_BONES * 16));
+	_boneInfoUniform = static_cast<float*>(malloc(sizeof(float) * MAX_BONES * 16));
 	for (u_int32_t i=0; i < MAX_BONES; ++i) {
 		for (u_int32_t j=0; j < 16; ++j) {
-			boneInfoUniform[i*16 + j] = boneInfo[i].finalTransformation.getData()[j];
-			// std::cout << boneInfoUniform[i*16 + j] << " ";  // 1/2 show all bones matrix
+			_boneInfoUniform[i*16 + j] = _boneInfo[i].finalTransformation.getData()[j];
+			// std::cout << _boneInfoUniform[i*16 + j] << " ";  // 1/2 show all bones matrix
 		}
 		// std::cout << "\n";  // 2/2 show all bones matrix
 	}
@@ -81,8 +93,8 @@ void	Model::processNode(aiNode *node, const aiScene *scene) {
 void	Model::setBonesTransform(aiNode *node, mat::Mat4 parentTransform) {
 	mat::Mat4 newParent = parentTransform;
 	// std::cout << node->mName.data << "\n";  // print node name
-	if (boneMap.find(node->mName.data) != boneMap.end()) { // if there is a bone (same name as the node)
-		BoneInfo &bone = boneInfo[boneMap[node->mName.data]];
+	if (_boneMap.find(node->mName.data) != _boneMap.end()) { // if there is a bone (same name as the node)
+		BoneInfo &bone = _boneInfo[_boneMap[node->mName.data]];
 		bone.finalTransformation = parentTransform * bone.boneOffset;
 		newParent = bone.finalTransformation;
 		bone.finalTransformation[0][3] *= _modelScale;
@@ -236,19 +248,20 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
         boneName = mesh->mBones[i]->mName.data;
 
 		// if the bone don't exist yet
-        if (boneMap.find(boneName) == boneMap.end()) {
-            boneIndex = actBoneId;
-            ++actBoneId;
-            boneInfo[actBoneId] = BoneInfo();
+        if (_boneMap.find(boneName) == _boneMap.end()) {
+            boneIndex = _actBoneId;
+            ++_actBoneId;
+            _boneInfo[_actBoneId] = BoneInfo();
 			// std::cout << boneName << "\n";  // show all bones names
         }
         else {
-            boneIndex = boneMap[boneName];
+            boneIndex = _boneMap[boneName];
         }
 
-        boneMap[boneName] = boneIndex;
-        boneInfo[boneIndex].boneOffset = aiToMat4(mesh->mBones[i]->mOffsetMatrix);
+        _boneMap[boneName] = boneIndex;
+        _boneInfo[boneIndex].boneOffset = aiToMat4(mesh->mBones[i]->mOffsetMatrix);
 
+		// add boneId ad weight to the mesh
 		for (u_int32_t j = 0; j < mesh->mBones[i]->mNumWeights; ++j) {
 			vertexID = mesh->mBones[i]->mWeights[j].mVertexId;
 			weight = mesh->mBones[i]->mWeights[j].mWeight;
@@ -300,15 +313,16 @@ const char* Model::AssimpError::what() const throw() {
     return ("Assimp failed to load the model!");
 }
 
-std::vector<Mesh>		Model::getMeshes() const {
-	return _meshes;
-}
-std::string				Model::getDirectory() const {
-	return _directory;
-}
-std::vector<Texture>	Model::getTexturesLoaded() const {
-	return _texturesLoaded;
-}
-mat::Mat4	Model::getModelM() const {
-	return _model;
-}
+std::vector<Mesh>		Model::getMeshes() const { return _meshes; }
+std::string				Model::getDirectory() const { return _directory; }
+std::vector<Texture>	Model::getTexturesLoaded() const { return _texturesLoaded; }
+mat::Mat4				Model::getModel() const { return _model; }
+mat::Vec3				Model::getMinPos() const { return _minPos; }
+mat::Vec3				Model::getMaxPos() const { return _maxPos; }
+float					Model::getModelScale() const { return _modelScale; }
+std::map<std::string, int>	Model::getBoneMap() const { return _boneMap; }
+std::array<Model::BoneInfo, MAX_BONES>	Model::getBoneInfo() const { return _boneInfo; }
+float					*Model::getBoneInfoUniform() const { return _boneInfoUniform; }
+u_int32_t				Model::getActBoneId() const { return _actBoneId; }
+mat::Mat4				Model::getGlobalTransform() const { return _globalTransform; }
+

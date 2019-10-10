@@ -38,7 +38,7 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {
 		mat::Mat4	projection = mat::perspective(mat::radians(cam.zoom), winU->width / winU->height, 0.1f, 100.0f);
         sh.setMat4("projection", projection);
 		// model matrix
-		mat::Mat4	model = objModel.getModelM();
+		mat::Mat4	model = objModel.getModel();
 		sh.setMat4("model", model);
 
         sh.setVec3("viewPos", cam.pos.x, cam.pos.y, cam.pos.z);

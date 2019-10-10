@@ -61,12 +61,12 @@ class Mesh {
 
 		void		draw(Shader &sh) const;
 		void		addBoneData(u_int32_t boneID, float weight, u_int32_t vertexID);
+		void		setupMesh();
 
 		std::vector<VertexMat>	vertices;
 		std::vector<u_int32_t>	indices;
 		std::vector<Texture>	textures;
 		Material				material;
-        void	setupMesh();
 	private:
 
         u_int32_t	_vao;

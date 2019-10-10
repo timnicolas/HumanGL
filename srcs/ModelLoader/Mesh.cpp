@@ -121,7 +121,7 @@ u_int32_t	Mesh::getEbo() const {
 	return _ebo;
 }
 
-// add a bone ID ad weight to model
+// add boneId ad weight to the mesh
 void Mesh::addBoneData(u_int32_t boneID, float weight, u_int32_t vertexID) {
 	for (u_int32_t i = 0; i < NUM_BONES_PER_VERTEX; ++i) {
 		// if the vertex bone weight as not been set
