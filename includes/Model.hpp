@@ -39,7 +39,7 @@ class Model {
 		std::map<std::string, int> boneMap; // maps a bone name to its index
 		BoneInfo boneInfo[MAX_BONES];  // all bones
 		float *boneInfoUniform;  // all datas ready to send to vertex shader (uniform mat4[MAX_BONES])
-		uint actBoneId = 0;
+		u_int32_t actBoneId = 0;
 		mat::Mat4 globalTransform;
 
 		void					loadModel(std::string path);

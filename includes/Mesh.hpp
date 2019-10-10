@@ -21,7 +21,7 @@ struct VertexMat {  // contain matrix objects
 	mat::Vec3	pos;
 	mat::Vec3	norm;
 	mat::Vec2	texCoords;
-	uint bonesID[NUM_BONES_PER_VERTEX];
+	u_int32_t bonesID[NUM_BONES_PER_VERTEX];
 	float bonesW[NUM_BONES_PER_VERTEX];
 
 	VertexMat() :
@@ -36,7 +36,7 @@ struct Vertex {  // contain pointer on data on matrix object
 	float posx, posy, posz;
 	float normx, normy, normz;
 	float texCoordsx, texCoordsy;
-	uint bonesID[NUM_BONES_PER_VERTEX];
+	u_int32_t bonesID[NUM_BONES_PER_VERTEX];
 	float bonesW[NUM_BONES_PER_VERTEX];
 };
 
@@ -60,7 +60,7 @@ class Mesh {
 		u_int32_t	getEbo() const;
 
 		void		draw(Shader &sh) const;
-		void		addBoneData(uint boneID, float weight, GLuint vertexID);
+		void		addBoneData(u_int32_t boneID, float weight, GLuint vertexID);
 
 		std::vector<VertexMat>	vertices;
 		std::vector<u_int32_t>	indices;

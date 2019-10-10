@@ -55,8 +55,8 @@ void	Model::loadModel(std::string path) {
 	setBonesTransform(scene->mRootNode, globalTransform);
 
 	boneInfoUniform = static_cast<float*>(malloc(sizeof(float) * MAX_BONES * 16));
-	for (uint i=0; i < MAX_BONES; i++) {
-		for (uint j=0; j < 16; j++) {
+	for (u_int32_t i=0; i < MAX_BONES; ++i) {
+		for (u_int32_t j=0; j < 16; ++j) {
 			boneInfoUniform[i*16 + j] = boneInfo[i].finalTransformation.getData()[j];
 			// std::cout << boneInfoUniform[i*16 + j] << " ";  // 1/2 show all bones matrix
 		}
@@ -69,7 +69,7 @@ void	Model::processNode(aiNode *node, const aiScene *scene) {
 	aiMesh	*mesh;
 
 	// process all the node's _meshes (if any)
-	for (u_int32_t i = 0; i < node->mNumMeshes; i++) {
+	for (u_int32_t i = 0; i < node->mNumMeshes; ++i) {
 		mesh = scene->mMeshes[node->mMeshes[i]];
 		_meshes.push_back(processMesh(mesh, scene));
 	}
@@ -181,6 +181,12 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 	std::vector<Texture>	diffuseMaps;
 	std::vector<Texture>	specularMaps;
 
+	u_int32_t				boneIndex;
+	std::string				boneName;
+	int						vertexID;
+	float					weight;
+
+    // process vertices
 	for (u_int32_t i = 0; i < mesh->mNumVertices; ++i) {
 		// process vertex positions
 		vertex.pos.x = mesh->mVertices[i].x;
@@ -212,25 +218,28 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 
 	// process material
 	material = scene->mMaterials[mesh->mMaterialIndex];
-
+	// load diffuse textures
 	diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, \
 	TextureT::difuse);
 	textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-
+	// load specular textures
 	specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, \
 	TextureT::specular);
 	textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 
+	// create the mesh
     Mesh ret = Mesh(vertices, indices, textures, loadMaterial(material));
-	for (uint i=0; i < mesh->mNumBones; i++) {
-        uint boneIndex = 0;
-        std::string boneName(mesh->mBones[i]->mName.data);
 
+	// process bones
+	for (u_int32_t i = 0; i < mesh->mNumBones; ++i) {
+        boneIndex = 0;
+        boneName = mesh->mBones[i]->mName.data;
+
+		// if the bone don't exist yet
         if (boneMap.find(boneName) == boneMap.end()) {
             boneIndex = actBoneId;
             actBoneId++;
-            BoneInfo bi;
-            boneInfo[actBoneId] = bi;
+            boneInfo[actBoneId] = BoneInfo();
 			// std::cout << boneName << "\n";  // show all bones names
         }
         else {
@@ -240,14 +249,15 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
         boneMap[boneName] = boneIndex;
         boneInfo[boneIndex].boneOffset = aiToMat4(mesh->mBones[i]->mOffsetMatrix);
 
-		for (uint j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
-			int vertexID = mesh->mBones[i]->mWeights[j].mVertexId;
-			float weight = mesh->mBones[i]->mWeights[j].mWeight;
+		for (u_int32_t j = 0; j < mesh->mBones[i]->mNumWeights; ++j) {
+			vertexID = mesh->mBones[i]->mWeights[j].mVertexId;
+			weight = mesh->mBones[i]->mWeights[j].mWeight;
 			if (weight <= 0.1)
 				continue;
 			ret.addBoneData(boneIndex, weight, vertexID);
 		}
 	}
+
 	ret.setupMesh();
 	return ret;
 }
