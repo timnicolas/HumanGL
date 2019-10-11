@@ -7,6 +7,7 @@ Model::Model(const char *path)
   _model(mat::Mat4(1.0f)),
   _modelScale(1) {
 	loadModel(path);
+	_startAnimTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 }
 
 Model::Model(Model const &src) {
@@ -34,14 +35,15 @@ Model &Model::operator=(Model const &rhs) {
 		_boneInfoUniform = rhs.getBoneInfoUniform();
 		_actBoneId = rhs.getActBoneId();
 		_globalTransform = rhs.getGlobalTransform();
+
+		_startAnimTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 	}
 	return *this;
 }
 
 void	Model::draw(Shader &shader) {
-	static std::chrono::milliseconds startAnimTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 	std::chrono::milliseconds curTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-	std::chrono::milliseconds runningTime = (curTime - startAnimTime);
+	std::chrono::milliseconds runningTime = (curTime - _startAnimTime);
 	float timeInMillis = runningTime.count();
 	float ticksPerSecond = (_curAnimation->mTicksPerSecond != 0) ? _curAnimation->mTicksPerSecond : 25.0f;
 	float timeInTicks = (timeInMillis / 1000.0) * ticksPerSecond;
