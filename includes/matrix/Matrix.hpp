@@ -39,6 +39,7 @@ namespace mat {
 			friend BaseMat operator+(BaseMat m, const BaseMat other);
 			friend BaseMat operator-(BaseMat m, const float other);
 			friend BaseMat operator-(BaseMat m, const BaseMat other);
+			friend bool operator==(BaseMat m, const BaseMat other);
 			BaseMat &operator=(const BaseMat &other);
 			explicit operator std::vector<float>() const { return *_data; };
 			explicit operator float*() const { return static_cast<float*>(&(*_data)[0]); };
