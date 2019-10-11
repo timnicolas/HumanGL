@@ -75,3 +75,10 @@ mat::Quaternion aiToQuat(aiQuaternion& in_quat) {
     q.vec.z = in_quat.z;
     return q;
 }
+
+mat::Vec3 aiToVec3(aiVector3D v) {
+    return mat::Vec3(v.x, v.y, v.z);
+}
+aiVector3D vec3ToAi(mat::Vec3 v) {
+    return aiVector3D(v.x, v.y, v.z);
+}
