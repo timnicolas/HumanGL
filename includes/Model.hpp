@@ -65,6 +65,7 @@ class Model {
 		u_int32_t				findPosition(float animationTime, const aiNodeAnim* nodeAnim);
 		u_int32_t				findRotation(float animationTime, const aiNodeAnim* nodeAnim);
 		u_int32_t				findScaling(float animationTime, const aiNodeAnim* nodeAnim);
+		void					sendBones();
 
 		void					updateMinMaxPos(mat::Vec3 pos);
 		void					calcModelMatrix();
@@ -88,6 +89,7 @@ class Model {
 		mat::Mat4				_globalTransform;
 		mat::Mat4				_globalInverseTransform;
 		aiAnimation				*_curAnimation;
+		bool					_isAnimated;
 		std::chrono::milliseconds	_startAnimTime;
 		const aiScene			*_scene;
 		Assimp::Importer		_importer;

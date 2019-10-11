@@ -43,6 +43,7 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {
 
         sh.setVec3("viewPos", cam.pos.x, cam.pos.y, cam.pos.z);
 
+		// to move model, change matrix: objModel.getModel()
 		objModel.draw();
 
 		glfwSwapBuffers(window);

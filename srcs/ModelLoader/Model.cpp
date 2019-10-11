@@ -44,20 +44,7 @@ Model &Model::operator=(Model const &rhs) {
 	return *this;
 }
 
-void	Model::draw() {
-	std::chrono::milliseconds curTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-	std::chrono::milliseconds runningTime = (curTime - _startAnimTime);
-	float timeInMillis = runningTime.count();
-	float ticksPerSecond = (_curAnimation->mTicksPerSecond != 0) ? _curAnimation->mTicksPerSecond : 25.0f;
-	float timeInTicks = (timeInMillis / 1000.0) * ticksPerSecond;
-	//loops the animation
-	float animationTime = fmod(timeInTicks, _curAnimation->mDuration);
-
-	// set position in real world
-	getShader().setMat4("model", getModel());
-
-	// set bones with animations
-	setBonesTransform(animationTime, _scene->mRootNode, _scene, _globalTransform);
+void	Model::sendBones() {
 	_boneInfoUniform = static_cast<float*>(malloc(sizeof(float) * MAX_BONES * 16));
 	for (u_int32_t i=0; i < MAX_BONES; ++i) {
 		for (u_int32_t j=0; j < 16; ++j) {
@@ -67,6 +54,25 @@ void	Model::draw() {
 		// std::cout << "\n";  // 2/2 show all bones matrix
 	}
 	glUniformMatrix4fv(glGetUniformLocation(getShader().id, "bones"), MAX_BONES, GL_TRUE, _boneInfoUniform);
+}
+
+void	Model::draw() {
+	_shader.use();
+	if (_isAnimated) {
+		std::chrono::milliseconds curTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+		std::chrono::milliseconds runningTime = (curTime - _startAnimTime);
+		float timeInMillis = runningTime.count();
+		float ticksPerSecond = (_curAnimation->mTicksPerSecond != 0) ? _curAnimation->mTicksPerSecond : 25.0f;
+		float timeInTicks = (timeInMillis / 1000.0) * ticksPerSecond;
+		//loops the animation
+		float animationTime = fmod(timeInTicks, _curAnimation->mDuration);
+		// set bones with animations
+		setBonesTransform(animationTime, _scene->mRootNode, _scene, _globalTransform);
+		sendBones();
+	}
+
+	// set position in real world
+	getShader().setMat4("model", getModel());
 
 	for (auto &mesh : _meshes)
 		mesh.draw(getShader());
@@ -90,7 +96,16 @@ void	Model::loadModel(std::string path) {
 	_globalInverseTransform = _globalTransform;
 
 	processNode(_scene->mRootNode, _scene);
-	_curAnimation = _scene->mAnimations[0];  // set the current animation
+	if (_scene->mNumAnimations > 0) {
+		_isAnimated = true;
+		_curAnimation = _scene->mAnimations[0];  // set the current animation
+	}
+	else {
+		_isAnimated = false;
+		_curAnimation = nullptr;
+		_shader.use();
+		sendBones();  // send defaut values
+	}
 
 	// set scale
 	calcModelMatrix();
