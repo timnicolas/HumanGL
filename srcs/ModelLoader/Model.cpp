@@ -173,9 +173,8 @@ const aiNodeAnim*	Model::findNodeAnim(const aiAnimation* animation, const std::s
 u_int32_t	Model::findPosition(float animationTime, const aiNodeAnim* nodeAnim)
 {
     for (uint i = 0 ; i < nodeAnim->mNumPositionKeys - 1 ; i++) {
-        if (animationTime < (float)nodeAnim->mPositionKeys[i + 1].mTime) {
+        if (animationTime < (float)nodeAnim->mPositionKeys[i + 1].mTime)
             return i;
-        }
     }
     assert(0);
     return 0;
@@ -185,9 +184,8 @@ u_int32_t	Model::findRotation(float animationTime, const aiNodeAnim* nodeAnim)
 {
     assert(nodeAnim->mNumRotationKeys > 0);
     for (uint i = 0 ; i < nodeAnim->mNumRotationKeys - 1 ; i++) {
-        if (animationTime < (float)nodeAnim->mRotationKeys[i + 1].mTime) {
+        if (animationTime < (float)nodeAnim->mRotationKeys[i + 1].mTime)
             return i;
-        }
     }
     assert(0);
     return 0;
@@ -197,9 +195,8 @@ u_int32_t	Model::findScaling(float animationTime, const aiNodeAnim* nodeAnim)
 {
     assert(nodeAnim->mNumScalingKeys > 0);
     for (uint i = 0 ; i < nodeAnim->mNumScalingKeys - 1 ; i++) {
-        if (animationTime < (float)nodeAnim->mScalingKeys[i + 1].mTime) {
+        if (animationTime < (float)nodeAnim->mScalingKeys[i + 1].mTime)
             return i;
-        }
     }
     assert(0);
     return 0;
