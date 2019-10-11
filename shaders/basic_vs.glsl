@@ -1,13 +1,13 @@
 #version 410 core
 
 #define MAX_BONES 100
-#define NUM_BONES_PER_VERTEX 4  // update locations !!!
+#define NUM_BONES_PER_VERTEX 4
 
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoords;
-layout (location = 3) in int bonesID[NUM_BONES_PER_VERTEX];
-layout (location = 7) in float bonesWeight[NUM_BONES_PER_VERTEX];  // 3 + NUM_BONES_PER_VERTEX
+layout (location = 3) in ivec4 bonesID;
+layout (location = 4) in vec4 bonesWeight;
 
 
 out vec2 texCoords;
@@ -31,8 +31,6 @@ void main() {
 
 	texCoords = aTexCoords;
 	fragPos = vec3(model * vec4(aPos, 1.0));
-	// normal = mat3(transpose(inverse(model))) * aNormal;
 	normal = mat3(transpose(inverse(model))) * boneNormal.xyz;
-	// gl_Position = projection * view * model * vec4(aPos, 1.0);
 	gl_Position = projection * view * model * pos;
 }

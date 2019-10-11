@@ -107,10 +107,10 @@ void	Mesh::setupMesh() {
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, texCoordsx));
 	// vertex bones IDs
 	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, NUM_BONES_PER_VERTEX, GL_INT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, bonesID));
+	glVertexAttribIPointer(3, NUM_BONES_PER_VERTEX, GL_INT, sizeof(Vertex), (void *)offsetof(Vertex, bonesID));
 	// vertex bones weight
-	glEnableVertexAttribArray(3+NUM_BONES_PER_VERTEX);
-	glVertexAttribPointer(3+NUM_BONES_PER_VERTEX, NUM_BONES_PER_VERTEX, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, bonesW));
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, NUM_BONES_PER_VERTEX, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, bonesW));
 
     glBindVertexArray(0);
 }

@@ -49,8 +49,6 @@ void	Model::draw(Shader &shader) {
 	//loops the animation
 	float animationTime = fmod(timeInTicks, 413);
 
-	// std::cout << "animTime " << animationTime << "\ttimeInMillis " << timeInMillis << "\ttimeInTicks " << timeInTicks << "\n";
-
 	setBonesTransform(animationTime, _scene->mRootNode, _scene, _globalTransform);
 	_boneInfoUniform = static_cast<float*>(malloc(sizeof(float) * MAX_BONES * 16));
 	for (u_int32_t i=0; i < MAX_BONES; ++i) {
@@ -61,10 +59,6 @@ void	Model::draw(Shader &shader) {
 		// std::cout << "\n";  // 2/2 show all bones matrix
 	}
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "bones"), MAX_BONES, GL_TRUE, _boneInfoUniform);
-	// for (u_int32_t i=0; i < MAX_BONES; i++) {
-	// 	std::string name = "bones[" + std::to_string(i) + "]";
-	// 	shader.setMat4(name, _boneInfo[i].finalTransformation);
-	// }
 
 	for (auto &mesh : _meshes)
 		mesh.draw(shader);
@@ -131,7 +125,6 @@ void	Model::setBonesTransform(float animationTime, aiNode *node, const aiScene *
         _boneInfo[boneIndex].finalTransformation = _globalInverseTransform * globalTransformation *
                                                    _boneInfo[boneIndex].boneOffset;
     }
-
 
 	// recursion with each of its children
 	for (u_int32_t i = 0; i < node->mNumChildren; ++i) {
@@ -401,7 +394,6 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
             boneIndex = _actBoneId;
             ++_actBoneId;
             _boneInfo[_actBoneId] = BoneInfo();
-			// std::cout << boneName << "\n";  // show all bones names
         }
         else {
             boneIndex = _boneMap[boneName];
