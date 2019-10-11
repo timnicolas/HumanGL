@@ -69,6 +69,18 @@ const Quaternion Quaternion::slerp(const Quaternion &to, float step) const
 	return ((to * src.inverted()) ^ step) * src;
 }
 
+const Quaternion Quaternion::normalize() const {
+	Quaternion ret = Quaternion();
+	float det = std::sqrt(w*w + vec.x*vec.x + vec.y*vec.y + vec.z*vec.z);
+
+	ret.w = w / det;
+	ret.vec.x = vec.x / det;
+	ret.vec.y = vec.y / det;
+	ret.vec.z = vec.z / det;
+
+	return ret;
+}
+
 void Quaternion::toAxisAngle(float &flAngle, Vec3 &vecAxis) const
 {
 	// Convert the quaternion back into axis/angle
@@ -96,4 +108,5 @@ namespace mat {
 		out << q.w << " + " << q.vec.x << "i + " << q.vec.y << "j + " << q.vec.z << "k";
 		return out;
 	}
+	const Quaternion slerp(const Quaternion &from, const Quaternion &to, float step) { return from.slerp(to, step); }
 }
