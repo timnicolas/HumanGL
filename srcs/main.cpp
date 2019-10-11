@@ -64,9 +64,6 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, std::vector<Model*> &
 		}
 		firstLoop = false;
 	}
-	glfwDestroyWindow(window);
-	glfwPollEvents();
-	glfwTerminate();
 }
 
 bool	init(GLFWwindow **window, const char *name, tWinUser *winU, Camera *cam) {
@@ -124,6 +121,9 @@ int		main(int argc, char const **argv) {
 	{
 		std::cerr << e.what() << '\n';
 	}
+	glfwDestroyWindow(window);
+	glfwPollEvents();
+	glfwTerminate();
 
 	return 0;
 }

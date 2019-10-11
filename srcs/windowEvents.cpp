@@ -1,5 +1,26 @@
 #include "humanGL.hpp"
 #include <iostream>
+#include <chrono>
+
+static u_int8_t	firstTwoCall = 2;
+
+void toggleCursor(GLFWwindow *window) {
+	static bool enable = false;
+	static std::chrono::milliseconds lastCallMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+	std::chrono::milliseconds cur = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+	if ((cur - lastCallMs).count() < DELAY_BTW_CLIC)
+		return;
+	lastCallMs = cur;
+	firstTwoCall = 2;
+
+	if (enable) {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
+	else {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	}
+	enable = !enable;
+}
 
 /*
 	called every frame
@@ -30,6 +51,8 @@ void	processInput(GLFWwindow *window)
         winU->cam->processKeyboard(CamMovement::Up, winU->dtTime);
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
         winU->cam->processKeyboard(CamMovement::Down, winU->dtTime);
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		toggleCursor(window);
 }
 
 void	keyCb(GLFWwindow *window, int key, int scancode, int action, int mods)
@@ -53,7 +76,6 @@ void	mouseCb(GLFWwindow *window, double xPos, double yPos)
 	tWinUser		*winU;
 	static float	lastX = SCREEN_W / 2.0;
 	static float	lastY = SCREEN_H / 2.0;
-	static u_int8_t	firstTwoCall = 2;
 	float			xOffset;
 	float			yOffset;
 
