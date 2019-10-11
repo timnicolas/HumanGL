@@ -88,6 +88,7 @@ class Model {
 		mat::Mat4				_globalTransform;
 		mat::Mat4				_globalInverseTransform;
 		aiAnimation				*_curAnimation;
+		std::chrono::milliseconds	_startAnimTime;
 		const aiScene			*_scene;
 		Assimp::Importer		_importer;
 };
