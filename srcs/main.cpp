@@ -15,7 +15,7 @@ void	setupDirLight(Shader &sh) {
 	sh.setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
 }
 
-void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {
+void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, std::vector<Model*> &models) {
 	tWinUser	*winU;
 	std::chrono::milliseconds time_start;
 	bool firstLoop = true;
@@ -44,7 +44,9 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Model &objModel) {
         sh.setVec3("viewPos", cam.pos.x, cam.pos.y, cam.pos.z);
 
 		// to move model, change matrix: objModel.getModel()
-		objModel.draw();
+		for (u_int32_t i=0; i < models.size(); i++) {
+			models[i]->draw();
+		}
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -84,7 +86,7 @@ int		main(int argc, char const **argv) {
 	tWinUser	winU;
 	Camera		cam(mat::Vec3(0.0f, 0.0f, 3.0f));
 
-	if (argc != 2) {
+	if (argc < 2) {
 		std::cout << "usage: ./humanGL modelFile\n" << std::endl;
 		return (1);
 	}
@@ -96,9 +98,27 @@ int		main(int argc, char const **argv) {
 	{
 		Shader sh1("shaders/basic_vs.glsl", "shaders/basic_fs.glsl");
 
-		Model	model(argv[1], sh1);
+		std::vector<Model*> models = std::vector<Model*>();
+		Model	*model;
+		for (int i=1; i < argc; i++) {
+			model = new Model(argv[i], sh1);
+			models.push_back(model);
+		}
 
-		gameLoop(window, cam, sh1, model);
+		// repartition of all models
+		float step = 1.5;
+		float posX = -(static_cast<float>(models.size()) / 2.0) * step + step / 2;
+		for (u_int32_t i=0; i < models.size(); i++) {
+			mat::Vec3 pos = mat::Vec3(posX, 0, 0);
+			models[i]->getModel() = models[i]->getModel().translate(pos);
+			posX += step;
+		}
+
+		gameLoop(window, cam, sh1, models);
+
+		for (u_int32_t i=0; i < models.size(); i++) {
+			delete models[i];
+		}
 	}
 	catch(const std::exception& e)
 	{

@@ -73,6 +73,8 @@ void	Model::draw() {
 
 	// set position in real world
 	getShader().setMat4("model", getModel());
+	// set the model scale matrix
+	getShader().setMat4("modelScale", getModelScale());
 
 	for (auto &mesh : _meshes)
 		mesh.draw(getShader());
@@ -109,10 +111,6 @@ void	Model::loadModel(std::string path) {
 
 	// set scale
 	calcModelMatrix();
-
-	// set the model scale matrix
-	getShader().use();
-	getShader().setMat4("modelScale", getModelScale());
 }
 
 void	Model::setBonesTransform(float animationTime, aiNode *node, const aiScene *scene, mat::Mat4 parentTransform) {
