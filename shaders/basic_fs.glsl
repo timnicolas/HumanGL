@@ -1,9 +1,11 @@
 #version 410 core
 out vec4	fragColor;
 
-in vec2		texCoords;
-in vec3		fragPos;
-in vec3		normal;
+in VS_OUT {
+	vec2	texCoords;
+	vec3	fragPos;
+	vec3	normal;
+} fs_in;
 
 struct	ColorData {
 	bool		isTexture;
@@ -41,8 +43,8 @@ vec3 calcDirLight(DirLight light, vec3 norm, vec3 viewDir) {
 	vec3	ambient = light.ambient;
 	vec3	diffuse = light.diffuse;
 	if (material.diffuse.isTexture) {
-		ambient *= vec3(texture(material.diffuse.texture, texCoords));
-		diffuse *= diff * vec3(texture(material.diffuse.texture, texCoords));
+		ambient *= vec3(texture(material.diffuse.texture, fs_in.texCoords));
+		diffuse *= diff * vec3(texture(material.diffuse.texture, fs_in.texCoords));
 	}
 	else {
 		ambient *= material.diffuse.color;
@@ -52,7 +54,7 @@ vec3 calcDirLight(DirLight light, vec3 norm, vec3 viewDir) {
 	// use texture or color for the specular
 	vec3 specular = light.specular;
 	if (material.specular.isTexture)
-		specular *= spec * vec3(texture(material.specular.texture, texCoords));
+		specular *= spec * vec3(texture(material.specular.texture, fs_in.texCoords));
 	else
 		specular *= spec * material.specular.color;
 
@@ -60,8 +62,8 @@ vec3 calcDirLight(DirLight light, vec3 norm, vec3 viewDir) {
 }
 
 void main() {
-	vec3	norm = normalize(normal);
-	vec3	viewDir = normalize(viewPos - fragPos);
+	vec3	norm = normalize(fs_in.normal);
+	vec3	viewDir = normalize(viewPos - fs_in.fragPos);
 
 	// Directional lighting
 	vec3	result = calcDirLight(dirLight, norm, viewDir);
