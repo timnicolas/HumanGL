@@ -92,8 +92,7 @@ int		main(int argc, char const **argv) {
 
 	try
 	{
-		Shader sh1("shaders/basic_vs.glsl", "shaders/basic_fs.glsl", \
-		"shaders/basic_gs.glsl");
+		Shader sh1("shaders/basic_vs.glsl", "shaders/basic_fs.glsl");
 
 		Model	model(argv[1]);
 
