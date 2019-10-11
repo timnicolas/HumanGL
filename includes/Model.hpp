@@ -53,7 +53,14 @@ class Model {
 		Mesh					processMesh(aiMesh *mesh, const aiScene *scene);
 		std::vector<Texture>	loadMaterialTextures(aiMaterial *mat, \
 		aiTextureType type, TextureT textType);
-		void					setBonesTransform(aiNode *node, mat::Mat4 parentTransform);
+		void					setBonesTransform(float animationTime, aiNode *node, const aiScene *scene, mat::Mat4 parentTransform);
+		const aiNodeAnim*		findNodeAnim(const aiAnimation* animation, const std::string nodeName);
+		void					calcInterpolatedPosition(aiVector3D &out, float animationTime, const aiNodeAnim* nodeAnim);
+		void					calcInterpolatedRotation(aiQuaternion &out, float animationTime, const aiNodeAnim* nodeAnim);
+		void					calcInterpolatedScaling(aiVector3D &out, float animationTime, const aiNodeAnim* nodeAnim);
+		u_int32_t				findPosition(float animationTime, const aiNodeAnim* nodeAnim);
+		u_int32_t				findRotation(float animationTime, const aiNodeAnim* nodeAnim);
+		u_int32_t				findScaling(float animationTime, const aiNodeAnim* nodeAnim);
 
 		void					updateMinMaxPos(mat::Vec3 pos);
 		void					initScale();
@@ -75,6 +82,11 @@ class Model {
 		float					*_boneInfoUniform;
 		u_int32_t				_actBoneId = 0;
 		mat::Mat4				_globalTransform;
+		mat::Mat4				_globalInverseTransform;
+		aiAnimation				*_curAnimation;
+		std::chrono::milliseconds	_startAnimTime;
+		const aiScene			*_scene;
+		Assimp::Importer		_importer;
 };
 
 #endif

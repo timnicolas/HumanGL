@@ -486,6 +486,18 @@ namespace mat {
 		}
 		return res;
 	}
+	bool operator==(BaseMat m, const BaseMat other) {
+		if (m.getLns() != other.getLns() || m.getCols() != other.getCols()) {
+			return false;
+		}
+		for (int i=0; i < m.getLns(); i++) {
+			for (int j=0; j < m.getCols(); j++) {
+				if (m[i][j] != other[i][j])
+					return false;
+			}
+		}
+		return true;
+	}
 	BaseMat &BaseMat::operator=(const BaseMat &other) {
         if(&other == this)
             return *this;

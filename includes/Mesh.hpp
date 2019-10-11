@@ -21,22 +21,22 @@ struct VertexMat {  // contain matrix objects
 	mat::Vec3	pos;
 	mat::Vec3	norm;
 	mat::Vec2	texCoords;
-	u_int32_t bonesID[NUM_BONES_PER_VERTEX];
-	float bonesW[NUM_BONES_PER_VERTEX];
+	int			bonesID[NUM_BONES_PER_VERTEX];
+	float		bonesW[NUM_BONES_PER_VERTEX];
 
 	VertexMat() :
 		pos(mat::Vec3()),
 		norm(mat::Vec3()),
 		texCoords(mat::Vec2()),
-		bonesID{0, 0, 0, 0},
-		bonesW{0, 0, 0, 0} {
+		bonesID{0},
+		bonesW{0} {
 	}
 };
 struct Vertex {  // contain pointer on data on matrix object
 	float posx, posy, posz;
 	float normx, normy, normz;
 	float texCoordsx, texCoordsy;
-	u_int32_t bonesID[NUM_BONES_PER_VERTEX];
+	int bonesID[NUM_BONES_PER_VERTEX];
 	float bonesW[NUM_BONES_PER_VERTEX];
 };
 

@@ -70,14 +70,18 @@ void	Mesh::draw(Shader &sh) const {
 void	Mesh::setupMesh() {
 	// create real vertex object to send to the bufferData in openGL
 	std::vector<Vertex> vert;
-	for (size_t i=0; i < vertices.size(); i++) {
+	for (u_int32_t i=0; i < vertices.size(); i++) {
 		Vertex v = Vertex{
 			vertices[i].pos.x, vertices[i].pos.y, vertices[i].pos.z,
 			vertices[i].norm.x, vertices[i].norm.y, vertices[i].norm.z,
 			vertices[i].texCoords.x, vertices[i].texCoords.y,
-			{vertices[i].bonesID[0], vertices[i].bonesID[1], vertices[i].bonesID[2], vertices[i].bonesID[3]},
-			{vertices[i].bonesW[0], vertices[i].bonesW[1], vertices[i].bonesW[2], vertices[i].bonesW[3]}
+			{0},
+			{0}
 		};
+		for (u_int32_t j=0; j < NUM_BONES_PER_VERTEX; j++) {
+			v.bonesID[j] = vertices[i].bonesID[j];
+			v.bonesW[j] = vertices[i].bonesW[j];
+		}
 		vert.push_back(v);
 	}
 
@@ -103,7 +107,7 @@ void	Mesh::setupMesh() {
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, texCoordsx));
 	// vertex bones IDs
 	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, NUM_BONES_PER_VERTEX, GL_INT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, bonesID));
+	glVertexAttribIPointer(3, NUM_BONES_PER_VERTEX, GL_INT, sizeof(Vertex), (void *)offsetof(Vertex, bonesID));
 	// vertex bones weight
 	glEnableVertexAttribArray(4);
 	glVertexAttribPointer(4, NUM_BONES_PER_VERTEX, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, bonesW));
@@ -131,5 +135,5 @@ void Mesh::addBoneData(u_int32_t boneID, float weight, u_int32_t vertexID) {
 			return;
 		}
 	}
-	// std::cerr << "too many bones in Mesh -> max: " << NUM_BONES_PER_VERTEX << "\n";
+	std::cerr << "too many bones in Mesh -> max: " << NUM_BONES_PER_VERTEX << "\n";
 }
