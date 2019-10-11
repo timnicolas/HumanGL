@@ -60,8 +60,7 @@ class Model {
 		void					loadModel(std::string path);
 		void					processNode(aiNode *node, const aiScene *scene);
 		Mesh					processMesh(aiMesh *mesh, const aiScene *scene);
-		std::vector<Texture>	loadMaterialTextures(aiMaterial *mat, \
-		aiTextureType type, TextureT textType);
+		std::vector<Texture>	loadMaterialTextures(aiMaterial *mat, aiTextureType type, TextureT textType);
 		void					setBonesTransform(float animationTime, aiNode *node, const aiScene *scene, mat::Mat4 parentTransform);
 		void					setBonesPos(aiNode *node, mat::Mat4 parentTransform);
 		const aiNodeAnim*		findNodeAnim(const aiAnimation* animation, const std::string nodeName);
