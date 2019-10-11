@@ -123,7 +123,7 @@ void	Model::setBonesTransform(float animationTime, aiNode *node, const aiScene *
 
     if (nodeAnim) {
         // Interpolate scaling and generate scaling transformation matrix
-        aiVector3D scaling;
+        mat::Vec3 scaling;
         calcInterpolatedScaling(scaling, animationTime, nodeAnim);
         mat::Mat4 scalingM = mat::Mat4();
 		scalingM = scalingM.scale(scaling.x, scaling.y, scaling.z);
@@ -245,10 +245,10 @@ void	Model::calcInterpolatedRotation(aiQuaternion &out, float animationTime, con
     out = out.Normalize();
 }
 
-void	Model::calcInterpolatedScaling(aiVector3D &out, float animationTime, const aiNodeAnim* nodeAnim)
+void	Model::calcInterpolatedScaling(mat::Vec3 &out, float animationTime, const aiNodeAnim* nodeAnim)
 {
     if (nodeAnim->mNumScalingKeys == 1) {
-        out = nodeAnim->mScalingKeys[0].mValue;
+        out = aiToVec3(nodeAnim->mScalingKeys[0].mValue);
         return;
     }
 
@@ -258,10 +258,10 @@ void	Model::calcInterpolatedScaling(aiVector3D &out, float animationTime, const 
     float deltaTime = (float)(nodeAnim->mScalingKeys[NextScalingIndex].mTime - nodeAnim->mScalingKeys[ScalingIndex].mTime);
     float factor = (animationTime - (float)nodeAnim->mScalingKeys[ScalingIndex].mTime) / deltaTime;
     assert(factor >= 0.0f && factor <= 1.0f);
-    const aiVector3D& Start = nodeAnim->mScalingKeys[ScalingIndex].mValue;
-    const aiVector3D& End   = nodeAnim->mScalingKeys[NextScalingIndex].mValue;
-    aiVector3D Delta = End - Start;
-    out = Start + factor * Delta;
+    const mat::Vec3 &start = aiToVec3(nodeAnim->mScalingKeys[ScalingIndex].mValue);
+    const mat::Vec3 &end   = aiToVec3(nodeAnim->mScalingKeys[NextScalingIndex].mValue);
+    mat::Vec3 delta = end - start;
+    out = start + delta * factor;
 }
 
 void	Model::processNode(aiNode *node, const aiScene *scene) {
