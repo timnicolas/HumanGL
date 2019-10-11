@@ -44,8 +44,12 @@ class Model {
 		mat::Mat4				getGlobalTransform() const;
 		mat::Mat4				getGlobalInverseTransform() const;
 
+		u_int32_t				getCubeVbo() const;
+		u_int32_t				getCubeVao() const;
 
 		void		draw();
+
+		static const float		_cubeData[];
 
 		class AssimpError : public std::exception {
 			public:
@@ -69,6 +73,7 @@ class Model {
 
 		void					updateMinMaxPos(mat::Vec3 pos);
 		void					calcModelMatrix();
+		void					sendCubeData();
 
 		Shader					&_shader;
 		std::vector<Mesh>		_meshes;
@@ -93,6 +98,9 @@ class Model {
 		std::chrono::milliseconds	_startAnimTime;
 		const aiScene			*_scene;
 		Assimp::Importer		_importer;
+
+		u_int32_t				_cubeVbo;
+		u_int32_t				_cubeVao;
 };
 
 #endif

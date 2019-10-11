@@ -1,6 +1,47 @@
 #include "Model.hpp"
 #include <limits>
 
+const float	Model::_cubeData[] = {
+	// positions			// normals				// texture coords
+	-0.5f, -0.5f, -0.5f,	0.0f, 0.0f, -1.0f,		0.0f, 0.0f,
+	0.5f, -0.5f, -0.5f,		0.0f, 0.0f, -1.0f,		1.0f, 0.0f,
+	0.5f, 0.5f, -0.5f,		0.0f, 0.0f, -1.0f,		1.0f, 1.0f,
+	0.5f, 0.5f, -0.5f,		0.0f, 0.0f, -1.0f,		1.0f, 1.0f,
+	-0.5f, 0.5f, -0.5f,		0.0f, 0.0f, -1.0f,		0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,	0.0f, 0.0f, -1.0f,		0.0f, 0.0f,
+	-0.5f, -0.5f, 0.5f,		0.0f, 0.0f, 1.0f,		0.0f, 0.0f,
+	0.5f, -0.5f, 0.5f,		0.0f, 0.0f, 1.0f,		1.0f, 0.0f,
+	0.5f, 0.5f, 0.5f,		0.0f, 0.0f, 1.0f,		1.0f, 1.0f,
+	0.5f, 0.5f, 0.5f,		0.0f, 0.0f, 1.0f,		1.0f, 1.0f,
+	-0.5f, 0.5f, 0.5f,		0.0f, 0.0f, 1.0f,		0.0f, 1.0f,
+	-0.5f, -0.5f, 0.5f,		0.0f, 0.0f, 1.0f,		0.0f, 0.0f,
+	-0.5f, 0.5f, 0.5f,		-1.0f, 0.0f, 0.0f,		1.0f, 0.0f,
+	-0.5f, 0.5f, -0.5f,		-1.0f, 0.0f, 0.0f,		1.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,	-1.0f, 0.0f, 0.0f,		0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,	-1.0f, 0.0f, 0.0f,		0.0f, 1.0f,
+	-0.5f, -0.5f, 0.5f,		-1.0f, 0.0f, 0.0f,		0.0f, 0.0f,
+	-0.5f, 0.5f, 0.5f,		-1.0f, 0.0f, 0.0f,		1.0f, 0.0f,
+	0.5f, 0.5f, 0.5f,		1.0f, 0.0f, 0.0f,		1.0f, 0.0f,
+	0.5f, 0.5f, -0.5f,		1.0f, 0.0f, 0.0f,		1.0f, 1.0f,
+	0.5f, -0.5f, -0.5f,		1.0f, 0.0f, 0.0f,		0.0f, 1.0f,
+	0.5f, -0.5f, -0.5f,		1.0f, 0.0f, 0.0f,		0.0f, 1.0f,
+	0.5f, -0.5f, 0.5f,		1.0f, 0.0f, 0.0f,		0.0f, 0.0f,
+	0.5f, 0.5f, 0.5f,		1.0f, 0.0f, 0.0f,		1.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,	0.0f, -1.0f, 0.0f,		0.0f, 1.0f,
+	0.5f, -0.5f, -0.5f,		0.0f, -1.0f, 0.0f,		1.0f, 1.0f,
+	0.5f, -0.5f, 0.5f,		0.0f, -1.0f, 0.0f,		1.0f, 0.0f,
+	0.5f, -0.5f, 0.5f,		0.0f, -1.0f, 0.0f,		1.0f, 0.0f,
+	-0.5f, -0.5f, 0.5f,		0.0f, -1.0f, 0.0f,		0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,	0.0f, -1.0f, 0.0f,		0.0f, 1.0f,
+	-0.5f, 0.5f, -0.5f,		0.0f, 1.0f, 0.0f,		0.0f, 1.0f,
+	0.5f, 0.5f, -0.5f,		0.0f, 1.0f, 0.0f,		1.0f, 1.0f,
+	0.5f, 0.5f, 0.5f,		0.0f, 1.0f, 0.0f,		1.0f, 0.0f,
+	0.5f, 0.5f, 0.5f,		0.0f, 1.0f, 0.0f,		1.0f, 0.0f,
+	-0.5f, 0.5f, 0.5f,		0.0f, 1.0f, 0.0f,		0.0f, 0.0f,
+	-0.5f, 0.5f, -0.5f,		0.0f, 1.0f, 0.0f,		0.0f, 1.0f
+};
+
+
 Model::Model(const char *path, Shader &shader)
 : _shader(shader),
   _minPos(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()),
@@ -8,6 +49,7 @@ Model::Model(const char *path, Shader &shader)
   _model(mat::Mat4()),
   _modelScale(mat::Mat4()) {
 	loadModel(path);
+	sendCubeData();
 	_startAnimTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 }
 
@@ -18,6 +60,7 @@ Model::Model(Model const &src) :
 
 Model::~Model() {
 	free(_boneInfoUniform);
+	glDeleteVertexArrays(1, &_cubeVao);
 }
 
 Model &Model::operator=(Model const &rhs) {
@@ -38,6 +81,9 @@ Model &Model::operator=(Model const &rhs) {
 		_actBoneId = rhs.getActBoneId();
 		_globalInverseTransform = rhs.getGlobalInverseTransform();
 		_globalTransform = rhs.getGlobalTransform();
+
+		_cubeVbo = rhs.getCubeVbo();
+		_cubeVao = rhs.getCubeVao();
 
 		_startAnimTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 	}
@@ -468,6 +514,23 @@ aiTextureType type, TextureT textType) {
     return textures;
 }
 
+// send cube data to draw a cube at the bones origin later
+void	Model::sendCubeData() {
+    glGenVertexArrays(1, &_cubeVao);
+    glGenBuffers(1, &_cubeVbo);
+
+    glBindBuffer(GL_ARRAY_BUFFER, _cubeVbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Model::_cubeData), Model::_cubeData, GL_STATIC_DRAW);
+
+    glBindVertexArray(_cubeVao);
+    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(7, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+}
+
 const char* Model::AssimpError::what() const throw() {
     return ("Assimp failed to load the model!");
 }
@@ -488,3 +551,5 @@ float					*Model::getBoneInfoUniform() const { return _boneInfoUniform; }
 u_int32_t				Model::getActBoneId() const { return _actBoneId; }
 mat::Mat4				Model::getGlobalTransform() const { return _globalTransform; }
 mat::Mat4				Model::getGlobalInverseTransform() const { return _globalInverseTransform; }
+u_int32_t				Model::getCubeVbo() const { return _cubeVbo; }
+u_int32_t				Model::getCubeVao() const { return _cubeVao; }
