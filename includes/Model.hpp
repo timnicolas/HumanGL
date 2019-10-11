@@ -59,7 +59,7 @@ class Model {
 		aiTextureType type, TextureT textType);
 		void					setBonesTransform(float animationTime, aiNode *node, const aiScene *scene, mat::Mat4 parentTransform);
 		const aiNodeAnim*		findNodeAnim(const aiAnimation* animation, const std::string nodeName);
-		void					calcInterpolatedPosition(aiVector3D &out, float animationTime, const aiNodeAnim* nodeAnim);
+		void					calcInterpolatedPosition(mat::Vec3 &out, float animationTime, const aiNodeAnim* nodeAnim);
 		void					calcInterpolatedRotation(mat::Quaternion &out, float animationTime, const aiNodeAnim* nodeAnim);
 		void					calcInterpolatedScaling(mat::Vec3 &out, float animationTime, const aiNodeAnim* nodeAnim);
 		u_int32_t				findPosition(float animationTime, const aiNodeAnim* nodeAnim);

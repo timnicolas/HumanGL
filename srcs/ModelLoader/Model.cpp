@@ -126,7 +126,7 @@ void	Model::setBonesTransform(float animationTime, aiNode *node, const aiScene *
         mat::Vec3 scaling;
         calcInterpolatedScaling(scaling, animationTime, nodeAnim);
         mat::Mat4 scalingM = mat::Mat4();
-		scalingM = scalingM.scale(scaling.x, scaling.y, scaling.z);
+		scalingM = scalingM.scale(scaling);
 
         // Interpolate rotation and generate rotation transformation matrix
         mat::Quaternion rotationQ;
@@ -134,10 +134,10 @@ void	Model::setBonesTransform(float animationTime, aiNode *node, const aiScene *
         mat::Mat4 rotationM = rotationQ.toMatrix();
 
         // Interpolate translation and generate translation transformation matrix
-        aiVector3D translation;
+        mat::Vec3 translation;
         calcInterpolatedPosition(translation, animationTime, nodeAnim);
         mat::Mat4 translationM = mat::Mat4();
-        translationM = translationM.translate(translation.x, translation.y, translation.z);
+        translationM = translationM.translate(translation);
 
         // Combine the above transformations
         nodeTransformation = translationM * rotationM * scalingM;
@@ -205,10 +205,10 @@ u_int32_t	Model::findScaling(float animationTime, const aiNodeAnim* nodeAnim)
     return 0;
 }
 
-void	Model::calcInterpolatedPosition(aiVector3D &out, float animationTime, const aiNodeAnim* nodeAnim)
+void	Model::calcInterpolatedPosition(mat::Vec3 &out, float animationTime, const aiNodeAnim* nodeAnim)
 {
     if (nodeAnim->mNumPositionKeys == 1) {
-        out = nodeAnim->mPositionKeys[0].mValue;
+        out = aiToVec3(nodeAnim->mPositionKeys[0].mValue);
         return;
     }
 
@@ -218,10 +218,10 @@ void	Model::calcInterpolatedPosition(aiVector3D &out, float animationTime, const
     float deltaTime = (float)(nodeAnim->mPositionKeys[nextPositionIndex].mTime - nodeAnim->mPositionKeys[positionIndex].mTime);
     float factor = (animationTime - (float)nodeAnim->mPositionKeys[positionIndex].mTime) / deltaTime;
     assert(factor >= 0.0f && factor <= 1.0f);
-    const aiVector3D &start = nodeAnim->mPositionKeys[positionIndex].mValue;
-    const aiVector3D &end = nodeAnim->mPositionKeys[nextPositionIndex].mValue;
-    aiVector3D delta = end - start;
-    out = start + factor * delta;
+    const mat::Vec3 &start = aiToVec3(nodeAnim->mPositionKeys[positionIndex].mValue);
+    const mat::Vec3 &end = aiToVec3(nodeAnim->mPositionKeys[nextPositionIndex].mValue);
+    mat::Vec3 delta = end - start;
+    out = start + delta * factor;
 }
 
 void	Model::calcInterpolatedRotation(mat::Quaternion &out, float animationTime, const aiNodeAnim* nodeAnim)
