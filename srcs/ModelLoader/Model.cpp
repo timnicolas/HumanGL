@@ -1,16 +1,18 @@
 #include "Model.hpp"
 #include <limits>
 
-Model::Model(const char *path)
-: _minPos(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()),
+Model::Model(const char *path, Shader &shader)
+: _shader(shader),
+  _minPos(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()),
   _maxPos(std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), std::numeric_limits<float>::min()),
-  _model(mat::Mat4(1.0f)),
-  _modelScale(1) {
+  _model(mat::Mat4()),
+  _modelScale(mat::Mat4()) {
 	loadModel(path);
 	_startAnimTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 }
 
-Model::Model(Model const &src) {
+Model::Model(Model const &src) :
+  _shader(src.getShader()) {
 	*this = src;
 }
 
@@ -34,6 +36,7 @@ Model &Model::operator=(Model const &rhs) {
 
 		_boneInfoUniform = rhs.getBoneInfoUniform();
 		_actBoneId = rhs.getActBoneId();
+		_globalInverseTransform = rhs.getGlobalInverseTransform();
 		_globalTransform = rhs.getGlobalTransform();
 
 		_startAnimTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
@@ -41,16 +44,7 @@ Model &Model::operator=(Model const &rhs) {
 	return *this;
 }
 
-void	Model::draw(Shader &shader) {
-	std::chrono::milliseconds curTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-	std::chrono::milliseconds runningTime = (curTime - _startAnimTime);
-	float timeInMillis = runningTime.count();
-	float ticksPerSecond = (_curAnimation->mTicksPerSecond != 0) ? _curAnimation->mTicksPerSecond : 25.0f;
-	float timeInTicks = (timeInMillis / 1000.0) * ticksPerSecond;
-	//loops the animation
-	float animationTime = fmod(timeInTicks, _curAnimation->mDuration);
-
-	setBonesTransform(animationTime, _scene->mRootNode, _scene, _globalTransform);
+void	Model::sendBones() {
 	_boneInfoUniform = static_cast<float*>(malloc(sizeof(float) * MAX_BONES * 16));
 	for (u_int32_t i=0; i < MAX_BONES; ++i) {
 		for (u_int32_t j=0; j < 16; ++j) {
@@ -59,10 +53,31 @@ void	Model::draw(Shader &shader) {
 		}
 		// std::cout << "\n";  // 2/2 show all bones matrix
 	}
-	glUniformMatrix4fv(glGetUniformLocation(shader.id, "bones"), MAX_BONES, GL_TRUE, _boneInfoUniform);
+	glUniformMatrix4fv(glGetUniformLocation(getShader().id, "bones"), MAX_BONES, GL_TRUE, _boneInfoUniform);
+}
+
+void	Model::draw() {
+	_shader.use();
+	if (_isAnimated) {
+		std::chrono::milliseconds curTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+		std::chrono::milliseconds runningTime = (curTime - _startAnimTime);
+		float timeInMillis = runningTime.count();
+		float ticksPerSecond = (_curAnimation->mTicksPerSecond != 0) ? _curAnimation->mTicksPerSecond : 25.0f;
+		float timeInTicks = (timeInMillis / 1000.0) * ticksPerSecond;
+		//loops the animation
+		float animationTime = fmod(timeInTicks, _curAnimation->mDuration);
+		// set bones with animations
+		setBonesTransform(animationTime, _scene->mRootNode, _scene, _globalTransform);
+		sendBones();
+	}
+
+	// set position in real world
+	getShader().setMat4("model", getModel());
+	// set the model scale matrix
+	getShader().setMat4("modelScale", getModelScale());
 
 	for (auto &mesh : _meshes)
-		mesh.draw(shader);
+		mesh.draw(getShader());
 }
 
 void	Model::loadModel(std::string path) {
@@ -83,10 +98,18 @@ void	Model::loadModel(std::string path) {
 	_globalInverseTransform = _globalTransform;
 
 	processNode(_scene->mRootNode, _scene);
-	_curAnimation = _scene->mAnimations[0];  // set the current animation
+	if (_scene->mNumAnimations > 0) {
+		_isAnimated = true;
+		_curAnimation = _scene->mAnimations[0];  // set the current animation
+	}
+	else {
+		_isAnimated = false;
+		_curAnimation = nullptr;
+		_shader.use();
+		sendBones();  // send defaut values
+	}
 
 	// set scale
-	initScale();
 	calcModelMatrix();
 }
 
@@ -98,22 +121,21 @@ void	Model::setBonesTransform(float animationTime, aiNode *node, const aiScene *
 
     if (nodeAnim) {
         // Interpolate scaling and generate scaling transformation matrix
-        aiVector3D scaling;
+        mat::Vec3 scaling;
         calcInterpolatedScaling(scaling, animationTime, nodeAnim);
         mat::Mat4 scalingM = mat::Mat4();
-		scalingM = scalingM.scale(scaling.x, scaling.y, scaling.z);
+		scalingM = scalingM.scale(scaling);
 
         // Interpolate rotation and generate rotation transformation matrix
-        aiQuaternion rotationQ_;
-        calcInterpolatedRotation(rotationQ_, animationTime, nodeAnim);
-        mat::Quaternion rotationQ = aiToQuat(rotationQ_);
+        mat::Quaternion rotationQ;
+        calcInterpolatedRotation(rotationQ, animationTime, nodeAnim);
         mat::Mat4 rotationM = rotationQ.toMatrix();
 
         // Interpolate translation and generate translation transformation matrix
-        aiVector3D translation;
+        mat::Vec3 translation;
         calcInterpolatedPosition(translation, animationTime, nodeAnim);
         mat::Mat4 translationM = mat::Mat4();
-        translationM = translationM.translate(translation.x, translation.y, translation.z);
+        translationM = translationM.translate(translation);
 
         // Combine the above transformations
         nodeTransformation = translationM * rotationM * scalingM;
@@ -150,9 +172,8 @@ const aiNodeAnim*	Model::findNodeAnim(const aiAnimation* animation, const std::s
 u_int32_t	Model::findPosition(float animationTime, const aiNodeAnim* nodeAnim)
 {
     for (uint i = 0 ; i < nodeAnim->mNumPositionKeys - 1 ; i++) {
-        if (animationTime < (float)nodeAnim->mPositionKeys[i + 1].mTime) {
+        if (animationTime < (float)nodeAnim->mPositionKeys[i + 1].mTime)
             return i;
-        }
     }
     assert(0);
     return 0;
@@ -162,9 +183,8 @@ u_int32_t	Model::findRotation(float animationTime, const aiNodeAnim* nodeAnim)
 {
     assert(nodeAnim->mNumRotationKeys > 0);
     for (uint i = 0 ; i < nodeAnim->mNumRotationKeys - 1 ; i++) {
-        if (animationTime < (float)nodeAnim->mRotationKeys[i + 1].mTime) {
+        if (animationTime < (float)nodeAnim->mRotationKeys[i + 1].mTime)
             return i;
-        }
     }
     assert(0);
     return 0;
@@ -174,18 +194,17 @@ u_int32_t	Model::findScaling(float animationTime, const aiNodeAnim* nodeAnim)
 {
     assert(nodeAnim->mNumScalingKeys > 0);
     for (uint i = 0 ; i < nodeAnim->mNumScalingKeys - 1 ; i++) {
-        if (animationTime < (float)nodeAnim->mScalingKeys[i + 1].mTime) {
+        if (animationTime < (float)nodeAnim->mScalingKeys[i + 1].mTime)
             return i;
-        }
     }
     assert(0);
     return 0;
 }
 
-void	Model::calcInterpolatedPosition(aiVector3D &out, float animationTime, const aiNodeAnim* nodeAnim)
+void	Model::calcInterpolatedPosition(mat::Vec3 &out, float animationTime, const aiNodeAnim* nodeAnim)
 {
     if (nodeAnim->mNumPositionKeys == 1) {
-        out = nodeAnim->mPositionKeys[0].mValue;
+        out = aiToVec3(nodeAnim->mPositionKeys[0].mValue);
         return;
     }
 
@@ -195,17 +214,17 @@ void	Model::calcInterpolatedPosition(aiVector3D &out, float animationTime, const
     float deltaTime = (float)(nodeAnim->mPositionKeys[nextPositionIndex].mTime - nodeAnim->mPositionKeys[positionIndex].mTime);
     float factor = (animationTime - (float)nodeAnim->mPositionKeys[positionIndex].mTime) / deltaTime;
     assert(factor >= 0.0f && factor <= 1.0f);
-    const aiVector3D &start = nodeAnim->mPositionKeys[positionIndex].mValue;
-    const aiVector3D &end = nodeAnim->mPositionKeys[nextPositionIndex].mValue;
-    aiVector3D delta = end - start;
-    out = start + factor * delta;
+    const mat::Vec3 &start = aiToVec3(nodeAnim->mPositionKeys[positionIndex].mValue);
+    const mat::Vec3 &end = aiToVec3(nodeAnim->mPositionKeys[nextPositionIndex].mValue);
+    mat::Vec3 delta = end - start;
+    out = start + delta * factor;
 }
 
-void	Model::calcInterpolatedRotation(aiQuaternion &out, float animationTime, const aiNodeAnim* nodeAnim)
+void	Model::calcInterpolatedRotation(mat::Quaternion &out, float animationTime, const aiNodeAnim* nodeAnim)
 {
 	// we need at least two values to interpolate...
     if (nodeAnim->mNumRotationKeys == 1) {
-        out = nodeAnim->mRotationKeys[0].mValue;
+        out = aiToQuat(nodeAnim->mRotationKeys[0].mValue);
         return;
     }
 
@@ -215,16 +234,16 @@ void	Model::calcInterpolatedRotation(aiQuaternion &out, float animationTime, con
     float deltaTime = (float)(nodeAnim->mRotationKeys[nextRotationIndex].mTime - nodeAnim->mRotationKeys[rotationIndex].mTime);
     float factor = (animationTime - (float)nodeAnim->mRotationKeys[rotationIndex].mTime) / deltaTime;
     assert(factor >= 0.0f && factor <= 1.0f);
-    const aiQuaternion& startRotationQ = nodeAnim->mRotationKeys[rotationIndex].mValue;
-    const aiQuaternion& endRotationQ   = nodeAnim->mRotationKeys[nextRotationIndex].mValue;
-    aiQuaternion::Interpolate(out, startRotationQ, endRotationQ, factor);
-    out = out.Normalize();
+    const mat::Quaternion &startRotationQ = aiToQuat(nodeAnim->mRotationKeys[rotationIndex].mValue);
+    const mat::Quaternion &endRotationQ   = aiToQuat(nodeAnim->mRotationKeys[nextRotationIndex].mValue);
+	out = mat::slerp(startRotationQ, endRotationQ, factor);
+    out = out.normalize();
 }
 
-void	Model::calcInterpolatedScaling(aiVector3D &out, float animationTime, const aiNodeAnim* nodeAnim)
+void	Model::calcInterpolatedScaling(mat::Vec3 &out, float animationTime, const aiNodeAnim* nodeAnim)
 {
     if (nodeAnim->mNumScalingKeys == 1) {
-        out = nodeAnim->mScalingKeys[0].mValue;
+        out = aiToVec3(nodeAnim->mScalingKeys[0].mValue);
         return;
     }
 
@@ -234,10 +253,10 @@ void	Model::calcInterpolatedScaling(aiVector3D &out, float animationTime, const 
     float deltaTime = (float)(nodeAnim->mScalingKeys[NextScalingIndex].mTime - nodeAnim->mScalingKeys[ScalingIndex].mTime);
     float factor = (animationTime - (float)nodeAnim->mScalingKeys[ScalingIndex].mTime) / deltaTime;
     assert(factor >= 0.0f && factor <= 1.0f);
-    const aiVector3D& Start = nodeAnim->mScalingKeys[ScalingIndex].mValue;
-    const aiVector3D& End   = nodeAnim->mScalingKeys[NextScalingIndex].mValue;
-    aiVector3D Delta = End - Start;
-    out = Start + factor * Delta;
+    const mat::Vec3 &start = aiToVec3(nodeAnim->mScalingKeys[ScalingIndex].mValue);
+    const mat::Vec3 &end   = aiToVec3(nodeAnim->mScalingKeys[NextScalingIndex].mValue);
+    mat::Vec3 delta = end - start;
+    out = start + delta * factor;
 }
 
 void	Model::processNode(aiNode *node, const aiScene *scene) {
@@ -290,9 +309,12 @@ void	Model::updateMinMaxPos(mat::Vec3 pos) {
 		_minPos.z = pos.z;
 }
 
-// init the object scale
-void	Model::initScale() {
+// calculate the model matrix to scale and center the Model
+void	Model::calcModelMatrix() {
+	mat::Vec3	transl;
 	float		maxDiff;
+	float		scale;
+
 	// calculate scale
 	maxDiff = _maxPos.x - _minPos.x;
 	if (maxDiff < _maxPos.y - _minPos.y)
@@ -300,28 +322,22 @@ void	Model::initScale() {
 	if (maxDiff < _maxPos.z - _minPos.z)
 		maxDiff = _maxPos.z - _minPos.z;
 	maxDiff /= 2;
-	_modelScale = 1.0f / maxDiff;
-}
-
-// calculate the model matrix to scale and center the Model
-void	Model::calcModelMatrix() {
-	mat::Vec3	transl;
-
-	_model = mat::Mat4(1.0f);
+	scale = 1.0f / maxDiff;
+	_modelScale = mat::Mat4(1.0f);
 
 	// apply the scale
-	_model = _model.scale(mat::Vec3(_modelScale, _modelScale, _modelScale));
+	_modelScale = _modelScale.scale(mat::Vec3(scale, scale, scale));
 
 	// calculate the translation
 	transl.x = -((_minPos.x + _maxPos.x) / 2);
 	transl.y = -((_minPos.y + _maxPos.y) / 2);
 	transl.z = -((_minPos.z + _maxPos.z) / 2);
 	// verification due to float precision
-	transl.x = _modelScale * ((transl.x < 0.00001f && transl.x > -0.00001f) ? 0.0f : transl.x);
-	transl.y = _modelScale * ((transl.y < 0.00001f && transl.y > -0.00001f) ? 0.0f : transl.y);
-	transl.z = _modelScale * ((transl.z < 0.00001f && transl.z > -0.00001f) ? 0.0f : transl.z);
+	transl.x = scale * ((transl.x < 0.00001f && transl.x > -0.00001f) ? 0.0f : transl.x);
+	transl.y = scale * ((transl.y < 0.00001f && transl.y > -0.00001f) ? 0.0f : transl.y);
+	transl.z = scale * ((transl.z < 0.00001f && transl.z > -0.00001f) ? 0.0f : transl.z);
 	// apply the translation
-	_model = _model.translate(transl);
+	_modelScale = _modelScale.translate(transl);
 }
 
 
@@ -456,16 +472,19 @@ const char* Model::AssimpError::what() const throw() {
     return ("Assimp failed to load the model!");
 }
 
+Shader					&Model::getShader() const { return _shader; }
 std::vector<Mesh>		Model::getMeshes() const { return _meshes; }
 std::string				Model::getDirectory() const { return _directory; }
 std::vector<Texture>	Model::getTexturesLoaded() const { return _texturesLoaded; }
-mat::Mat4				Model::getModel() const { return _model; }
+mat::Mat4				&Model::getModel() { return _model; }
+mat::Mat4				&Model::getModelScale() { return _modelScale; }
+const mat::Mat4			&Model::getModel() const { return _model; }
+const mat::Mat4			&Model::getModelScale() const { return _modelScale; }
 mat::Vec3				Model::getMinPos() const { return _minPos; }
 mat::Vec3				Model::getMaxPos() const { return _maxPos; }
-float					Model::getModelScale() const { return _modelScale; }
 std::map<std::string, int>	Model::getBoneMap() const { return _boneMap; }
 std::array<Model::BoneInfo, MAX_BONES>	Model::getBoneInfo() const { return _boneInfo; }
 float					*Model::getBoneInfoUniform() const { return _boneInfoUniform; }
 u_int32_t				Model::getActBoneId() const { return _actBoneId; }
 mat::Mat4				Model::getGlobalTransform() const { return _globalTransform; }
-
+mat::Mat4				Model::getGlobalInverseTransform() const { return _globalInverseTransform; }

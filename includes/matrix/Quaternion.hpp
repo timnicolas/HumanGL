@@ -14,6 +14,7 @@ namespace mat {
 			const Vec4 operator*(const Vec4 &other) const;  // apply rotation to the vector
 			const Quaternion operator^(float t) const;
 			const Quaternion slerp(const Quaternion &to, float step) const;  // get a point btw this and to (with t btw 0 & 1)
+			const Quaternion normalize() const;
 
 			void toAxisAngle(float &flAngle, Vec3 &vecAxis) const;  // get axis and angle from quaterion
 			Mat4 toMatrix() const;
@@ -26,6 +27,7 @@ namespace mat {
 		protected:
 		private:
 	};
+	const Quaternion slerp(const Quaternion &from, const Quaternion &to, float step);
 }
 
 /*

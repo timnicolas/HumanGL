@@ -27,6 +27,8 @@ aiMatrix4x4 mat4ToAi(mat::Mat4 mat);
 mat::Mat4 aiToMat4(aiMatrix4x4& in_mat);
 aiQuaternion quatToAi(mat::Quaternion quat);
 mat::Quaternion aiToQuat(aiQuaternion& in_quat);
+mat::Vec3 aiToVec3(aiVector3D v);
+aiVector3D vec3ToAi(mat::Vec3 v);
 
 #define ZERO_MEM(a) memset(a, 0, sizeof(a))
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))

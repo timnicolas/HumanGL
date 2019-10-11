@@ -19,29 +19,33 @@ class Model {
 			}
 		};
 
-        Model(const char *path);
+        Model(const char *path, Shader &shader);
 		Model(Model const &src);
 		virtual ~Model();
 
 		Model &operator=(Model const &rhs);
 
+		Shader					&getShader() const;
 		std::vector<Mesh>		getMeshes() const;
 		std::string				getDirectory() const;
 		std::vector<Texture>	getTexturesLoaded() const;
 
 		mat::Vec3				getMinPos() const;
 		mat::Vec3				getMaxPos() const;
-		mat::Mat4				getModel() const;
-		float					getModelScale() const;
+		mat::Mat4				&getModel();
+		mat::Mat4				&getModelScale();
+		const mat::Mat4			&getModel() const;
+		const mat::Mat4			&getModelScale() const;
 
 		std::map<std::string, int>	getBoneMap() const;
 		std::array<BoneInfo, MAX_BONES>	getBoneInfo() const;
 		float					*getBoneInfoUniform() const;
 		u_int32_t				getActBoneId() const;
 		mat::Mat4				getGlobalTransform() const;
+		mat::Mat4				getGlobalInverseTransform() const;
 
 
-		void		draw(Shader &shader);
+		void		draw();
 
 		class AssimpError : public std::exception {
 			public:
@@ -55,25 +59,26 @@ class Model {
 		aiTextureType type, TextureT textType);
 		void					setBonesTransform(float animationTime, aiNode *node, const aiScene *scene, mat::Mat4 parentTransform);
 		const aiNodeAnim*		findNodeAnim(const aiAnimation* animation, const std::string nodeName);
-		void					calcInterpolatedPosition(aiVector3D &out, float animationTime, const aiNodeAnim* nodeAnim);
-		void					calcInterpolatedRotation(aiQuaternion &out, float animationTime, const aiNodeAnim* nodeAnim);
-		void					calcInterpolatedScaling(aiVector3D &out, float animationTime, const aiNodeAnim* nodeAnim);
+		void					calcInterpolatedPosition(mat::Vec3 &out, float animationTime, const aiNodeAnim* nodeAnim);
+		void					calcInterpolatedRotation(mat::Quaternion &out, float animationTime, const aiNodeAnim* nodeAnim);
+		void					calcInterpolatedScaling(mat::Vec3 &out, float animationTime, const aiNodeAnim* nodeAnim);
 		u_int32_t				findPosition(float animationTime, const aiNodeAnim* nodeAnim);
 		u_int32_t				findRotation(float animationTime, const aiNodeAnim* nodeAnim);
 		u_int32_t				findScaling(float animationTime, const aiNodeAnim* nodeAnim);
+		void					sendBones();
 
 		void					updateMinMaxPos(mat::Vec3 pos);
-		void					initScale();
 		void					calcModelMatrix();
 
+		Shader					&_shader;
 		std::vector<Mesh>		_meshes;
 		std::string				_directory;
 		std::vector<Texture>	_texturesLoaded;
 
 		mat::Vec3				_minPos;
 		mat::Vec3				_maxPos;
-		mat::Mat4				_model;
-		float					_modelScale;
+		mat::Mat4				_model;  // position in real world
+		mat::Mat4				_modelScale;
 
 		std::map<std::string, int>	_boneMap; // maps a bone name to its index
 		std::array<BoneInfo, MAX_BONES>	_boneInfo;
@@ -84,6 +89,7 @@ class Model {
 		mat::Mat4				_globalTransform;
 		mat::Mat4				_globalInverseTransform;
 		aiAnimation				*_curAnimation;
+		bool					_isAnimated;
 		std::chrono::milliseconds	_startAnimTime;
 		const aiScene			*_scene;
 		Assimp::Importer		_importer;
