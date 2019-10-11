@@ -19,29 +19,33 @@ class Model {
 			}
 		};
 
-        Model(const char *path);
+        Model(const char *path, Shader &shader);
 		Model(Model const &src);
 		virtual ~Model();
 
 		Model &operator=(Model const &rhs);
 
+		Shader					&getShader() const;
 		std::vector<Mesh>		getMeshes() const;
 		std::string				getDirectory() const;
 		std::vector<Texture>	getTexturesLoaded() const;
 
 		mat::Vec3				getMinPos() const;
 		mat::Vec3				getMaxPos() const;
-		mat::Mat4				getModel() const;
-		float					getModelScale() const;
+		mat::Mat4				&getModel();
+		mat::Mat4				&getModelScale();
+		const mat::Mat4			&getModel() const;
+		const mat::Mat4			&getModelScale() const;
 
 		std::map<std::string, int>	getBoneMap() const;
 		std::array<BoneInfo, MAX_BONES>	getBoneInfo() const;
 		float					*getBoneInfoUniform() const;
 		u_int32_t				getActBoneId() const;
 		mat::Mat4				getGlobalTransform() const;
+		mat::Mat4				getGlobalInverseTransform() const;
 
 
-		void		draw(Shader &shader);
+		void		draw();
 
 		class AssimpError : public std::exception {
 			public:
@@ -63,17 +67,17 @@ class Model {
 		u_int32_t				findScaling(float animationTime, const aiNodeAnim* nodeAnim);
 
 		void					updateMinMaxPos(mat::Vec3 pos);
-		void					initScale();
 		void					calcModelMatrix();
 
+		Shader					&_shader;
 		std::vector<Mesh>		_meshes;
 		std::string				_directory;
 		std::vector<Texture>	_texturesLoaded;
 
 		mat::Vec3				_minPos;
 		mat::Vec3				_maxPos;
-		mat::Mat4				_model;
-		float					_modelScale;
+		mat::Mat4				_model;  // position in real world
+		mat::Mat4				_modelScale;
 
 		std::map<std::string, int>	_boneMap; // maps a bone name to its index
 		std::array<BoneInfo, MAX_BONES>	_boneInfo;

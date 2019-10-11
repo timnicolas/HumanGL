@@ -17,6 +17,7 @@ out	vec3 normal;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform mat4 modelScale;
 uniform mat4 bones[MAX_BONES];
 
 void main() {
@@ -30,7 +31,7 @@ void main() {
     vec4 boneNormal = boneTransform * vec4(aNormal, 0);
 
 	texCoords = aTexCoords;
-	fragPos = vec3(model * vec4(aPos, 1.0));
-	normal = mat3(transpose(inverse(model))) * boneNormal.xyz;
-	gl_Position = projection * view * model * pos;
+	fragPos = vec3(modelScale * vec4(aPos, 1.0));
+	normal = mat3(transpose(inverse(modelScale))) * boneNormal.xyz;
+	gl_Position = projection * view * model * modelScale * pos;
 }

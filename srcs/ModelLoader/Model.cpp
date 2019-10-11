@@ -1,15 +1,17 @@
 #include "Model.hpp"
 #include <limits>
 
-Model::Model(const char *path)
-: _minPos(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()),
+Model::Model(const char *path, Shader &shader)
+: _shader(shader),
+  _minPos(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()),
   _maxPos(std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), std::numeric_limits<float>::min()),
-  _model(mat::Mat4(1.0f)),
-  _modelScale(1) {
+  _model(mat::Mat4()),
+  _modelScale(mat::Mat4()) {
 	loadModel(path);
 }
 
-Model::Model(Model const &src) {
+Model::Model(Model const &src) :
+  _shader(src.getShader()) {
 	*this = src;
 }
 
@@ -33,14 +35,14 @@ Model &Model::operator=(Model const &rhs) {
 
 		_boneInfoUniform = rhs.getBoneInfoUniform();
 		_actBoneId = rhs.getActBoneId();
-		_globalTransform = rhs.getGlobalTransform();
+		_globalInverseTransform = rhs.getGlobalInverseTransform();
 	}
 	return *this;
 }
 
 std::chrono::milliseconds startAnimTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
-void	Model::draw(Shader &shader) {
+void	Model::draw() {
 	std::chrono::milliseconds curTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 	std::chrono::milliseconds runningTime = (curTime - startAnimTime);
 	float timeInMillis = runningTime.count();
@@ -49,6 +51,10 @@ void	Model::draw(Shader &shader) {
 	//loops the animation
 	float animationTime = fmod(timeInTicks, 413);
 
+	// set position in real world
+	getShader().setMat4("model", getModel());
+
+	// set bones with animations
 	setBonesTransform(animationTime, _scene->mRootNode, _scene, _globalTransform);
 	_boneInfoUniform = static_cast<float*>(malloc(sizeof(float) * MAX_BONES * 16));
 	for (u_int32_t i=0; i < MAX_BONES; ++i) {
@@ -58,10 +64,10 @@ void	Model::draw(Shader &shader) {
 		}
 		// std::cout << "\n";  // 2/2 show all bones matrix
 	}
-	glUniformMatrix4fv(glGetUniformLocation(shader.id, "bones"), MAX_BONES, GL_TRUE, _boneInfoUniform);
+	glUniformMatrix4fv(glGetUniformLocation(getShader().id, "bones"), MAX_BONES, GL_TRUE, _boneInfoUniform);
 
 	for (auto &mesh : _meshes)
-		mesh.draw(shader);
+		mesh.draw(getShader());
 }
 
 void	Model::loadModel(std::string path) {
@@ -85,8 +91,11 @@ void	Model::loadModel(std::string path) {
 	_curAnimation = _scene->mAnimations[0];  // set the current animation
 
 	// set scale
-	initScale();
 	calcModelMatrix();
+
+	// set the model scale matrix
+	getShader().use();
+	getShader().setMat4("modelScale", getModelScale());
 }
 
 void	Model::setBonesTransform(float animationTime, aiNode *node, const aiScene *scene, mat::Mat4 parentTransform) {
@@ -288,9 +297,12 @@ void	Model::updateMinMaxPos(mat::Vec3 pos) {
 		_minPos.z = pos.z;
 }
 
-// init the object scale
-void	Model::initScale() {
+// calculate the model matrix to scale and center the Model
+void	Model::calcModelMatrix() {
+	mat::Vec3	transl;
 	float		maxDiff;
+	float		scale;
+
 	// calculate scale
 	maxDiff = _maxPos.x - _minPos.x;
 	if (maxDiff < _maxPos.y - _minPos.y)
@@ -298,28 +310,22 @@ void	Model::initScale() {
 	if (maxDiff < _maxPos.z - _minPos.z)
 		maxDiff = _maxPos.z - _minPos.z;
 	maxDiff /= 2;
-	_modelScale = 1.0f / maxDiff;
-}
-
-// calculate the model matrix to scale and center the Model
-void	Model::calcModelMatrix() {
-	mat::Vec3	transl;
-
-	_model = mat::Mat4(1.0f);
+	scale = 1.0f / maxDiff;
+	_modelScale = mat::Mat4(1.0f);
 
 	// apply the scale
-	_model = _model.scale(mat::Vec3(_modelScale, _modelScale, _modelScale));
+	_modelScale = _modelScale.scale(mat::Vec3(scale, scale, scale));
 
 	// calculate the translation
 	transl.x = -((_minPos.x + _maxPos.x) / 2);
 	transl.y = -((_minPos.y + _maxPos.y) / 2);
 	transl.z = -((_minPos.z + _maxPos.z) / 2);
 	// verification due to float precision
-	transl.x = _modelScale * ((transl.x < 0.00001f && transl.x > -0.00001f) ? 0.0f : transl.x);
-	transl.y = _modelScale * ((transl.y < 0.00001f && transl.y > -0.00001f) ? 0.0f : transl.y);
-	transl.z = _modelScale * ((transl.z < 0.00001f && transl.z > -0.00001f) ? 0.0f : transl.z);
+	transl.x = scale * ((transl.x < 0.00001f && transl.x > -0.00001f) ? 0.0f : transl.x);
+	transl.y = scale * ((transl.y < 0.00001f && transl.y > -0.00001f) ? 0.0f : transl.y);
+	transl.z = scale * ((transl.z < 0.00001f && transl.z > -0.00001f) ? 0.0f : transl.z);
 	// apply the translation
-	_model = _model.translate(transl);
+	_modelScale = _modelScale.translate(transl);
 }
 
 
@@ -454,16 +460,19 @@ const char* Model::AssimpError::what() const throw() {
     return ("Assimp failed to load the model!");
 }
 
+Shader					&Model::getShader() const { return _shader; }
 std::vector<Mesh>		Model::getMeshes() const { return _meshes; }
 std::string				Model::getDirectory() const { return _directory; }
 std::vector<Texture>	Model::getTexturesLoaded() const { return _texturesLoaded; }
-mat::Mat4				Model::getModel() const { return _model; }
+mat::Mat4				&Model::getModel() { return _model; }
+mat::Mat4				&Model::getModelScale() { return _modelScale; }
+const mat::Mat4			&Model::getModel() const { return _model; }
+const mat::Mat4			&Model::getModelScale() const { return _modelScale; }
 mat::Vec3				Model::getMinPos() const { return _minPos; }
 mat::Vec3				Model::getMaxPos() const { return _maxPos; }
-float					Model::getModelScale() const { return _modelScale; }
 std::map<std::string, int>	Model::getBoneMap() const { return _boneMap; }
 std::array<Model::BoneInfo, MAX_BONES>	Model::getBoneInfo() const { return _boneInfo; }
 float					*Model::getBoneInfoUniform() const { return _boneInfoUniform; }
 u_int32_t				Model::getActBoneId() const { return _actBoneId; }
 mat::Mat4				Model::getGlobalTransform() const { return _globalTransform; }
-
+mat::Mat4				Model::getGlobalInverseTransform() const { return _globalInverseTransform; }
