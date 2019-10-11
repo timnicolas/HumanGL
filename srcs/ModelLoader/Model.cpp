@@ -38,16 +38,15 @@ Model &Model::operator=(Model const &rhs) {
 	return *this;
 }
 
-std::chrono::milliseconds startAnimTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-
 void	Model::draw(Shader &shader) {
+	static std::chrono::milliseconds startAnimTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 	std::chrono::milliseconds curTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 	std::chrono::milliseconds runningTime = (curTime - startAnimTime);
 	float timeInMillis = runningTime.count();
 	float ticksPerSecond = (_curAnimation->mTicksPerSecond != 0) ? _curAnimation->mTicksPerSecond : 25.0f;
 	float timeInTicks = (timeInMillis / 1000.0) * ticksPerSecond;
 	//loops the animation
-	float animationTime = fmod(timeInTicks, 413);
+	float animationTime = fmod(timeInTicks, _curAnimation->mDuration);
 
 	setBonesTransform(animationTime, _scene->mRootNode, _scene, _globalTransform);
 	_boneInfoUniform = static_cast<float*>(malloc(sizeof(float) * MAX_BONES * 16));
