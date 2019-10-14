@@ -19,13 +19,14 @@ class Model {
 			}
 		};
 
-        Model(const char *path, Shader &shader);
+        Model(const char *path, Shader &shader, Shader &cubeShader);
 		Model(Model const &src);
 		virtual ~Model();
 
 		Model &operator=(Model const &rhs);
 
 		Shader					&getShader() const;
+		Shader					&getCubeShader() const;
 		std::vector<Mesh>		getMeshes() const;
 		std::string				getDirectory() const;
 		std::vector<Texture>	getTexturesLoaded() const;
@@ -76,6 +77,7 @@ class Model {
 		void					sendCubeData();
 
 		Shader					&_shader;
+		Shader					&_cubeShader;
 		std::vector<Mesh>		_meshes;
 		std::string				_directory;
 		std::vector<Texture>	_texturesLoaded;

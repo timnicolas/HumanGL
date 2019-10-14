@@ -9,10 +9,6 @@ layout (location = 2) in vec2 aTexCoords;
 layout (location = 3) in ivec4 bonesID;
 layout (location = 4) in vec4 bonesWeight;
 
-layout (location = 5) in vec3 cubePos;
-layout (location = 6) in vec3 cubeNormal;
-layout (location = 7) in vec2 cubeTexCoords;
-
 out vec2 texCoords;
 out	vec3 fragPos;
 out	vec3 normal;

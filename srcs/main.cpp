@@ -15,7 +15,7 @@ void	setupDirLight(Shader &sh) {
 	sh.setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
 }
 
-void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, std::vector<Model*> &models) {
+void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Shader &cubeSh, std::vector<Model*> &models) {
 	tWinUser	*winU;
 	std::chrono::milliseconds time_start;
 	bool firstLoop = true;
@@ -27,8 +27,12 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, std::vector<Model*> &
 	mat::Mat4	projection = mat::perspective(mat::radians(cam.zoom), winU->width / winU->height, 0.1f, 100.0f);
 	sh.setMat4("projection", projection);
 
+	cubeSh.use();
+	cubeSh.setMat4("projection", projection);
+
 	glClearColor(0.11373f, 0.17647f, 0.27059f, 1.0f);
 	setupDirLight(sh);
+	setupDirLight(cubeSh);
 	while (!glfwWindowShouldClose(window)) {
 		time_start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 		processInput(window);
@@ -39,9 +43,12 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, std::vector<Model*> &
 
 		// view matrix
 		mat::Mat4	view = cam.getViewMatrix();
-        sh.setMat4("view", view);
+		sh.setMat4("view", view);
+		sh.setVec3("viewPos", cam.pos.x, cam.pos.y, cam.pos.z);
 
-        sh.setVec3("viewPos", cam.pos.x, cam.pos.y, cam.pos.z);
+		cubeSh.use();
+		cubeSh.setMat4("view", view);
+		cubeSh.setVec3("viewPos", cam.pos.x, cam.pos.y, cam.pos.z);
 
 		// to move model, change matrix: objModel.getModel()
 		for (u_int32_t i=0; i < models.size(); i++) {
@@ -97,11 +104,12 @@ int		main(int argc, char const **argv) {
 	try
 	{
 		Shader sh1("shaders/basic_vs.glsl", "shaders/basic_fs.glsl");
+		Shader sh2("shaders/cube_vs.glsl", "shaders/basic_fs.glsl");
 
 		std::vector<Model*> models = std::vector<Model*>();
 		Model	*model;
 		for (int i=1; i < argc; i++) {
-			model = new Model(argv[i], sh1);
+			model = new Model(argv[i], sh1, sh2);
 			models.push_back(model);
 		}
 
@@ -114,7 +122,7 @@ int		main(int argc, char const **argv) {
 			posX += step;
 		}
 
-		gameLoop(window, cam, sh1, models);
+		gameLoop(window, cam, sh1, sh2, models);
 
 		for (u_int32_t i=0; i < models.size(); i++) {
 			delete models[i];

@@ -42,8 +42,9 @@ const float	Model::_cubeData[] = {
 };
 
 
-Model::Model(const char *path, Shader &shader)
+Model::Model(const char *path, Shader &shader, Shader &cubeShader)
 : _shader(shader),
+  _cubeShader(cubeShader),
   _minPos(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()),
   _maxPos(std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), std::numeric_limits<float>::min()),
   _model(mat::Mat4()),
@@ -54,7 +55,8 @@ Model::Model(const char *path, Shader &shader)
 }
 
 Model::Model(Model const &src) :
-  _shader(src.getShader()) {
+  _shader(src.getShader()),
+  _cubeShader(src.getCubeShader()) {
 	*this = src;
 }
 
@@ -117,8 +119,16 @@ void	Model::draw() {
 		sendBones();
 	}
 
-	for (auto &mesh : _meshes)
-		mesh.draw(getShader());
+	// _shader.use();
+	// for (auto &mesh : _meshes)
+	// 	mesh.draw(getShader());
+
+	// drawing cube
+	_cubeShader.use();
+
+	glBindVertexArray(_cubeVao);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
 }
 
 void	Model::loadModel(std::string path) {
@@ -156,6 +166,8 @@ void	Model::loadModel(std::string path) {
 	calcModelMatrix();
 	// send the model matrix to the shader
 	_shader.setMat4("model", _model);
+	_cubeShader.use();
+	_cubeShader.setMat4("model", _model);
 }
 
 void	Model::setBonesTransform(float animationTime, aiNode *node, const aiScene *scene, mat::Mat4 parentTransform) {
@@ -526,18 +538,28 @@ void	Model::sendCubeData() {
 
     glBindVertexArray(_cubeVao);
     glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(5);
     glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(6);
     glVertexAttribPointer(7, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(7);
+
+
+	_cubeShader.use();
+	// set cube material
+	Material material;
+	_cubeShader.setBool("material.diffuse.isTexture", false);
+	_cubeShader.setVec3("material.diffuse.color", material.diffuse);
+	_cubeShader.setBool("material.specular.isTexture", false);
+	_cubeShader.setVec3("material.specular.color", material.specular);
+	_cubeShader.setFloat("material.shininess", material.shininess);
 }
 
 const char* Model::AssimpError::what() const throw() {
     return ("Assimp failed to load the model!");
 }
-
 Shader					&Model::getShader() const { return _shader; }
+Shader					&Model::getCubeShader() const { return _cubeShader; }
 std::vector<Mesh>		Model::getMeshes() const { return _meshes; }
 std::string				Model::getDirectory() const { return _directory; }
 std::vector<Texture>	Model::getTexturesLoaded() const { return _texturesLoaded; }
