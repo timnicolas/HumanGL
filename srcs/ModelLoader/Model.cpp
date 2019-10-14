@@ -117,11 +117,6 @@ void	Model::draw() {
 		sendBones();
 	}
 
-	// set position in real world
-	getShader().setMat4("model", getModel());
-	// set the model scale matrix
-	getShader().setMat4("modelScale", getModelScale());
-
 	for (auto &mesh : _meshes)
 		mesh.draw(getShader());
 }
@@ -155,8 +150,12 @@ void	Model::loadModel(std::string path) {
 		sendBones();  // send defaut values
 	}
 
+
+	_shader.use();
 	// set scale
 	calcModelMatrix();
+	// send the model matrix to the shader
+	_shader.setMat4("model", _model);
 }
 
 void	Model::setBonesTransform(float animationTime, aiNode *node, const aiScene *scene, mat::Mat4 parentTransform) {
@@ -384,6 +383,9 @@ void	Model::calcModelMatrix() {
 	transl.z = scale * ((transl.z < 0.00001f && transl.z > -0.00001f) ? 0.0f : transl.z);
 	// apply the translation
 	_modelScale = _modelScale.translate(transl);
+
+	// sent it to the shader
+	_shader.setMat4("modelScale", _modelScale);
 }
 
 
