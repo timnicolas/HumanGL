@@ -99,10 +99,8 @@ void	Model::sendBones(int shaderId) {
 }
 
 void	Model::draw() {
-	static int	firstCalls = 500;
 	_shader.use();
-	if (_isAnimated && firstCalls) {
-		--firstCalls;
+	if (_isAnimated) {
 		std::chrono::milliseconds curTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 		std::chrono::milliseconds runningTime = (curTime - _startAnimTime);
 		float timeInMillis = runningTime.count();
@@ -120,7 +118,7 @@ void	Model::draw() {
 
 	// drawing cube
 	_cubeShader.use();
-	if (firstCalls)
+	if (_isAnimated)
 		sendBones(_cubeShader.id);
 
 	glBindVertexArray(_cubeVao);

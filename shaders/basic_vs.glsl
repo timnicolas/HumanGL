@@ -32,5 +32,6 @@ void main() {
 	texCoords = aTexCoords;
 	fragPos = vec3(modelScale * vec4(aPos, 1.0));
 	normal = mat3(transpose(inverse(modelScale))) * boneNormal.xyz;
+
 	gl_Position = projection * view * model * modelScale * pos;
 }
