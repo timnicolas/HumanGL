@@ -14,23 +14,23 @@ out	vec3 normal;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-// uniform mat4 bones[MAX_BONES];
+uniform int boneID;
+uniform mat4 modelScale;
+uniform mat4 bones[MAX_BONES];
+uniform vec3 bonesPos[MAX_BONES];
 
 void main() {
-    // mat4 boneTransform = mat4(1.0);
-    // for (int i=0; i < NUM_BONES_PER_VERTEX; i++) {
-    //     boneTransform += bones[bonesID[i]] * bonesWeight[i];
-    // }
+    mat4 boneTransform = mat4(1.0);
+    // boneTransform += bones[boneID];
 
-    // vec4 pos = boneTransform * vec4(cubePos, 1.0);
-    vec4 pos = vec4(cubePos, 1.0);
 
-    // vec4 boneNormal = boneTransform * vec4(aNormal, 0);
-    vec4 boneNormal = vec4(cubeNormal, 0);
+    vec4 pos = boneTransform * modelScale * vec4(cubePos + bonesPos[boneID], 1.0);
+
+    vec4 boneNormal = boneTransform * vec4(cubeNormal, 0);
 
 	texCoords = cubeTexCoords;
-	fragPos = cubePos;
-	// normal = mat3(transpose(inverse(model))) * boneNormal.xyz;
-	normal = boneNormal.xyz;
+	fragPos = vec3(modelScale * vec4(cubePos + bonesPos[boneID], 1.0));
+	normal = mat3(transpose(inverse(modelScale))) * boneNormal.xyz;
+
 	gl_Position = projection * view * model * pos;
 }

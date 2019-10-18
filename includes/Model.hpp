@@ -40,7 +40,7 @@ class Model {
 
 		std::map<std::string, int>	getBoneMap() const;
 		std::array<BoneInfo, MAX_BONES>	getBoneInfo() const;
-		float					*getBoneInfoUniform() const;
+		std::array<float, MAX_BONES * 16>	getBoneInfoUniform() const;
 		u_int32_t				getActBoneId() const;
 		mat::Mat4				getGlobalTransform() const;
 		mat::Mat4				getGlobalInverseTransform() const;
@@ -63,6 +63,7 @@ class Model {
 		std::vector<Texture>	loadMaterialTextures(aiMaterial *mat, \
 		aiTextureType type, TextureT textType);
 		void					setBonesTransform(float animationTime, aiNode *node, const aiScene *scene, mat::Mat4 parentTransform);
+		void					setBonesPos(aiNode *node, mat::Mat4 parentTransform);
 		const aiNodeAnim*		findNodeAnim(const aiAnimation* animation, const std::string nodeName);
 		void					calcInterpolatedPosition(mat::Vec3 &out, float animationTime, const aiNodeAnim* nodeAnim);
 		void					calcInterpolatedRotation(mat::Quaternion &out, float animationTime, const aiNodeAnim* nodeAnim);
@@ -70,7 +71,7 @@ class Model {
 		u_int32_t				findPosition(float animationTime, const aiNodeAnim* nodeAnim);
 		u_int32_t				findRotation(float animationTime, const aiNodeAnim* nodeAnim);
 		u_int32_t				findScaling(float animationTime, const aiNodeAnim* nodeAnim);
-		void					sendBones();
+		void					sendBones(int shaderId);
 
 		void					updateMinMaxPos(mat::Vec3 pos);
 		void					calcModelMatrix();
@@ -89,9 +90,10 @@ class Model {
 
 		std::map<std::string, int>	_boneMap; // maps a bone name to its index
 		std::array<BoneInfo, MAX_BONES>	_boneInfo;
+		std::array<mat::Vec3, MAX_BONES> _bonePos;
 
 		// all datas ready to send to vertex shader (uniform mat4[MAX_BONES])
-		float					*_boneInfoUniform;
+		std::array<float, MAX_BONES * 16>	_boneInfoUniform;
 		u_int32_t				_actBoneId = 0;
 		mat::Mat4				_globalTransform;
 		mat::Mat4				_globalInverseTransform;
