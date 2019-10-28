@@ -4,6 +4,9 @@
 # include "commonInclude.hpp"
 #include "Matrix.hpp"
 
+#define MOVEMENT_SPEED 2.5f
+#define MOUSE_SENSITIVITY 0.1f
+
 enum class CamMovement {
 	Forward,
 	Backward,
