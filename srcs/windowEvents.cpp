@@ -6,20 +6,12 @@ static u_int8_t	firstTwoCall = 2;
 
 void toggleCursor(GLFWwindow *window) {
 	static bool enable = false;
-	static std::chrono::milliseconds lastCallMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-	std::chrono::milliseconds cur = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-	if ((cur - lastCallMs).count() < DELAY_BTW_CLIC)
-		return;
-	lastCallMs = cur;
-	firstTwoCall = 2;
 
-	if (enable) {
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-	}
-	else {
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	}
 	enable = !enable;
+	if (enable)
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	else
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 /*
@@ -51,8 +43,6 @@ void	processInput(GLFWwindow *window)
         winU->cam->processKeyboard(CamMovement::Up, winU->dtTime);
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
         winU->cam->processKeyboard(CamMovement::Down, winU->dtTime);
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		toggleCursor(window);
 }
 
 void	keyCb(GLFWwindow *window, int key, int scancode, int action, int mods)
@@ -61,6 +51,9 @@ void	keyCb(GLFWwindow *window, int key, int scancode, int action, int mods)
 	(void)mods;
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+
+	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+		toggleCursor(window);
 }
 
 void	scrollCb(GLFWwindow *window, double xOffset, double yOffset) {
