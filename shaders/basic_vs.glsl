@@ -9,7 +9,6 @@ layout (location = 2) in vec2 aTexCoords;
 layout (location = 3) in ivec4 bonesID;
 layout (location = 4) in vec4 bonesWeight;
 
-
 out vec2 texCoords;
 out	vec3 fragPos;
 out	vec3 normal;
@@ -21,7 +20,7 @@ uniform mat4 modelScale;
 uniform mat4 bones[MAX_BONES];
 
 void main() {
-    mat4 boneTransform = mat4(1.0);
+    mat4 boneTransform = mat4(0.0);
     for (int i=0; i < NUM_BONES_PER_VERTEX; i++) {
         boneTransform += bones[bonesID[i]] * bonesWeight[i];
     }
@@ -31,7 +30,8 @@ void main() {
     vec4 boneNormal = boneTransform * vec4(aNormal, 0);
 
 	texCoords = aTexCoords;
-	fragPos = vec3(modelScale * vec4(aPos, 1.0));
+	fragPos = vec3(modelScale * pos);
 	normal = mat3(transpose(inverse(modelScale))) * boneNormal.xyz;
+
 	gl_Position = projection * view * model * modelScale * pos;
 }

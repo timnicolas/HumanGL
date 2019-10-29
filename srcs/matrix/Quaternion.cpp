@@ -89,7 +89,15 @@ void Quaternion::toAxisAngle(float &flAngle, Vec3 &vecAxis) const
 	else
 		vecAxis = vec.normalize();
 
-	flAngle = std::acos(w) * 2;
+	// prevent acos from returning nan
+	if (w < -1.0f)
+		flAngle = std::acos(-1.0f);
+	else if (w > 1.0f)
+		flAngle = std::acos(1.0f);
+	else
+		flAngle = std::acos(w);
+
+	flAngle *= 2;
 	flAngle *= 360 / ((float)M_PI * 2);
 }
 

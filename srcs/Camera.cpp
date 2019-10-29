@@ -6,8 +6,8 @@ Camera::Camera(mat::Vec3 pos, mat::Vec3 up, float yaw, float pitch)
   worldUp(up),
   yaw(yaw),
   pitch(pitch),
-  movementSpeed(2.5f),
-  mouseSensitivity(0.1f),
+  movementSpeed(MOVEMENT_SPEED),
+  mouseSensitivity(MOUSE_SENSITIVITY),
   zoom(45.0f) {
 	updateCameraVectors();
 }

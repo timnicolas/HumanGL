@@ -97,20 +97,20 @@ void	Mesh::setupMesh() {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(u_int32_t), &indices[0], GL_STATIC_DRAW);
 
 	// vertex pos
-	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, posx));
+	glEnableVertexAttribArray(0);
 	// vertex norm
-	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, normx));
+	glEnableVertexAttribArray(1);
 	// vertex textCoords
-	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, texCoordsx));
+	glEnableVertexAttribArray(2);
 	// vertex bones IDs
-	glEnableVertexAttribArray(3);
 	glVertexAttribIPointer(3, NUM_BONES_PER_VERTEX, GL_INT, sizeof(Vertex), (void *)offsetof(Vertex, bonesID));
+	glEnableVertexAttribArray(3);
 	// vertex bones weight
-	glEnableVertexAttribArray(4);
 	glVertexAttribPointer(4, NUM_BONES_PER_VERTEX, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, bonesW));
+	glEnableVertexAttribArray(4);
 
     glBindVertexArray(0);
 }

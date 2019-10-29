@@ -1,23 +1,67 @@
 #include "Model.hpp"
 #include <limits>
 
-Model::Model(const char *path, Shader &shader)
+const float	Model::_cubeData[] = {
+	// positions			// normals				// texture coords
+	-0.5f, -0.5f, -0.5f,	0.0f, 0.0f, -1.0f,		0.0f, 0.0f,
+	0.5f, -0.5f, -0.5f,		0.0f, 0.0f, -1.0f,		1.0f, 0.0f,
+	0.5f, 0.5f, -0.5f,		0.0f, 0.0f, -1.0f,		1.0f, 1.0f,
+	0.5f, 0.5f, -0.5f,		0.0f, 0.0f, -1.0f,		1.0f, 1.0f,
+	-0.5f, 0.5f, -0.5f,		0.0f, 0.0f, -1.0f,		0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,	0.0f, 0.0f, -1.0f,		0.0f, 0.0f,
+	-0.5f, -0.5f, 0.5f,		0.0f, 0.0f, 1.0f,		0.0f, 0.0f,
+	0.5f, -0.5f, 0.5f,		0.0f, 0.0f, 1.0f,		1.0f, 0.0f,
+	0.5f, 0.5f, 0.5f,		0.0f, 0.0f, 1.0f,		1.0f, 1.0f,
+	0.5f, 0.5f, 0.5f,		0.0f, 0.0f, 1.0f,		1.0f, 1.0f,
+	-0.5f, 0.5f, 0.5f,		0.0f, 0.0f, 1.0f,		0.0f, 1.0f,
+	-0.5f, -0.5f, 0.5f,		0.0f, 0.0f, 1.0f,		0.0f, 0.0f,
+	-0.5f, 0.5f, 0.5f,		-1.0f, 0.0f, 0.0f,		1.0f, 0.0f,
+	-0.5f, 0.5f, -0.5f,		-1.0f, 0.0f, 0.0f,		1.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,	-1.0f, 0.0f, 0.0f,		0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,	-1.0f, 0.0f, 0.0f,		0.0f, 1.0f,
+	-0.5f, -0.5f, 0.5f,		-1.0f, 0.0f, 0.0f,		0.0f, 0.0f,
+	-0.5f, 0.5f, 0.5f,		-1.0f, 0.0f, 0.0f,		1.0f, 0.0f,
+	0.5f, 0.5f, 0.5f,		1.0f, 0.0f, 0.0f,		1.0f, 0.0f,
+	0.5f, 0.5f, -0.5f,		1.0f, 0.0f, 0.0f,		1.0f, 1.0f,
+	0.5f, -0.5f, -0.5f,		1.0f, 0.0f, 0.0f,		0.0f, 1.0f,
+	0.5f, -0.5f, -0.5f,		1.0f, 0.0f, 0.0f,		0.0f, 1.0f,
+	0.5f, -0.5f, 0.5f,		1.0f, 0.0f, 0.0f,		0.0f, 0.0f,
+	0.5f, 0.5f, 0.5f,		1.0f, 0.0f, 0.0f,		1.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,	0.0f, -1.0f, 0.0f,		0.0f, 1.0f,
+	0.5f, -0.5f, -0.5f,		0.0f, -1.0f, 0.0f,		1.0f, 1.0f,
+	0.5f, -0.5f, 0.5f,		0.0f, -1.0f, 0.0f,		1.0f, 0.0f,
+	0.5f, -0.5f, 0.5f,		0.0f, -1.0f, 0.0f,		1.0f, 0.0f,
+	-0.5f, -0.5f, 0.5f,		0.0f, -1.0f, 0.0f,		0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,	0.0f, -1.0f, 0.0f,		0.0f, 1.0f,
+	-0.5f, 0.5f, -0.5f,		0.0f, 1.0f, 0.0f,		0.0f, 1.0f,
+	0.5f, 0.5f, -0.5f,		0.0f, 1.0f, 0.0f,		1.0f, 1.0f,
+	0.5f, 0.5f, 0.5f,		0.0f, 1.0f, 0.0f,		1.0f, 0.0f,
+	0.5f, 0.5f, 0.5f,		0.0f, 1.0f, 0.0f,		1.0f, 0.0f,
+	-0.5f, 0.5f, 0.5f,		0.0f, 1.0f, 0.0f,		0.0f, 0.0f,
+	-0.5f, 0.5f, -0.5f,		0.0f, 1.0f, 0.0f,		0.0f, 1.0f
+};
+
+
+Model::Model(const char *path, Shader &shader, Shader &cubeShader)
 : _shader(shader),
+  _cubeShader(cubeShader),
   _minPos(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()),
   _maxPos(std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), std::numeric_limits<float>::min()),
   _model(mat::Mat4()),
   _modelScale(mat::Mat4()) {
 	loadModel(path);
+	sendCubeData();
 	_startAnimTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 }
 
 Model::Model(Model const &src) :
-  _shader(src.getShader()) {
+  _shader(src.getShader()),
+  _cubeShader(src.getCubeShader()) {
 	*this = src;
 }
 
 Model::~Model() {
-	free(_boneInfoUniform);
+	glDeleteVertexArrays(1, &_cubeVao);
 }
 
 Model &Model::operator=(Model const &rhs) {
@@ -39,21 +83,19 @@ Model &Model::operator=(Model const &rhs) {
 		_globalInverseTransform = rhs.getGlobalInverseTransform();
 		_globalTransform = rhs.getGlobalTransform();
 
+		_cubeVbo = rhs.getCubeVbo();
+		_cubeVao = rhs.getCubeVao();
+
 		_startAnimTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 	}
 	return *this;
 }
 
-void	Model::sendBones() {
-	_boneInfoUniform = static_cast<float*>(malloc(sizeof(float) * MAX_BONES * 16));
-	for (u_int32_t i=0; i < MAX_BONES; ++i) {
-		for (u_int32_t j=0; j < 16; ++j) {
+void	Model::sendBones(int shaderId) {
+	for (u_int32_t i=0; i < MAX_BONES; ++i)
+		for (u_int32_t j=0; j < 16; ++j)
 			_boneInfoUniform[i*16 + j] = _boneInfo[i].finalTransformation.getData()[j];
-			// std::cout << _boneInfoUniform[i*16 + j] << " ";  // 1/2 show all bones matrix
-		}
-		// std::cout << "\n";  // 2/2 show all bones matrix
-	}
-	glUniformMatrix4fv(glGetUniformLocation(getShader().id, "bones"), MAX_BONES, GL_TRUE, _boneInfoUniform);
+	glUniformMatrix4fv(glGetUniformLocation(shaderId, "bones"), MAX_BONES, GL_TRUE, &(_boneInfoUniform[0]));
 }
 
 void	Model::draw() {
@@ -68,16 +110,24 @@ void	Model::draw() {
 		float animationTime = fmod(timeInTicks, _curAnimation->mDuration);
 		// set bones with animations
 		setBonesTransform(animationTime, _scene->mRootNode, _scene, _globalTransform);
-		sendBones();
+		sendBones(_shader.id);
 	}
-
-	// set position in real world
-	getShader().setMat4("model", getModel());
-	// set the model scale matrix
-	getShader().setMat4("modelScale", getModelScale());
 
 	for (auto &mesh : _meshes)
 		mesh.draw(getShader());
+
+	// drawing cube
+	_cubeShader.use();
+	if (_isAnimated)
+		sendBones(_cubeShader.id);
+
+	glBindVertexArray(_cubeVao);
+	// std::cout << "_______________" << std::endl;
+	for (auto &&elem : _boneMap) {
+		_cubeShader.setInt("boneID", elem.second);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+	}
+	glBindVertexArray(0);
 }
 
 void	Model::loadModel(std::string path) {
@@ -106,11 +156,29 @@ void	Model::loadModel(std::string path) {
 		_isAnimated = false;
 		_curAnimation = nullptr;
 		_shader.use();
-		sendBones();  // send defaut values
+		sendBones(_shader.id);  // send defaut values
 	}
 
-	// set scale
 	calcModelMatrix();
+
+	_shader.use();
+	_shader.setMat4("model", _model);
+
+	_cubeShader.use();
+	mat::Mat4 model_cube;
+	_cubeShader.setMat4("model", model_cube);
+
+	_cubeShader.setFloat("cubeSize", 0.12f);
+
+	// send bones positions
+	setBonesPos(_scene->mRootNode, _globalTransform);
+
+	std::array<float, MAX_BONES * 3>	bonePos;
+	for (u_int32_t i = 0; i < MAX_BONES; ++i)
+		for (u_int32_t j = 0; j < 3; ++j)
+			bonePos[i * 3 + j] = _bonePos[i].getData()[j];
+
+	glUniform3fv(glGetUniformLocation(_cubeShader.id, "bonesPos"),  MAX_BONES, &(bonePos[0]));
 }
 
 void	Model::setBonesTransform(float animationTime, aiNode *node, const aiScene *scene, mat::Mat4 parentTransform) {
@@ -143,6 +211,7 @@ void	Model::setBonesTransform(float animationTime, aiNode *node, const aiScene *
 
     mat::Mat4 globalTransformation = parentTransform * nodeTransformation;
 
+	// if there is a bone (same name as the node)
     if (_boneMap.find(nodeName) != _boneMap.end()) {
         uint boneIndex = _boneMap[nodeName];
         _boneInfo[boneIndex].finalTransformation = _globalInverseTransform * globalTransformation *
@@ -152,6 +221,28 @@ void	Model::setBonesTransform(float animationTime, aiNode *node, const aiScene *
 	// recursion with each of its children
 	for (u_int32_t i = 0; i < node->mNumChildren; ++i) {
 		setBonesTransform(animationTime, node->mChildren[i], scene, globalTransformation);
+	}
+}
+
+void	Model::setBonesPos(aiNode *node, mat::Mat4 parentTransform) {
+	std::string nodeName(node->mName.data);
+    mat::Mat4 nodeTransformation = aiToMat4(node->mTransformation);
+
+    mat::Mat4 globalTransformation = parentTransform * nodeTransformation;
+
+	// if there is a bone (same name as the node)
+    if (_boneMap.find(nodeName) != _boneMap.end()) {
+        uint	boneIndex = _boneMap[nodeName];
+		mat::Vec3	pos;
+		pos.x = globalTransformation.get(0, 3);
+		pos.y = globalTransformation.get(1, 3);
+		pos.z = globalTransformation.get(2, 3);
+        _bonePos[boneIndex] = pos;
+    }
+
+	// recursion with each of its children
+	for (u_int32_t i = 0; i < node->mNumChildren; ++i) {
+		setBonesPos(node->mChildren[i], globalTransformation);
 	}
 }
 
@@ -337,6 +428,13 @@ void	Model::calcModelMatrix() {
 	transl.z = scale * ((transl.z < 0.00001f && transl.z > -0.00001f) ? 0.0f : transl.z);
 	// apply the translation
 	_modelScale = _modelScale.translate(transl);
+
+	// sent it to the shader
+	_shader.use();
+	_shader.setMat4("modelScale", _modelScale);
+
+	_cubeShader.use();
+	_cubeShader.setMat4("modelScale", _modelScale);
 }
 
 
@@ -467,11 +565,37 @@ aiTextureType type, TextureT textType) {
     return textures;
 }
 
+// send cube data to draw a cube at the bones origin later
+void	Model::sendCubeData() {
+    glGenVertexArrays(1, &_cubeVao);
+    glGenBuffers(1, &_cubeVbo);
+
+    glBindBuffer(GL_ARRAY_BUFFER, _cubeVbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Model::_cubeData), Model::_cubeData, GL_STATIC_DRAW);
+
+    glBindVertexArray(_cubeVao);
+    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(5);
+    glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(6);
+    glVertexAttribPointer(7, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(7);
+
+	_cubeShader.use();
+	// set cube material
+	Material material;
+	_cubeShader.setBool("material.diffuse.isTexture", false);
+	_cubeShader.setVec3("material.diffuse.color", material.diffuse);
+	_cubeShader.setBool("material.specular.isTexture", false);
+	_cubeShader.setVec3("material.specular.color", material.specular);
+	_cubeShader.setFloat("material.shininess", material.shininess);
+}
+
 const char* Model::AssimpError::what() const throw() {
     return ("Assimp failed to load the model!");
 }
-
 Shader					&Model::getShader() const { return _shader; }
+Shader					&Model::getCubeShader() const { return _cubeShader; }
 std::vector<Mesh>		Model::getMeshes() const { return _meshes; }
 std::string				Model::getDirectory() const { return _directory; }
 std::vector<Texture>	Model::getTexturesLoaded() const { return _texturesLoaded; }
@@ -483,7 +607,9 @@ mat::Vec3				Model::getMinPos() const { return _minPos; }
 mat::Vec3				Model::getMaxPos() const { return _maxPos; }
 std::map<std::string, int>	Model::getBoneMap() const { return _boneMap; }
 std::array<Model::BoneInfo, MAX_BONES>	Model::getBoneInfo() const { return _boneInfo; }
-float					*Model::getBoneInfoUniform() const { return _boneInfoUniform; }
+std::array<float, MAX_BONES * 16>	Model::getBoneInfoUniform() const { return _boneInfoUniform; }
 u_int32_t				Model::getActBoneId() const { return _actBoneId; }
 mat::Mat4				Model::getGlobalTransform() const { return _globalTransform; }
 mat::Mat4				Model::getGlobalInverseTransform() const { return _globalInverseTransform; }
+u_int32_t				Model::getCubeVbo() const { return _cubeVbo; }
+u_int32_t				Model::getCubeVao() const { return _cubeVao; }

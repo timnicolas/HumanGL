@@ -19,13 +19,14 @@ class Model {
 			}
 		};
 
-        Model(const char *path, Shader &shader);
+        Model(const char *path, Shader &shader, Shader &cubeShader);
 		Model(Model const &src);
 		virtual ~Model();
 
 		Model &operator=(Model const &rhs);
 
 		Shader					&getShader() const;
+		Shader					&getCubeShader() const;
 		std::vector<Mesh>		getMeshes() const;
 		std::string				getDirectory() const;
 		std::vector<Texture>	getTexturesLoaded() const;
@@ -39,13 +40,17 @@ class Model {
 
 		std::map<std::string, int>	getBoneMap() const;
 		std::array<BoneInfo, MAX_BONES>	getBoneInfo() const;
-		float					*getBoneInfoUniform() const;
+		std::array<float, MAX_BONES * 16>	getBoneInfoUniform() const;
 		u_int32_t				getActBoneId() const;
 		mat::Mat4				getGlobalTransform() const;
 		mat::Mat4				getGlobalInverseTransform() const;
 
+		u_int32_t				getCubeVbo() const;
+		u_int32_t				getCubeVao() const;
 
 		void		draw();
+
+		static const float		_cubeData[];
 
 		class AssimpError : public std::exception {
 			public:
@@ -57,6 +62,7 @@ class Model {
 		Mesh					processMesh(aiMesh *mesh, const aiScene *scene);
 		std::vector<Texture>	loadMaterialTextures(aiMaterial *mat, aiTextureType type, TextureT textType);
 		void					setBonesTransform(float animationTime, aiNode *node, const aiScene *scene, mat::Mat4 parentTransform);
+		void					setBonesPos(aiNode *node, mat::Mat4 parentTransform);
 		const aiNodeAnim*		findNodeAnim(const aiAnimation* animation, const std::string nodeName);
 		void					calcInterpolatedPosition(mat::Vec3 &out, float animationTime, const aiNodeAnim* nodeAnim);
 		void					calcInterpolatedRotation(mat::Quaternion &out, float animationTime, const aiNodeAnim* nodeAnim);
@@ -64,12 +70,14 @@ class Model {
 		u_int32_t				findPosition(float animationTime, const aiNodeAnim* nodeAnim);
 		u_int32_t				findRotation(float animationTime, const aiNodeAnim* nodeAnim);
 		u_int32_t				findScaling(float animationTime, const aiNodeAnim* nodeAnim);
-		void					sendBones();
+		void					sendBones(int shaderId);
 
 		void					updateMinMaxPos(mat::Vec3 pos);
 		void					calcModelMatrix();
+		void					sendCubeData();
 
 		Shader					&_shader;
+		Shader					&_cubeShader;
 		std::vector<Mesh>		_meshes;
 		std::string				_directory;
 		std::vector<Texture>	_texturesLoaded;
@@ -81,9 +89,10 @@ class Model {
 
 		std::map<std::string, int>	_boneMap; // maps a bone name to its index
 		std::array<BoneInfo, MAX_BONES>	_boneInfo;
+		std::array<mat::Vec3, MAX_BONES> _bonePos;
 
 		// all datas ready to send to vertex shader (uniform mat4[MAX_BONES])
-		float					*_boneInfoUniform;
+		std::array<float, MAX_BONES * 16>	_boneInfoUniform;
 		u_int32_t				_actBoneId = 0;
 		mat::Mat4				_globalTransform;
 		mat::Mat4				_globalInverseTransform;
@@ -92,6 +101,9 @@ class Model {
 		std::chrono::milliseconds	_startAnimTime;
 		const aiScene			*_scene;
 		Assimp::Importer		_importer;
+
+		u_int32_t				_cubeVbo;
+		u_int32_t				_cubeVao;
 };
 
 #endif
