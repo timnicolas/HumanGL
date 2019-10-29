@@ -22,9 +22,10 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Shader &cubeSh, std::
 
 	winU = (tWinUser *)glfwGetWindowUserPointer(window);
 
-	sh.use();
 	// projection matrix
 	mat::Mat4	projection = mat::perspective(mat::radians(cam.zoom), winU->width / winU->height, 0.1f, 100.0f);
+
+	sh.use();
 	sh.setMat4("projection", projection);
 
 	cubeSh.use();

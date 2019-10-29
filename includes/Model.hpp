@@ -49,6 +49,7 @@ class Model {
 		u_int32_t				getActBoneId() const;
 		mat::Mat4				getGlobalTransform() const;
 		mat::Mat4				getGlobalInverseTransform() const;
+		void					loadNextAnimation();
 
 		u_int32_t				getCubeVbo() const;
 		u_int32_t				getCubeVao() const;
@@ -102,6 +103,7 @@ class Model {
 		mat::Mat4				_globalTransform;
 		mat::Mat4				_globalInverseTransform;
 		aiAnimation				*_curAnimation;
+		uint32_t				_curAnimationId;
 		bool					_isAnimated;
 		std::chrono::milliseconds	_startAnimTime;
 		const aiScene			*_scene;

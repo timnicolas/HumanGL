@@ -118,7 +118,9 @@ void	Model::draw() {
 		sendBones(_shader.id);
 	}
 
+
 	if (_drawMesh) {
+		_shader.setMat4("model", _model);
 		for (auto &mesh : _meshes)
 			mesh.draw(getShader());
 	}
@@ -126,6 +128,7 @@ void	Model::draw() {
 	if (_drawCube) {
 		// drawing cube
 		_cubeShader.use();
+		_cubeShader.setMat4("model", _model);
 		if (_isAnimated)
 			sendBones(_cubeShader.id);
 
@@ -159,10 +162,12 @@ void	Model::loadModel(std::string path) {
 	processNode(_scene->mRootNode, _scene);
 	if (_scene->mNumAnimations > 0) {
 		_isAnimated = true;
-		_curAnimation = _scene->mAnimations[0];  // set the current animation
+		_curAnimationId = 0;
+		_curAnimation = _scene->mAnimations[_curAnimationId];  // set the current animation
 	}
 	else {
 		_isAnimated = false;
+		_curAnimationId = 0;
 		_curAnimation = nullptr;
 		_shader.use();
 		sendBones(_shader.id);  // send defaut values
@@ -189,6 +194,15 @@ void	Model::loadModel(std::string path) {
 			bonePos[i * 3 + j] = _bonePos[i].getData()[j];
 
 	glUniform3fv(glGetUniformLocation(_cubeShader.id, "bonesPos"),  MAX_BONES, &(bonePos[0]));
+}
+
+void	Model::loadNextAnimation() {
+	if (_isAnimated) {
+		if (++_curAnimationId >= _scene->mNumAnimations) {
+			_curAnimationId = 0;
+		}
+		_curAnimation = _scene->mAnimations[_curAnimationId];
+	}
 }
 
 void	Model::setBonesTransform(float animationTime, aiNode *node, const aiScene *scene, mat::Mat4 parentTransform) {

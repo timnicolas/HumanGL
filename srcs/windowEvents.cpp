@@ -68,6 +68,12 @@ void	keyCb(GLFWwindow *window, int key, int scancode, int action, int mods)
 			(*it)->isDrawCube() = !(*it)->isDrawCube();
 		}
 	}
+
+	if (key == GLFW_KEY_ENTER && action == GLFW_PRESS) {
+		for (auto it = winU->models->begin(); it != winU->models->end(); it++) {
+			(*it)->loadNextAnimation();
+		}
+	}
 }
 
 void	scrollCb(GLFWwindow *window, double xOffset, double yOffset) {
