@@ -2,9 +2,12 @@
 # define HUMANGL_HPP
 
 # include "Camera.hpp"
+# include "Model.hpp"
+# include <vector>
 
 typedef struct	sWinUser
 {
+	std::vector<Model*> *models;
 	Camera		*cam;
 	float		dtTime;
 	float		lastFrame;

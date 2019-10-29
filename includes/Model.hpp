@@ -38,6 +38,11 @@ class Model {
 		const mat::Mat4			&getModel() const;
 		const mat::Mat4			&getModelScale() const;
 
+		bool					&isDrawMesh();
+		bool					isDrawMesh() const;
+		bool					&isDrawCube();
+		bool					isDrawCube() const;
+
 		std::map<std::string, int>	getBoneMap() const;
 		std::array<BoneInfo, MAX_BONES>	getBoneInfo() const;
 		std::array<float, MAX_BONES * 16>	getBoneInfoUniform() const;
@@ -104,6 +109,9 @@ class Model {
 
 		u_int32_t				_cubeVbo;
 		u_int32_t				_cubeVao;
+
+		bool					_drawMesh;
+		bool					_drawCube;
 };
 
 #endif

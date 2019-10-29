@@ -100,13 +100,13 @@ int		main(int argc, char const **argv) {
 
 	try
 	{
-		Shader sh1("shaders/basic_vs.glsl", "shaders/basic_fs.glsl");
-		Shader sh2("shaders/cube_vs.glsl", "shaders/basic_fs.glsl");
+		Shader basicShader("shaders/basic_vs.glsl", "shaders/basic_fs.glsl");
+		Shader cubeShader("shaders/cube_vs.glsl", "shaders/basic_fs.glsl");
 
 		std::vector<Model*> models = std::vector<Model*>();
 		Model	*model;
 		for (int i=1; i < argc; i++) {
-			model = new Model(argv[i], sh1, sh2);
+			model = new Model(argv[i], basicShader, cubeShader);
 			models.push_back(model);
 		}
 
@@ -119,7 +119,9 @@ int		main(int argc, char const **argv) {
 			posX += step;
 		}
 
-		gameLoop(window, cam, sh1, sh2, models);
+		winU.models = &models;
+
+		gameLoop(window, cam, basicShader, cubeShader, models);
 
 		for (u_int32_t i=0; i < models.size(); i++) {
 			delete models[i];

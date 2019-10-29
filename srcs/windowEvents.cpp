@@ -49,11 +49,25 @@ void	keyCb(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
 	(void)scancode;
 	(void)mods;
+	tWinUser	*winU = (tWinUser *)glfwGetWindowUserPointer(window);
+
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
 	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
 		toggleCursor(window);
+
+	if (key == GLFW_KEY_M && action == GLFW_PRESS) {
+		for (auto it = winU->models->begin(); it != winU->models->end(); it++) {
+			(*it)->isDrawMesh() = !(*it)->isDrawMesh();
+		}
+	}
+
+	if (key == GLFW_KEY_N && action == GLFW_PRESS) {
+		for (auto it = winU->models->begin(); it != winU->models->end(); it++) {
+			(*it)->isDrawCube() = !(*it)->isDrawCube();
+		}
+	}
 }
 
 void	scrollCb(GLFWwindow *window, double xOffset, double yOffset) {

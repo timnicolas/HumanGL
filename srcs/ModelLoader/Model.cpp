@@ -48,7 +48,9 @@ Model::Model(const char *path, Shader &shader, Shader &cubeShader)
   _minPos(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()),
   _maxPos(std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), std::numeric_limits<float>::min()),
   _model(mat::Mat4()),
-  _modelScale(mat::Mat4()) {
+  _modelScale(mat::Mat4()),
+  _drawMesh(true),
+  _drawCube(false) {
 	loadModel(path);
 	sendCubeData();
 	_startAnimTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
@@ -86,6 +88,9 @@ Model &Model::operator=(Model const &rhs) {
 		_cubeVbo = rhs.getCubeVbo();
 		_cubeVao = rhs.getCubeVao();
 
+		_drawMesh = rhs.isDrawMesh();
+		_drawCube = rhs.isDrawCube();
+
 		_startAnimTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 	}
 	return *this;
@@ -113,19 +118,23 @@ void	Model::draw() {
 		sendBones(_shader.id);
 	}
 
-	for (auto &mesh : _meshes)
-		mesh.draw(getShader());
+	if (_drawMesh) {
+		for (auto &mesh : _meshes)
+			mesh.draw(getShader());
+	}
 
-	// drawing cube
-	_cubeShader.use();
-	if (_isAnimated)
-		sendBones(_cubeShader.id);
+	if (_drawCube) {
+		// drawing cube
+		_cubeShader.use();
+		if (_isAnimated)
+			sendBones(_cubeShader.id);
 
-	glBindVertexArray(_cubeVao);
-	// std::cout << "_______________" << std::endl;
-	for (auto &&elem : _boneMap) {
-		_cubeShader.setInt("boneID", elem.second);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(_cubeVao);
+		// std::cout << "_______________" << std::endl;
+		for (auto &&elem : _boneMap) {
+			_cubeShader.setInt("boneID", elem.second);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 	}
 	glBindVertexArray(0);
 }
@@ -613,3 +622,7 @@ mat::Mat4				Model::getGlobalTransform() const { return _globalTransform; }
 mat::Mat4				Model::getGlobalInverseTransform() const { return _globalInverseTransform; }
 u_int32_t				Model::getCubeVbo() const { return _cubeVbo; }
 u_int32_t				Model::getCubeVao() const { return _cubeVao; }
+bool					&Model::isDrawMesh() { return _drawMesh; }
+bool					Model::isDrawMesh() const { return _drawMesh; }
+bool					&Model::isDrawCube() { return _drawCube; }
+bool					Model::isDrawCube() const { return _drawCube; }
