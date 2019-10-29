@@ -21,16 +21,16 @@ uniform mat4 bones[MAX_BONES];
 
 void main() {
     mat4 boneTransform = mat4(1.0);
-    for (int i=0; i < NUM_BONES_PER_VERTEX; i++) {
-        boneTransform += bones[bonesID[i]] * bonesWeight[i];
-    }
+    // for (int i=0; i < NUM_BONES_PER_VERTEX; i++) {
+    //     boneTransform += bones[bonesID[i]] * bonesWeight[i];
+    // }
 
     vec4 pos = boneTransform * vec4(aPos, 1.0);
 
     vec4 boneNormal = boneTransform * vec4(aNormal, 0);
 
 	texCoords = aTexCoords;
-	fragPos = vec3(modelScale * vec4(aPos, 1.0));
+	fragPos = vec3(modelScale * pos);
 	normal = mat3(transpose(inverse(modelScale))) * boneNormal.xyz;
 
 	gl_Position = projection * view * model * modelScale * pos;

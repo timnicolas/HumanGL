@@ -113,8 +113,8 @@ void	Model::draw() {
 		sendBones(_shader.id);
 	}
 
-	for (auto &mesh : _meshes)
-		mesh.draw(getShader());
+	// for (auto &mesh : _meshes)
+	// 	mesh.draw(getShader());
 
 	// drawing cube
 	_cubeShader.use();
