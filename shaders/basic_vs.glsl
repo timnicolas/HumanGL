@@ -20,7 +20,7 @@ uniform mat4 modelScale;
 uniform mat4 bones[MAX_BONES];
 
 void main() {
-    mat4 boneTransform = mat4(1.0);
+    mat4 boneTransform = mat4(0.0);
     for (int i=0; i < NUM_BONES_PER_VERTEX; i++) {
         boneTransform += bones[bonesID[i]] * bonesWeight[i];
     }
