@@ -162,13 +162,14 @@ void	Model::loadModel(std::string path) {
 	calcModelMatrix();
 
 	_shader.use();
+	_shader.setBool("isAnimated", _isAnimated);
 	_shader.setMat4("model", _model);
 
 	_cubeShader.use();
 	mat::Mat4 model_cube;
 	_cubeShader.setMat4("model", model_cube);
 
-	_cubeShader.setFloat("cubeSize", 0.12f);
+	_cubeShader.setFloat("cubeSize", 0.15f);
 
 	// send bones positions
 	setBonesPos(_scene->mRootNode, _globalTransform);

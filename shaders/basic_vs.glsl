@@ -13,6 +13,7 @@ out vec2 texCoords;
 out	vec3 fragPos;
 out	vec3 normal;
 
+uniform bool isAnimated;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
@@ -24,6 +25,8 @@ void main() {
     for (int i=0; i < NUM_BONES_PER_VERTEX; i++) {
         boneTransform += bones[bonesID[i]] * bonesWeight[i];
     }
+    if (!isAnimated)
+        boneTransform = mat4(1.0);
 
     vec4 pos = boneTransform * vec4(aPos, 1.0);
 
