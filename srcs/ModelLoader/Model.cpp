@@ -113,8 +113,8 @@ void	Model::draw() {
 		sendBones(_shader.id);
 	}
 
-	// for (auto &mesh : _meshes)
-	// 	mesh.draw(getShader());
+	for (auto &mesh : _meshes)
+		mesh.draw(getShader());
 
 	// drawing cube
 	_cubeShader.use();
@@ -168,9 +168,10 @@ void	Model::loadModel(std::string path) {
 	mat::Mat4 model_cube;
 	_cubeShader.setMat4("model", model_cube);
 
+	_cubeShader.setFloat("cubeSize", 0.12f);
+
 	// send bones positions
-	// setBonesPos(_scene->mRootNode, _globalTransform);
-	setBonesPos(_scene->mRootNode, mat::Mat4());
+	setBonesPos(_scene->mRootNode, _globalTransform);
 
 	std::array<float, MAX_BONES * 3>	bonePos;
 	for (u_int32_t i = 0; i < MAX_BONES; ++i)
