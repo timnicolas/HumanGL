@@ -62,6 +62,15 @@ class Model {
 			public:
 				virtual const char* what() const throw();
 		};
+		class AnimationError : public AssimpError {
+			public:
+				AnimationError(std::string const &msg) : _msg(msg) {}
+				virtual const char * what() const throw() {
+					return _msg.c_str();
+				}
+			private:
+				std::string _msg;
+		};
 	private:
 		void					loadModel(std::string path);
 		void					processNode(aiNode *node, const aiScene *scene);

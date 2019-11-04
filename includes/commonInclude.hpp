@@ -4,7 +4,7 @@
 # define DEBUG true  // type: bool -> enable / disable the debug mode
 # define SCREEN_W 800  // [px] type: int ->width of the screen in pixels
 # define SCREEN_H 600  // [px] type: int -> height of the screen in pixels
-# define FPS 60  // [Hz] type: int -> fps of the main loop
+# define FPS 30  // [Hz] type: int -> fps of the main loop
 # define LOOP_TIME (1000 / FPS)  // [s] type: float -> duration in s for a loop
 
 // GL_TRUE if we need to reverse the matrix data. else GL_FALSE

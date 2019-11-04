@@ -211,40 +211,47 @@ void	Model::setBonesTransform(float animationTime, aiNode *node, const aiScene *
 
     const aiNodeAnim* nodeAnim = findNodeAnim(_curAnimation, nodeName);
 
-    if (nodeAnim) {
-        // Interpolate scaling and generate scaling transformation matrix
-        mat::Vec3 scaling;
-        calcInterpolatedScaling(scaling, animationTime, nodeAnim);
-        mat::Mat4 scalingM = mat::Mat4();
-		scalingM = scalingM.scale(scaling);
+	try {
+		if (nodeAnim) {
+			// Interpolate scaling and generate scaling transformation matrix
+			mat::Vec3 scaling;
+			calcInterpolatedScaling(scaling, animationTime, nodeAnim);
+			mat::Mat4 scalingM = mat::Mat4();
+			scalingM = scalingM.scale(scaling);
 
-        // Interpolate rotation and generate rotation transformation matrix
-        mat::Quaternion rotationQ;
-        calcInterpolatedRotation(rotationQ, animationTime, nodeAnim);
-        mat::Mat4 rotationM = rotationQ.toMatrix();
+			// Interpolate rotation and generate rotation transformation matrix
+			mat::Quaternion rotationQ;
+			calcInterpolatedRotation(rotationQ, animationTime, nodeAnim);
+			mat::Mat4 rotationM = rotationQ.toMatrix();
 
-        // Interpolate translation and generate translation transformation matrix
-        mat::Vec3 translation;
-        calcInterpolatedPosition(translation, animationTime, nodeAnim);
-        mat::Mat4 translationM = mat::Mat4();
-        translationM = translationM.translate(translation);
+			// Interpolate translation and generate translation transformation matrix
+			mat::Vec3 translation;
+			calcInterpolatedPosition(translation, animationTime, nodeAnim);
+			mat::Mat4 translationM = mat::Mat4();
+			translationM = translationM.translate(translation);
 
-        // Combine the above transformations
-        nodeTransformation = translationM * rotationM * scalingM;
-    }
+			// Combine the above transformations
+			nodeTransformation = translationM * rotationM * scalingM;
+		}
 
-    mat::Mat4 globalTransformation = parentTransform * nodeTransformation;
+		mat::Mat4 globalTransformation = parentTransform * nodeTransformation;
 
-	// if there is a bone (same name as the node)
-    if (_boneMap.find(nodeName) != _boneMap.end()) {
-        uint boneIndex = _boneMap[nodeName];
-        _boneInfo[boneIndex].finalTransformation = _globalInverseTransform * globalTransformation *
-                                                   _boneInfo[boneIndex].boneOffset;
-    }
+		// if there is a bone (same name as the node)
+		if (_boneMap.find(nodeName) != _boneMap.end()) {
+			uint boneIndex = _boneMap[nodeName];
+			_boneInfo[boneIndex].finalTransformation = _globalInverseTransform * globalTransformation *
+													_boneInfo[boneIndex].boneOffset;
+		}
 
-	// recursion with each of its children
-	for (u_int32_t i = 0; i < node->mNumChildren; ++i) {
-		setBonesTransform(animationTime, node->mChildren[i], scene, globalTransformation);
+		// recursion with each of its children
+		for (u_int32_t i = 0; i < node->mNumChildren; ++i) {
+			setBonesTransform(animationTime, node->mChildren[i], scene, globalTransformation);
+		}
+	}
+	catch (AnimationError &e) {
+		#if DEBUG
+			std::cout << "Error in bones calculation: " << e.what() << std::endl;
+		#endif
 	}
 }
 
@@ -289,29 +296,31 @@ u_int32_t	Model::findPosition(float animationTime, const aiNodeAnim* nodeAnim)
         if (animationTime < (float)nodeAnim->mPositionKeys[i + 1].mTime)
             return i;
     }
-    assert(0);
+    throw AnimationError("can't find position");
     return 0;
 }
 
 u_int32_t	Model::findRotation(float animationTime, const aiNodeAnim* nodeAnim)
 {
-    assert(nodeAnim->mNumRotationKeys > 0);
+	if (!(nodeAnim->mNumRotationKeys > 0))
+		throw AnimationError("mNumRotationKeys <= 0");
     for (uint i = 0 ; i < nodeAnim->mNumRotationKeys - 1 ; i++) {
         if (animationTime < (float)nodeAnim->mRotationKeys[i + 1].mTime)
             return i;
     }
-    assert(0);
+    throw AnimationError("can't find rotation");
     return 0;
 }
 
 u_int32_t	Model::findScaling(float animationTime, const aiNodeAnim* nodeAnim)
 {
-    assert(nodeAnim->mNumScalingKeys > 0);
+	if (!(nodeAnim->mNumScalingKeys > 0))
+		throw AnimationError("mNumScalingKeys <= 0");
     for (uint i = 0 ; i < nodeAnim->mNumScalingKeys - 1 ; i++) {
         if (animationTime < (float)nodeAnim->mScalingKeys[i + 1].mTime)
             return i;
     }
-    assert(0);
+    throw AnimationError("can't find scaling");
     return 0;
 }
 
@@ -324,10 +333,12 @@ void	Model::calcInterpolatedPosition(mat::Vec3 &out, float animationTime, const 
 
     uint positionIndex = findPosition(animationTime, nodeAnim);
     uint nextPositionIndex = (positionIndex + 1);
-    assert(nextPositionIndex < nodeAnim->mNumPositionKeys);
+    if (!(nextPositionIndex < nodeAnim->mNumPositionKeys))
+		throw AnimationError("next position index is bigger than total positions");
     float deltaTime = (float)(nodeAnim->mPositionKeys[nextPositionIndex].mTime - nodeAnim->mPositionKeys[positionIndex].mTime);
     float factor = (animationTime - (float)nodeAnim->mPositionKeys[positionIndex].mTime) / deltaTime;
-    assert(factor >= 0.0f && factor <= 1.0f);
+    if (!(factor >= 0.0f && factor <= 1.0f))
+		throw AnimationError("invalid factor in position calculation");
     const mat::Vec3 &start = aiToVec3(nodeAnim->mPositionKeys[positionIndex].mValue);
     const mat::Vec3 &end = aiToVec3(nodeAnim->mPositionKeys[nextPositionIndex].mValue);
     mat::Vec3 delta = end - start;
@@ -344,10 +355,12 @@ void	Model::calcInterpolatedRotation(mat::Quaternion &out, float animationTime, 
 
     uint rotationIndex = findRotation(animationTime, nodeAnim);
     uint nextRotationIndex = (rotationIndex + 1);
-    assert(nextRotationIndex < nodeAnim->mNumRotationKeys);
+    if (!(nextRotationIndex < nodeAnim->mNumRotationKeys))
+		throw AnimationError("next rotation index is bigger than total rotations");
     float deltaTime = (float)(nodeAnim->mRotationKeys[nextRotationIndex].mTime - nodeAnim->mRotationKeys[rotationIndex].mTime);
     float factor = (animationTime - (float)nodeAnim->mRotationKeys[rotationIndex].mTime) / deltaTime;
-    assert(factor >= 0.0f && factor <= 1.0f);
+    if (!(factor >= 0.0f && factor <= 1.0f))
+		throw AnimationError("invalid factor in rotation calculation");
     const mat::Quaternion &startRotationQ = aiToQuat(nodeAnim->mRotationKeys[rotationIndex].mValue);
     const mat::Quaternion &endRotationQ   = aiToQuat(nodeAnim->mRotationKeys[nextRotationIndex].mValue);
 	out = mat::slerp(startRotationQ, endRotationQ, factor);
@@ -363,10 +376,12 @@ void	Model::calcInterpolatedScaling(mat::Vec3 &out, float animationTime, const a
 
     uint ScalingIndex = findScaling(animationTime, nodeAnim);
     uint NextScalingIndex = (ScalingIndex + 1);
-    assert(NextScalingIndex < nodeAnim->mNumScalingKeys);
+    if (!(NextScalingIndex < nodeAnim->mNumScalingKeys))
+		throw AnimationError("next scale index is bigger than total scales");
     float deltaTime = (float)(nodeAnim->mScalingKeys[NextScalingIndex].mTime - nodeAnim->mScalingKeys[ScalingIndex].mTime);
     float factor = (animationTime - (float)nodeAnim->mScalingKeys[ScalingIndex].mTime) / deltaTime;
-    assert(factor >= 0.0f && factor <= 1.0f);
+    if (!(factor >= 0.0f && factor <= 1.0f))
+		throw AnimationError("invalid factor in scale calculation");
     const mat::Vec3 &start = aiToVec3(nodeAnim->mScalingKeys[ScalingIndex].mValue);
     const mat::Vec3 &end   = aiToVec3(nodeAnim->mScalingKeys[NextScalingIndex].mValue);
     mat::Vec3 delta = end - start;
@@ -395,28 +410,36 @@ Material	loadMaterial(aiMaterial *mat) {
 		material.diffuse = mat::Vec3(color.r, color.g, color.b);
 	}
 	else {
-		std::cout << "Error when loading DIFFUSE" << std::endl;
+		#if DEBUG
+			std::cout << "Error when loading DIFFUSE" << std::endl;
+		#endif
 	}
 
 	if (mat->Get(AI_MATKEY_COLOR_AMBIENT, color) == AI_SUCCESS) {
 		material.ambient = mat::Vec3(color.r, color.g, color.b);
 	}
 	else {
-		std::cout << "Error when loading AMBIENT" << std::endl;
+		#if DEBUG
+			std::cout << "Error when loading AMBIENT" << std::endl;
+		#endif
 	}
 
 	if (mat->Get(AI_MATKEY_COLOR_SPECULAR, color) == AI_SUCCESS) {
 		material.specular = mat::Vec3(color.r, color.g, color.b);
 	}
 	else {
-		std::cout << "Error when loading SPECULAR" << std::endl;
+		#if DEBUG
+			std::cout << "Error when loading SPECULAR" << std::endl;
+		#endif
 	}
 
 	if (mat->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS) {
 		material.shininess = shininess;
 	}
 	else {
-		std::cout << "Error when loading SHININESS" << std::endl;
+		#if DEBUG
+			std::cout << "Error when loading SHININESS" << std::endl;
+		#endif
 	}
 
 	return material;
