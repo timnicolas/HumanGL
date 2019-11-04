@@ -530,7 +530,7 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 	bool failedToLoadTex = false;
 	try {
 		// load diffuse textures
-		diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, \
+		diffuseMaps = loadMaterialTextures(scene, material, aiTextureType_DIFFUSE, \
 		TextureT::difuse);
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 	}
@@ -539,7 +539,7 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 	}
 	try {
 		// load specular textures
-		specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, \
+		specularMaps = loadMaterialTextures(scene, material, aiTextureType_SPECULAR, \
 		TextureT::specular);
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	}
@@ -585,37 +585,42 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 	return ret;
 }
 
-std::vector<Texture>	Model::loadMaterialTextures(aiMaterial *mat, \
+std::vector<Texture>	Model::loadMaterialTextures(const aiScene *scene, aiMaterial *mat, \
 aiTextureType type, TextureT textType) {
     std::vector<Texture>	textures;
 	aiString				str;
 	Texture					texture;
 	bool					skip;
 
-    for (u_int32_t i = 0; i < mat->GetTextureCount(type); ++i) {
-        mat->GetTexture(type, i, &str);
+	if (scene->HasTextures()) {  // load texture in fbx
+		textureFromFbx(scene, textures);
+	}
+	else {  // load textures in others files
+		for (u_int32_t i = 0; i < mat->GetTextureCount(type); ++i) {
+			mat->GetTexture(type, i, &str);
 
-		skip = false;
+			skip = false;
 
-		// verify if the texture has been loaded already
-		for (u_int32_t j = 0; j < _texturesLoaded.size(); ++j) {
-			if (std::strcmp(_texturesLoaded[j].path.data(), str.C_Str()) == 0) {
-				textures.push_back(_texturesLoaded[j]);
-				skip = true;
-				break;
+			// verify if the texture has been loaded already
+			for (u_int32_t j = 0; j < _texturesLoaded.size(); ++j) {
+				if (std::strcmp(_texturesLoaded[j].path.data(), str.C_Str()) == 0) {
+					textures.push_back(_texturesLoaded[j]);
+					skip = true;
+					break;
+				}
+			}
+
+			// if not, load it
+			if (!skip) {
+				texture.id = textureFromFile(str.C_Str(), _directory);
+				texture.type = textType;
+				texture.path = str.C_Str();
+				textures.push_back(texture);
+				// save to _texturesLoaded array to skip duplicate textures loading later
+				_texturesLoaded.push_back(texture);
 			}
 		}
-
-		// if not, load it
-		if (!skip) {
-			texture.id = textureFromFile(str.C_Str(), _directory);
-			texture.type = textType;
-			texture.path = str.C_Str();
-			textures.push_back(texture);
-			// save to _texturesLoaded array to skip duplicate textures loading later
-			_texturesLoaded.push_back(texture);
-		}
-    }
+	}
     return textures;
 }
 

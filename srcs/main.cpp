@@ -106,6 +106,7 @@ int		main(int argc, char const **argv) {
 		std::vector<Model*> models = std::vector<Model*>();
 		Model	*model;
 		for (int i=1; i < argc; i++) {
+			std::cout << "loading " << argv[i] << std::endl;
 			model = new Model(argv[i], basicShader, cubeShader);
 			models.push_back(model);
 		}
