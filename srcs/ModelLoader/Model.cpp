@@ -527,17 +527,31 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 
 	// process material
 	material = scene->mMaterials[mesh->mMaterialIndex];
-	// load diffuse textures
-	diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, \
-	TextureT::difuse);
-	textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-	// load specular textures
-	specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, \
-	TextureT::specular);
-	textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+	bool failedToLoadTex = false;
+	try {
+		// load diffuse textures
+		diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, \
+		TextureT::difuse);
+		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+	}
+	catch (TextureFailToLoad &e) {
+		failedToLoadTex = true;
+	}
+	try {
+		// load specular textures
+		specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, \
+		TextureT::specular);
+		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+	}
+	catch (TextureFailToLoad &e) {
+		failedToLoadTex = true;
+	}
 
 	// create the mesh
-    Mesh ret = Mesh(vertices, indices, textures, loadMaterial(material));
+	Mesh ret = Mesh(vertices, indices, textures, loadMaterial(material));;
+	if (failedToLoadTex) {
+		ret = Mesh(vertices, indices, textures, Material());
+	}
 
 	// process bones
 	for (u_int32_t i = 0; i < mesh->mNumBones; ++i) {
