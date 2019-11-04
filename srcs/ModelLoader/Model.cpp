@@ -391,17 +391,33 @@ Material	loadMaterial(aiMaterial *mat) {
 	aiColor3D color(0.f, 0.f, 0.f);
 	float shininess;
 
-	mat->Get(AI_MATKEY_COLOR_DIFFUSE, color);
-	material.diffuse = mat::Vec3(color.r, color.g, color.b);
+	if (mat->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS) {
+		material.diffuse = mat::Vec3(color.r, color.g, color.b);
+	}
+	else {
+		std::cout << "Error when loading DIFFUSE" << std::endl;
+	}
 
-	mat->Get(AI_MATKEY_COLOR_AMBIENT, color);
-	material.ambient = mat::Vec3(color.r, color.g, color.b);
+	if (mat->Get(AI_MATKEY_COLOR_AMBIENT, color) == AI_SUCCESS) {
+		material.ambient = mat::Vec3(color.r, color.g, color.b);
+	}
+	else {
+		std::cout << "Error when loading AMBIENT" << std::endl;
+	}
 
-	mat->Get(AI_MATKEY_COLOR_SPECULAR, color);
-	material.specular = mat::Vec3(color.r, color.g, color.b);
+	if (mat->Get(AI_MATKEY_COLOR_SPECULAR, color) == AI_SUCCESS) {
+		material.specular = mat::Vec3(color.r, color.g, color.b);
+	}
+	else {
+		std::cout << "Error when loading SPECULAR" << std::endl;
+	}
 
-	mat->Get(AI_MATKEY_SHININESS, shininess);
-	material.shininess = shininess;
+	if (mat->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS) {
+		material.shininess = shininess;
+	}
+	else {
+		std::cout << "Error when loading SHININESS" << std::endl;
+	}
 
 	return material;
 }

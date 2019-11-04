@@ -99,8 +99,7 @@ int		main(int argc, char const **argv) {
 	if (!init(&window, "humanGl", &winU, &cam))
 		return (1);
 
-	try
-	{
+	try {
 		Shader basicShader("shaders/basic_vs.glsl", "shaders/basic_fs.glsl");
 		Shader cubeShader("shaders/cube_vs.glsl", "shaders/basic_fs.glsl");
 
@@ -128,8 +127,7 @@ int		main(int argc, char const **argv) {
 			delete models[i];
 		}
 	}
-	catch(const std::exception& e)
-	{
+	catch(const std::exception& e) {
 		std::cerr << e.what() << '\n';
 	}
 	glfwDestroyWindow(window);
