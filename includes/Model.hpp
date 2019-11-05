@@ -19,7 +19,8 @@ class Model {
 			}
 		};
 
-        Model(const char *path, Shader &shader, Shader &cubeShader);
+        Model(const char *path, Shader &shader, Shader &cubeShader, \
+		float const &animationSpeed, float const &dtTime);
 		Model(Model const &src);
 		virtual ~Model();
 
@@ -37,6 +38,8 @@ class Model {
 		mat::Mat4				&getModelScale();
 		const mat::Mat4			&getModel() const;
 		const mat::Mat4			&getModelScale() const;
+		float const				&getAnimationSpeed() const;
+		float const				&getDtTime() const;
 
 		bool					&isDrawMesh();
 		bool					isDrawMesh() const;
@@ -101,6 +104,9 @@ class Model {
 		mat::Vec3				_maxPos;
 		mat::Mat4				_model;  // position in real world
 		mat::Mat4				_modelScale;
+		float const				&_animationSpeed;
+		float					_animationTime;
+		float const				&_dtTime;
 
 		std::map<std::string, int>	_boneMap; // maps a bone name to its index
 		std::array<BoneInfo, MAX_BONES>	_boneInfo;
@@ -114,7 +120,6 @@ class Model {
 		aiAnimation				*_curAnimation;
 		uint32_t				_curAnimationId;
 		bool					_isAnimated;
-		std::chrono::milliseconds	_startAnimTime;
 		const aiScene			*_scene;
 		Assimp::Importer		_importer;
 

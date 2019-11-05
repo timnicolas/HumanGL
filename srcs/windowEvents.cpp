@@ -78,10 +78,18 @@ void	keyCb(GLFWwindow *window, int key, int scancode, int action, int mods)
 
 void	scrollCb(GLFWwindow *window, double xOffset, double yOffset) {
 	tWinUser		*winU;
+	float			animationSpeed;
 
 	(void)xOffset;
 	winU = (tWinUser *)glfwGetWindowUserPointer(window);
-	winU->cam->processMouseScroll(yOffset);
+
+	// edit animation speed
+	animationSpeed = winU->animationSpeed + yOffset * 0.005;
+	if (animationSpeed < 0)
+		animationSpeed = 0;
+	if (animationSpeed > 10)
+		animationSpeed = 10;
+	winU->animationSpeed = animationSpeed;
 }
 
 void	mouseCb(GLFWwindow *window, double xPos, double yPos)

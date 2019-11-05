@@ -42,23 +42,28 @@ const float	Model::_cubeData[] = {
 };
 
 
-Model::Model(const char *path, Shader &shader, Shader &cubeShader)
+Model::Model(const char *path, Shader &shader, Shader &cubeShader, \
+float const &animationSpeed, float const &dtTime)
 : _shader(shader),
   _cubeShader(cubeShader),
   _minPos(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()),
   _maxPos(std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), std::numeric_limits<float>::min()),
   _model(mat::Mat4()),
   _modelScale(mat::Mat4()),
+  _animationSpeed(animationSpeed),
+  _dtTime(dtTime),
   _drawMesh(true),
   _drawCube(false) {
 	loadModel(path);
 	sendCubeData();
-	_startAnimTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+	_animationTime = 0.0f;
 }
 
 Model::Model(Model const &src) :
   _shader(src.getShader()),
-  _cubeShader(src.getCubeShader()) {
+  _cubeShader(src.getCubeShader()),
+  _animationSpeed(src.getAnimationSpeed()),
+  _dtTime(src.getDtTime()) {
 	*this = src;
 }
 
@@ -90,8 +95,6 @@ Model &Model::operator=(Model const &rhs) {
 
 		_drawMesh = rhs.isDrawMesh();
 		_drawCube = rhs.isDrawCube();
-
-		_startAnimTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 	}
 	return *this;
 }
@@ -106,11 +109,9 @@ void	Model::sendBones(int shaderId) {
 void	Model::draw() {
 	_shader.use();
 	if (_isAnimated) {
-		std::chrono::milliseconds curTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-		std::chrono::milliseconds runningTime = (curTime - _startAnimTime);
-		float timeInMillis = runningTime.count();
+		_animationTime += 1000 * _dtTime * _animationSpeed;
 		float ticksPerSecond = (_curAnimation->mTicksPerSecond != 0) ? _curAnimation->mTicksPerSecond : 25.0f;
-		float timeInTicks = (timeInMillis / 1000.0) * ticksPerSecond;
+		float timeInTicks = (_animationTime / 1000.0) * ticksPerSecond;
 		//loops the animation
 		float animationTime = fmod(timeInTicks, _curAnimation->mDuration);
 		// set bones with animations
@@ -685,6 +686,8 @@ mat::Mat4				&Model::getModel() { return _model; }
 mat::Mat4				&Model::getModelScale() { return _modelScale; }
 const mat::Mat4			&Model::getModel() const { return _model; }
 const mat::Mat4			&Model::getModelScale() const { return _modelScale; }
+float const				&Model::getAnimationSpeed() const { return _animationSpeed; };
+float const				&Model::getDtTime() const { return _dtTime; };
 mat::Vec3				Model::getMinPos() const { return _minPos; }
 mat::Vec3				Model::getMaxPos() const { return _maxPos; }
 std::map<std::string, int>	Model::getBoneMap() const { return _boneMap; }

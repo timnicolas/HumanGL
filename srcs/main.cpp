@@ -80,6 +80,7 @@ bool	init(GLFWwindow **window, const char *name, tWinUser *winU, Camera *cam) {
 	winU->lastFrame = 0.0f;
 	winU->width = SCREEN_W;
 	winU->height = SCREEN_H;
+	winU->animationSpeed = 1.0f;
 
 	if (!initWindow(window, name, winU))
 		return (false);
@@ -107,7 +108,7 @@ int		main(int argc, char const **argv) {
 		Model	*model;
 		for (int i=1; i < argc; i++) {
 			std::cout << "loading " << argv[i] << std::endl;
-			model = new Model(argv[i], basicShader, cubeShader);
+			model = new Model(argv[i], basicShader, cubeShader, winU.animationSpeed, winU.dtTime);
 			models.push_back(model);
 		}
 
