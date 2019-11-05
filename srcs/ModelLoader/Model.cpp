@@ -294,7 +294,7 @@ const aiNodeAnim*	Model::findNodeAnim(const aiAnimation* animation, const std::s
 u_int32_t	Model::findPosition(float animationTime, const aiNodeAnim* nodeAnim)
 {
     for (uint i = 0 ; i < nodeAnim->mNumPositionKeys - 1 ; i++) {
-        if (animationTime < (float)nodeAnim->mPositionKeys[i + 1].mTime)
+        if (animationTime <= (float)nodeAnim->mPositionKeys[i + 1].mTime)
             return i;
     }
     throw AnimationError("can't find position");
@@ -306,7 +306,7 @@ u_int32_t	Model::findRotation(float animationTime, const aiNodeAnim* nodeAnim)
 	if (!(nodeAnim->mNumRotationKeys > 0))
 		throw AnimationError("mNumRotationKeys <= 0");
     for (uint i = 0 ; i < nodeAnim->mNumRotationKeys - 1 ; i++) {
-        if (animationTime < (float)nodeAnim->mRotationKeys[i + 1].mTime)
+        if (animationTime <= (float)nodeAnim->mRotationKeys[i + 1].mTime)
             return i;
     }
     throw AnimationError("can't find rotation");
@@ -318,7 +318,7 @@ u_int32_t	Model::findScaling(float animationTime, const aiNodeAnim* nodeAnim)
 	if (!(nodeAnim->mNumScalingKeys > 0))
 		throw AnimationError("mNumScalingKeys <= 0");
     for (uint i = 0 ; i < nodeAnim->mNumScalingKeys - 1 ; i++) {
-        if (animationTime < (float)nodeAnim->mScalingKeys[i + 1].mTime)
+        if (animationTime <= (float)nodeAnim->mScalingKeys[i + 1].mTime)
             return i;
     }
     throw AnimationError("can't find scaling");
