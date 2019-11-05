@@ -86,6 +86,7 @@ Model &Model::operator=(Model const &rhs) {
 		_boneInfo = rhs.getBoneInfo();
 
 		_boneInfoUniform = rhs.getBoneInfoUniform();
+		_bonePosUniform = rhs.getBonePosUniform();
 		_actBoneId = rhs.getActBoneId();
 		_globalInverseTransform = rhs.getGlobalInverseTransform();
 		_globalTransform = rhs.getGlobalTransform();
@@ -122,6 +123,8 @@ void	Model::draw() {
 
 	if (_drawMesh) {
 		_shader.setMat4("model", _model);
+		_shader.setMat4("modelScale", _modelScale);
+		_shader.setBool("isAnimated", _isAnimated);
 		for (auto &mesh : _meshes)
 			mesh.draw(getShader());
 	}
@@ -130,6 +133,9 @@ void	Model::draw() {
 		// drawing cube
 		_cubeShader.use();
 		_cubeShader.setMat4("model", _model);
+		_cubeShader.setMat4("modelScale", _modelScale);
+		glUniform3fv(glGetUniformLocation(_cubeShader.id, "bonesPos"),  MAX_BONES, &(_bonePosUniform[0]));
+
 		if (_isAnimated)
 			sendBones(_cubeShader.id);
 
@@ -189,12 +195,9 @@ void	Model::loadModel(std::string path) {
 	// send bones positions
 	setBonesPos(_scene->mRootNode, _globalTransform);
 
-	std::array<float, MAX_BONES * 3>	bonePos;
 	for (u_int32_t i = 0; i < MAX_BONES; ++i)
 		for (u_int32_t j = 0; j < 3; ++j)
-			bonePos[i * 3 + j] = _bonePos[i].getData()[j];
-
-	glUniform3fv(glGetUniformLocation(_cubeShader.id, "bonesPos"),  MAX_BONES, &(bonePos[0]));
+			_bonePosUniform[i * 3 + j] = _bonePos[i].getData()[j];
 }
 
 void	Model::loadNextAnimation() {
@@ -492,13 +495,6 @@ void	Model::calcModelMatrix() {
 	transl.z = scale * ((transl.z < 0.00001f && transl.z > -0.00001f) ? 0.0f : transl.z);
 	// apply the translation
 	_modelScale = _modelScale.translate(transl);
-
-	// sent it to the shader
-	_shader.use();
-	_shader.setMat4("modelScale", _modelScale);
-
-	_cubeShader.use();
-	_cubeShader.setMat4("modelScale", _modelScale);
 }
 
 
@@ -693,6 +689,7 @@ mat::Vec3				Model::getMaxPos() const { return _maxPos; }
 std::map<std::string, int>	Model::getBoneMap() const { return _boneMap; }
 std::array<Model::BoneInfo, MAX_BONES>	Model::getBoneInfo() const { return _boneInfo; }
 std::array<float, MAX_BONES * 16>	Model::getBoneInfoUniform() const { return _boneInfoUniform; }
+std::array<float, MAX_BONES * 3>	Model::getBonePosUniform() const { return _bonePosUniform; }
 u_int32_t				Model::getActBoneId() const { return _actBoneId; }
 mat::Mat4				Model::getGlobalTransform() const { return _globalTransform; }
 mat::Mat4				Model::getGlobalInverseTransform() const { return _globalInverseTransform; }

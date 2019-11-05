@@ -49,6 +49,7 @@ class Model {
 		std::map<std::string, int>	getBoneMap() const;
 		std::array<BoneInfo, MAX_BONES>	getBoneInfo() const;
 		std::array<float, MAX_BONES * 16>	getBoneInfoUniform() const;
+		std::array<float, MAX_BONES * 3>	getBonePosUniform() const;
 		u_int32_t				getActBoneId() const;
 		mat::Mat4				getGlobalTransform() const;
 		mat::Mat4				getGlobalInverseTransform() const;
@@ -114,6 +115,8 @@ class Model {
 
 		// all datas ready to send to vertex shader (uniform mat4[MAX_BONES])
 		std::array<float, MAX_BONES * 16>	_boneInfoUniform;
+		std::array<float, MAX_BONES * 3>	_bonePosUniform;
+
 		u_int32_t				_actBoneId = 0;
 		mat::Mat4				_globalTransform;
 		mat::Mat4				_globalInverseTransform;
