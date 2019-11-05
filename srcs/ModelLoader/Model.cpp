@@ -616,7 +616,7 @@ aiTextureType type, TextureT textType) {
 	bool					skip;
 
 	if (scene->HasTextures()) {  // load texture in fbx
-		textureFromFbx(scene, textures);
+		textureFromFbx(scene, textures, textType);
 	}
 	else {  // load textures in others files
 		for (u_int32_t i = 0; i < mat->GetTextureCount(type); ++i) {

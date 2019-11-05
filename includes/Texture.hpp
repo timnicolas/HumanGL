@@ -6,7 +6,7 @@
 #include "Mesh.hpp"
 
 u_int32_t	textureFromFile(const char *path, const std::string &directory);
-void		textureFromFbx(const aiScene *scene, std::vector<Texture> &textures);
+void		textureFromFbx(const aiScene *scene, std::vector<Texture> &textures, TextureT textType);
 
 class TextureFailToLoad : public std::exception {
 	public:
