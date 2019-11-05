@@ -348,7 +348,6 @@ void	Model::calcInterpolatedPosition(mat::Vec3 &out, float animationTime, const 
 
 void	Model::calcInterpolatedRotation(mat::Quaternion &out, float animationTime, const aiNodeAnim* nodeAnim)
 {
-	// we need at least two values to interpolate...
     if (nodeAnim->mNumRotationKeys == 1) {
         out = aiToQuat(nodeAnim->mRotationKeys[0].mValue);
         return;

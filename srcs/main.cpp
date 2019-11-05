@@ -3,6 +3,7 @@
 #include "Camera.hpp"
 #include "Model.hpp"
 #include "Matrix.hpp"
+#include "Environnement.hpp"
 #include <chrono>
 #include <unistd.h>
 
@@ -15,7 +16,7 @@ void	setupDirLight(Shader &sh) {
 	sh.setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
 }
 
-void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Shader &cubeSh, std::vector<Model*> &models) {
+void	gameLoop(GLFWwindow *window, Camera &cam, Shader &envSh, Shader &sh, Shader &cubeSh, Environnement &env, std::vector<Model*> &models) {
 	tWinUser	*winU;
 	std::chrono::milliseconds time_start;
 	bool firstLoop = true;
@@ -24,6 +25,9 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Shader &cubeSh, std::
 
 	// projection matrix
 	mat::Mat4	projection = mat::perspective(mat::radians(cam.zoom), winU->width / winU->height, 0.1f, 100.0f);
+
+	envSh.use();
+	envSh.setMat4("projection", projection);
 
 	sh.use();
 	sh.setMat4("projection", projection);
@@ -39,17 +43,25 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Shader &cubeSh, std::
 		processInput(window);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// enable the shader before setting uniform
-		sh.use();
-
 		// view matrix
 		mat::Mat4	view = cam.getViewMatrix();
+
+		mat::Mat4	skyView = view;
+		skyView[0][3] = 0;  // remove translation for the skybox
+		skyView[1][3] = 0;
+		skyView[2][3] = 0;
+		envSh.use();
+		envSh.setMat4("view", skyView);
+
+		sh.use();
 		sh.setMat4("view", view);
 		sh.setVec3("viewPos", cam.pos.x, cam.pos.y, cam.pos.z);
 
 		cubeSh.use();
 		cubeSh.setMat4("view", view);
 		cubeSh.setVec3("viewPos", cam.pos.x, cam.pos.y, cam.pos.z);
+
+		env.draw();
 
 		// to move model, change matrix: objModel.getModel()
 		for (u_int32_t i=0; i < models.size(); i++) {
@@ -101,8 +113,11 @@ int		main(int argc, char const **argv) {
 		return (1);
 
 	try {
+		Shader envShader("shaders/env_vs.glsl", "shaders/env_fs.glsl");
 		Shader basicShader("shaders/basic_vs.glsl", "shaders/basic_fs.glsl");
 		Shader cubeShader("shaders/cube_vs.glsl", "shaders/basic_fs.glsl");
+
+		Environnement env(envShader);
 
 		std::vector<Model*> models = std::vector<Model*>();
 		Model	*model;
@@ -123,7 +138,7 @@ int		main(int argc, char const **argv) {
 
 		winU.models = &models;
 
-		gameLoop(window, cam, basicShader, cubeShader, models);
+		gameLoop(window, cam, envShader, basicShader, cubeShader, env, models);
 
 		for (u_int32_t i=0; i < models.size(); i++) {
 			delete models[i];
