@@ -14,7 +14,7 @@ SRC =	main.cpp \
 		windowEvents.cpp \
 		Camera.cpp \
 		utils.cpp \
-		Environnement.cpp \
+		Skybox.cpp \
 \
 		ModelLoader/Mesh.cpp \
 		ModelLoader/Model.cpp \
@@ -26,7 +26,7 @@ HEAD =	commonInclude.hpp \
 		matrix/Quaternion.hpp \
 		Shader.hpp \
 		humanGL.hpp \
-		Environnement.hpp \
+		Skybox.hpp \
 		Mesh.hpp \
 		Model.hpp \
 		Texture.hpp \

@@ -1,7 +1,7 @@
-#include "Environnement.hpp"
+#include "Skybox.hpp"
 #include "lib/stb_image.h"
 
-const float Environnement::_skyboxVertices[] = {
+const float Skybox::_vertices[] = {
 	-1.0f,  1.0f, -1.0f,
 	-1.0f, -1.0f, -1.0f,
 	1.0f, -1.0f, -1.0f,
@@ -45,24 +45,24 @@ const float Environnement::_skyboxVertices[] = {
 	1.0f, -1.0f,  1.0f
 };
 
-Environnement::Environnement(Shader &sh) :
+Skybox::Skybox(Shader &sh) :
 _shader(sh) {
-	std::vector<std::string> skyBoxFaces = {
-		"skybox/cc_rt.tga",  // right
-		"skybox/cc_lf.tga",  // left
-		"skybox/cc_up.tga",  // up
-		"skybox/cc_dn.tga",  // down
-		"skybox/cc_ft.tga",  // front
-		"skybox/cc_bk.tga",  // back
+	std::vector<std::string> skyboxFaces = {
+		"skybox/right.jpg",  // right
+		"skybox/left.jpg",  // left
+		"skybox/top.jpg",  // up
+		"skybox/bottom.jpg",  // down
+		"skybox/front.jpg",  // front
+		"skybox/back.jpg",  // back
 	};
-	loadSkyBox(skyBoxFaces);
+	load(skyboxFaces);
 
-	glGenVertexArrays(1, &_skyboxVao);
-	glGenBuffers(1, &_skyboxVbo);
+	glGenVertexArrays(1, &_vao);
+	glGenBuffers(1, &_vbo);
 
-	glBindVertexArray(_skyboxVao);
-	glBindBuffer(GL_ARRAY_BUFFER, _skyboxVbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(_skyboxVertices), _skyboxVertices, GL_STATIC_DRAW);
+	glBindVertexArray(_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(_vertices), &_vertices, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
 	glEnableVertexAttribArray(0);
@@ -70,28 +70,28 @@ _shader(sh) {
 	glBindVertexArray(0);
 }
 
-Environnement::Environnement(Environnement const &src) :
+Skybox::Skybox(Skybox const &src) :
 _shader(src.getShader()) {
 	*this = src;
 }
 
-Environnement::~Environnement() {
+Skybox::~Skybox() {
 }
 
-Environnement &Environnement::operator=(Environnement const &rhs) {
+Skybox &Skybox::operator=(Skybox const &rhs) {
 	if (this != &rhs) {
-		_skyboxTextureID = getSkyboxTextureID();
-		_skyboxVao = getSkyboxVao();
-		_skyboxVbo = getSkyboxVbo();
+		_textureID = getTextureID();
+		_vao = getVao();
+		_vbo = getVbo();
 	}
 	return *this;
 }
 
-void Environnement::loadSkyBox(std::vector<std::string> &faces) {
+void Skybox::load(std::vector<std::string> &faces) {
 	_shader.use();
 
-    glGenTextures(1, &_skyboxTextureID);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, _skyboxTextureID);
+    glGenTextures(1, &_textureID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, _textureID);
 
     int width, height, nrChannels;
     for (unsigned int i = 0; i < faces.size(); i++)
@@ -109,7 +109,7 @@ void Environnement::loadSkyBox(std::vector<std::string> &faces) {
 			else if (nrChannels == 4) {
 				format = GL_RGBA;
 			}
-			std::cout << _skyboxTextureID << " " << width << " " << height << " " << nrChannels << std::endl;
+			std::cout << _textureID << " " << width << " " << height << " " << nrChannels << std::endl;
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                          0, nrChannels, width, height, 0, nrChannels, GL_UNSIGNED_BYTE, data);
             stbi_image_free(data);
@@ -127,18 +127,18 @@ void Environnement::loadSkyBox(std::vector<std::string> &faces) {
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
 
-void Environnement::draw() {
+void Skybox::draw() {
 	glDepthMask(GL_FALSE);
 	_shader.use();
-	glBindVertexArray(_skyboxVao);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, _skyboxTextureID);
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(_skyboxVertices) / sizeof(_skyboxVertices[0]));
+	glBindVertexArray(_vao);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, _textureID);
+	glDrawArrays(GL_TRIANGLES, 0, sizeof(_vertices) / sizeof(_vertices[0]));
 	glDepthMask(GL_TRUE);
 	glBindVertexArray(0);
 }
 
-Shader		&Environnement::getShader() { return _shader; }
-Shader		&Environnement::getShader() const { return _shader; }
-uint32_t	Environnement::getSkyboxTextureID() const { return _skyboxTextureID; }
-uint32_t	Environnement::getSkyboxVao() const { return _skyboxVao; }
-uint32_t	Environnement::getSkyboxVbo() const { return _skyboxVbo; }
+Shader		&Skybox::getShader() { return _shader; }
+Shader		&Skybox::getShader() const { return _shader; }
+uint32_t	Skybox::getTextureID() const { return _textureID; }
+uint32_t	Skybox::getVao() const { return _vao; }
+uint32_t	Skybox::getVbo() const { return _vbo; }
