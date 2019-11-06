@@ -5,6 +5,11 @@
 # include "Model.hpp"
 # include <vector>
 
+#define SPEED_MIN 0
+#define SPEED_MAX 10
+#define SPEED_OFFSET_SCROLL 0.005
+#define SPEED_OFFSET_KEY 0.5
+
 typedef struct	sWinUser
 {
 	std::vector<Model*> *models;

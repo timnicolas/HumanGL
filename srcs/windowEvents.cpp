@@ -3,6 +3,8 @@
 #include <chrono>
 
 static u_int8_t	firstTwoCall = 2;
+static float lastAnimationSpeed = 1;
+static bool isPause = false;
 
 void toggleCursor(GLFWwindow *window) {
 	static bool enable = false;
@@ -12,6 +14,42 @@ void toggleCursor(GLFWwindow *window) {
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	else
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+void updateAnimationSpeed(GLFWwindow *window, float offset) {
+	float		animationSpeed;
+	tWinUser	*winU;
+
+	winU = (tWinUser *)glfwGetWindowUserPointer(window);
+
+	animationSpeed = (isPause) ? lastAnimationSpeed : winU->animationSpeed;
+
+	animationSpeed += offset;
+	if (animationSpeed < 0)
+		animationSpeed = 0;
+	if (animationSpeed > 10)
+		animationSpeed = 10;
+	if (isPause) {
+		lastAnimationSpeed = animationSpeed;
+	}
+	else {
+		lastAnimationSpeed = winU->animationSpeed;
+		winU->animationSpeed = animationSpeed;
+	}
+}
+
+void togglePause(GLFWwindow *window) {
+	tWinUser	*winU;
+
+	winU = (tWinUser *)glfwGetWindowUserPointer(window);
+
+	isPause = !isPause;
+	if (isPause) {
+		lastAnimationSpeed = winU->animationSpeed;
+		winU->animationSpeed = 0;
+	}
+	else
+		winU->animationSpeed = lastAnimationSpeed;
 }
 
 /*
@@ -74,22 +112,16 @@ void	keyCb(GLFWwindow *window, int key, int scancode, int action, int mods)
 			(*it)->loadNextAnimation();
 		}
 	}
+
+	if (key == GLFW_KEY_P && action == GLFW_PRESS) {
+		togglePause(window);
+	}
 }
 
 void	scrollCb(GLFWwindow *window, double xOffset, double yOffset) {
-	tWinUser		*winU;
-	float			animationSpeed;
-
 	(void)xOffset;
-	winU = (tWinUser *)glfwGetWindowUserPointer(window);
-
 	// edit animation speed
-	animationSpeed = winU->animationSpeed + yOffset * 0.005;
-	if (animationSpeed < 0)
-		animationSpeed = 0;
-	if (animationSpeed > 10)
-		animationSpeed = 10;
-	winU->animationSpeed = animationSpeed;
+	updateAnimationSpeed(window, yOffset * SPEED_OFFSET_SCROLL);
 }
 
 void	mouseCb(GLFWwindow *window, double xPos, double yPos)
