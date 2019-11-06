@@ -25,10 +25,10 @@ void updateAnimationSpeed(GLFWwindow *window, float offset) {
 	animationSpeed = (isPause) ? lastAnimationSpeed : winU->animationSpeed;
 
 	animationSpeed += offset;
-	if (animationSpeed < 0)
-		animationSpeed = 0;
-	if (animationSpeed > 10)
-		animationSpeed = 10;
+	if (animationSpeed < SPEED_MIN)
+		animationSpeed = SPEED_MIN;
+	if (animationSpeed > SPEED_MAX)
+		animationSpeed = SPEED_MAX;
 	if (isPause) {
 		lastAnimationSpeed = animationSpeed;
 	}
@@ -81,6 +81,11 @@ void	processInput(GLFWwindow *window)
         winU->cam->processKeyboard(CamMovement::Up, winU->dtTime);
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
         winU->cam->processKeyboard(CamMovement::Down, winU->dtTime);
+    if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS)
+        updateAnimationSpeed(window, SPEED_OFFSET_KEY);
+    if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS
+	|| glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS)
+        updateAnimationSpeed(window, -SPEED_OFFSET_KEY);
 }
 
 void	keyCb(GLFWwindow *window, int key, int scancode, int action, int mods)
@@ -115,6 +120,13 @@ void	keyCb(GLFWwindow *window, int key, int scancode, int action, int mods)
 
 	if (key == GLFW_KEY_P && action == GLFW_PRESS) {
 		togglePause(window);
+	}
+
+	if (key == GLFW_KEY_R && action == GLFW_PRESS) {
+		isPause = false;
+		lastAnimationSpeed = 1;
+		winU->animationSpeed = 1;
+		winU->cam->resetPosition();
 	}
 }
 

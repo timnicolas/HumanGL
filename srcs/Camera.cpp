@@ -8,7 +8,10 @@ Camera::Camera(mat::Vec3 pos, mat::Vec3 up, float yaw, float pitch)
   pitch(pitch),
   movementSpeed(MOVEMENT_SPEED),
   mouseSensitivity(MOUSE_SENSITIVITY),
-  zoom(45.0f) {
+  zoom(45.0f),
+  _startPos(pos),
+  _startYaw(yaw),
+  _startPitch(pitch) {
 	updateCameraVectors();
 }
 
@@ -95,4 +98,12 @@ void Camera::updateCameraVectors() {
 
 	right = mat::normalize(mat::cross(front, worldUp));
 	up = mat::normalize(mat::cross(right, front));
+}
+
+void Camera::resetPosition() {
+	pos = _startPos;
+	yaw = _startYaw;
+	pitch = _startPitch;
+
+	updateCameraVectors();
 }

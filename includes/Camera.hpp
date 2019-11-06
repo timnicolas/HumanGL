@@ -30,6 +30,7 @@ class Camera {
 		void processMouseMovement(float xOffset, float yOffset, bool \
 		constrainPitch = true);
 		void processMouseScroll(float yOffset);
+		void resetPosition();
 
 		mat::Vec3	pos;
 		mat::Vec3	front;
@@ -45,6 +46,11 @@ class Camera {
 		float		zoom;
 	private:
 		void updateCameraVectors();
+
+		/* used to reset position and rotation */
+		mat::Vec3	_startPos;
+		float		_startYaw;
+		float		_startPitch;
 };
 
 #endif

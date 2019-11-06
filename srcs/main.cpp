@@ -102,13 +102,28 @@ bool	init(GLFWwindow **window, const char *name, tWinUser *winU, Camera *cam) {
 	return (true);
 }
 
+void	usage() {
+	std::cout << "Usage: ./humanGL <modelfile.fbx, ...>" << std::endl;
+	std::cout << "Commands:" << std::endl;
+	std::cout << "\t-> speed control (-+ mouse-scroll)" << std::endl;
+	std::cout << "\t-> fps control (wasd|arrow & mouse)" << std::endl;
+	std::cout << "\t-> move up/down (ed)" << std::endl;
+	std::cout << "\t-> play/pause (p)" << std::endl;
+	std::cout << "\t-> show/hide model: (m)" << std::endl;
+	std::cout << "\t-> show/hide bones: (n)" << std::endl;
+	std::cout << "\t-> enable/disable cursor (space)" << std::endl;
+	std::cout << "\t-> load next animation (enter)" << std::endl;
+	std::cout << "\t-> reset position and speed (r)" << std::endl;
+	std::cout << "\t-> quit (escape)" << std::endl;
+}
+
 int		main(int argc, char const **argv) {
 	GLFWwindow	*window;
 	tWinUser	winU;
 	Camera		cam(mat::Vec3(0.0f, 0.0f, 3.0f));
 
 	if (argc < 2) {
-		std::cout << "usage: ./humanGL modelFile\n" << std::endl;
+		usage();
 		return (1);
 	}
 
