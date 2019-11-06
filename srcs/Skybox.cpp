@@ -49,12 +49,12 @@ const float Skybox::_vertices[] = {
 Skybox::Skybox(Shader &sh) :
 _shader(sh) {
 	std::vector<std::string> skyboxFaces = {
-		std::string(SKYBOX_START) + "right" + SKYBOX_EXT,  // right
-		std::string(SKYBOX_START) + "left" + SKYBOX_EXT,  // left
-		std::string(SKYBOX_START) + "top" + SKYBOX_EXT,  // up
-		std::string(SKYBOX_START) + "bottom" + SKYBOX_EXT,  // down
-		std::string(SKYBOX_START) + "front" + SKYBOX_EXT,  // front
-		std::string(SKYBOX_START) + "back" + SKYBOX_EXT,  // back
+		std::string(SKYBOX_START) + SKYBOX_NAME_RIGHT + SKYBOX_EXT,  // right
+		std::string(SKYBOX_START) + SKYBOX_NAME_LEFT + SKYBOX_EXT,  // left
+		std::string(SKYBOX_START) + SKYBOX_NAME_TOP + SKYBOX_EXT,  // up
+		std::string(SKYBOX_START) + SKYBOX_NAME_BOTTOM + SKYBOX_EXT,  // down
+		std::string(SKYBOX_START) + SKYBOX_NAME_FRONT + SKYBOX_EXT,  // front
+		std::string(SKYBOX_START) + SKYBOX_NAME_BACK + SKYBOX_EXT,  // back
 	};
 	load(skyboxFaces);
 
