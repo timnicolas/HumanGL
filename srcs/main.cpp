@@ -16,7 +16,7 @@ void	setupDirLight(Shader &sh) {
 	sh.setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
 }
 
-void	gameLoop(GLFWwindow *window, Camera &cam, Shader &skyboxSh, Shader &sh, Shader &cubeSh, Skybox &skybox, std::vector<Model*> &models) {
+void	gameLoop(GLFWwindow *window, Camera &cam, Shader &skyboxSh, Shader &modelSh, Shader &cubeSh, Skybox &skybox, std::vector<Model*> &models) {
 	tWinUser	*winU;
 	std::chrono::milliseconds time_start;
 	bool firstLoop = true;
@@ -29,14 +29,14 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &skyboxSh, Shader &sh, Sha
 	skyboxSh.use();
 	skyboxSh.setMat4("projection", projection);
 
-	sh.use();
-	sh.setMat4("projection", projection);
+	modelSh.use();
+	modelSh.setMat4("projection", projection);
 
 	cubeSh.use();
 	cubeSh.setMat4("projection", projection);
 
 	glClearColor(0.11373f, 0.17647f, 0.27059f, 1.0f);
-	setupDirLight(sh);
+	setupDirLight(modelSh);
 	setupDirLight(cubeSh);
 	checkError();
 	while (!glfwWindowShouldClose(window)) {
@@ -54,9 +54,9 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &skyboxSh, Shader &sh, Sha
 		skyboxSh.use();
 		skyboxSh.setMat4("view", skyView);
 
-		sh.use();
-		sh.setMat4("view", view);
-		sh.setVec3("viewPos", cam.pos.x, cam.pos.y, cam.pos.z);
+		modelSh.use();
+		modelSh.setMat4("view", view);
+		modelSh.setVec3("viewPos", cam.pos.x, cam.pos.y, cam.pos.z);
 
 		cubeSh.use();
 		cubeSh.setMat4("view", view);
@@ -117,7 +117,7 @@ int		main(int argc, char const **argv) {
 
 	try {
 		Shader skyboxShader("shaders/skybox_vs.glsl", "shaders/skybox_fs.glsl");
-		Shader basicShader("shaders/basic_vs.glsl", "shaders/basic_fs.glsl");
+		Shader modelShader("shaders/model_vs.glsl", "shaders/basic_fs.glsl");
 		Shader cubeShader("shaders/cube_vs.glsl", "shaders/basic_fs.glsl");
 
 		Skybox skybox(skyboxShader);
@@ -126,7 +126,7 @@ int		main(int argc, char const **argv) {
 		Model	*model;
 		for (int i=1; i < argc; i++) {
 			std::cout << "loading " << argv[i] << std::endl;
-			model = new Model(argv[i], basicShader, cubeShader, winU.animationSpeed, winU.dtTime);
+			model = new Model(argv[i], modelShader, cubeShader, winU.animationSpeed, winU.dtTime);
 			models.push_back(model);
 		}
 
@@ -141,7 +141,7 @@ int		main(int argc, char const **argv) {
 
 		winU.models = &models;
 
-		gameLoop(window, cam, skyboxShader, basicShader, cubeShader, skybox, models);
+		gameLoop(window, cam, skyboxShader, modelShader, cubeShader, skybox, models);
 
 		for (u_int32_t i=0; i < models.size(); i++) {
 			delete models[i];
