@@ -1,5 +1,6 @@
 #include "Skybox.hpp"
 #include "lib/stb_image.h"
+#include "humanGL.hpp"
 
 const float Skybox::_vertices[] = {
 	-1.0f,  1.0f, -1.0f,
@@ -48,12 +49,12 @@ const float Skybox::_vertices[] = {
 Skybox::Skybox(Shader &sh) :
 _shader(sh) {
 	std::vector<std::string> skyboxFaces = {
-		"skybox/right.jpg",  // right
-		"skybox/left.jpg",  // left
-		"skybox/top.jpg",  // up
-		"skybox/bottom.jpg",  // down
-		"skybox/front.jpg",  // front
-		"skybox/back.jpg",  // back
+		std::string(SKYBOX_START) + "right" + SKYBOX_EXT,  // right
+		std::string(SKYBOX_START) + "left" + SKYBOX_EXT,  // left
+		std::string(SKYBOX_START) + "top" + SKYBOX_EXT,  // up
+		std::string(SKYBOX_START) + "bottom" + SKYBOX_EXT,  // down
+		std::string(SKYBOX_START) + "front" + SKYBOX_EXT,  // front
+		std::string(SKYBOX_START) + "back" + SKYBOX_EXT,  // back
 	};
 	load(skyboxFaces);
 
@@ -64,8 +65,8 @@ _shader(sh) {
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(_vertices), &_vertices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
 
 	glBindVertexArray(0);
 }
@@ -76,6 +77,8 @@ _shader(src.getShader()) {
 }
 
 Skybox::~Skybox() {
+    glDeleteVertexArrays(1, &_vao);
+    glDeleteBuffers(1, &_vbo);
 }
 
 Skybox &Skybox::operator=(Skybox const &rhs) {
@@ -88,18 +91,30 @@ Skybox &Skybox::operator=(Skybox const &rhs) {
 }
 
 void Skybox::load(std::vector<std::string> &faces) {
-	_shader.use();
-
     glGenTextures(1, &_textureID);
     glBindTexture(GL_TEXTURE_CUBE_MAP, _textureID);
 
-    int width, height, nrChannels;
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
+
+    int width;
+	int height;
+	int nrChannels;
     for (unsigned int i = 0; i < faces.size(); i++)
     {
         unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
         if (data)
         {
-			GLenum format;
+
+			if ((width & (width - 1)) != 0 || (height & (height - 1)) != 0) {
+				std::cout << "WARNING: image " << faces[i] << " is not power-of-2 dimensions" << std::endl;
+			}
+			GLenum format = GL_RGB;
 			if (nrChannels == 1) {
 				format = GL_RED;
 			}
@@ -109,9 +124,8 @@ void Skybox::load(std::vector<std::string> &faces) {
 			else if (nrChannels == 4) {
 				format = GL_RGBA;
 			}
-			std::cout << _textureID << " " << width << " " << height << " " << nrChannels << std::endl;
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                         0, nrChannels, width, height, 0, nrChannels, GL_UNSIGNED_BYTE, data);
+                         0, static_cast<GLint>(format), width, height, 0, format, GL_UNSIGNED_BYTE, data);
             stbi_image_free(data);
         }
         else
@@ -120,20 +134,17 @@ void Skybox::load(std::vector<std::string> &faces) {
             stbi_image_free(data);
         }
     }
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
 
 void Skybox::draw() {
-	glDepthMask(GL_FALSE);
 	_shader.use();
+	glDepthFunc(GL_LEQUAL);
 	glBindVertexArray(_vao);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, _textureID);
+	glBindVertexArray(_vao);
 	glDrawArrays(GL_TRIANGLES, 0, sizeof(_vertices) / sizeof(_vertices[0]));
-	glDepthMask(GL_TRUE);
+	glDepthFunc(GL_LESS);
 	glBindVertexArray(0);
 }
 

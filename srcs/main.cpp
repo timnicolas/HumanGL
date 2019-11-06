@@ -35,9 +35,10 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &skyboxSh, Shader &sh, Sha
 	cubeSh.use();
 	cubeSh.setMat4("projection", projection);
 
-	// glClearColor(0.11373f, 0.17647f, 0.27059f, 1.0f);
+	glClearColor(0.11373f, 0.17647f, 0.27059f, 1.0f);
 	setupDirLight(sh);
 	setupDirLight(cubeSh);
+	checkError();
 	while (!glfwWindowShouldClose(window)) {
 		time_start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 		processInput(window);
@@ -71,6 +72,7 @@ void	gameLoop(GLFWwindow *window, Camera &cam, Shader &skyboxSh, Shader &sh, Sha
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+		checkError();
 
 		// fps
 		std::chrono::milliseconds time_loop = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()) - time_start;

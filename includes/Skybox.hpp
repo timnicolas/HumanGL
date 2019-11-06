@@ -4,6 +4,18 @@
 #include <vector>
 #include "Shader.hpp"
 
+#define SKYBOX_START "skybox/"
+#define SKYBOX_EXT ".jpg"
+/*
+name:
+SKYBOX_START right SKYBOX_EXT
+SKYBOX_START left SKYBOX_EXT
+SKYBOX_START top SKYBOX_EXT
+SKYBOX_START bottom SKYBOX_EXT
+SKYBOX_START front SKYBOX_EXT
+SKYBOX_START back SKYBOX_EXT
+*/
+
 class Skybox {
 	public:
 		explicit Skybox(Shader &sh);
