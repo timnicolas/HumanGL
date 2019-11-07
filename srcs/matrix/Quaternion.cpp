@@ -64,9 +64,44 @@ do a smooth rotation btw 2 points by varying step from 0 to 1
 */
 const Quaternion Quaternion::slerp(const Quaternion &to, float step) const
 {
-	const Quaternion &src = *this;
+	Quaternion res;
 
-	return ((to * src.inverted()) ^ step) * src;
+	// get the dot product
+	float dotProduct = this->vec.x * to.vec.x + this->vec.y * to.vec.y + this->vec.z * to.vec.z + this->w * to.w;
+
+	// adjust sign of quaternion (if the dot product is negative)
+	Quaternion end = to;
+	if(dotProduct < 0.0f) {
+		dotProduct = -dotProduct;
+		end.vec.x = -end.vec.x;
+		end.vec.y = -end.vec.y;
+		end.vec.z = -end.vec.z;
+		end.w = -end.w;
+	}
+
+	// Calculate coefficients
+	float sclp;
+	float sclq;
+	if((1.0f - dotProduct) > 0.0001f) {
+		float omega;
+		float sinom;
+		omega = acos(dotProduct); // extract theta from dot product cos theta
+		sinom = sin(omega);
+		sclp  = sin((1.0f - step) * omega) / sinom;
+		sclq  = sin(step * omega) / sinom;
+	}
+	else {
+		// if dot product is very close to 0
+		sclp = 1.0f - step;
+		sclq = step;
+	}
+
+	res.vec.x = sclp * vec.x + sclq * end.vec.x;
+	res.vec.y = sclp * vec.y + sclq * end.vec.y;
+	res.vec.z = sclp * vec.z + sclq * end.vec.z;
+	res.w = sclp * w + sclq * end.w;
+
+	return res;
 }
 
 const Quaternion Quaternion::normalize() const {
