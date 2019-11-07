@@ -48,8 +48,8 @@ struct Texture {
 
 class Mesh {
 	public:
-		Mesh(std::vector<VertexMat> vertices, std::vector<u_int32_t> indices, \
-		std::vector<Texture> textures, Material material);
+		Mesh(std::vector<VertexMat> vertices_, std::vector<u_int32_t> indices_, \
+		std::vector<Texture> textures_, Material material_);
 		Mesh(Mesh const &src);
 		virtual ~Mesh();
 

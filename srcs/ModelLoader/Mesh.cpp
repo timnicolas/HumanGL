@@ -1,11 +1,11 @@
 #include "Mesh.hpp"
 
-Mesh::Mesh(std::vector<VertexMat> vertices, std::vector<u_int32_t> indices, \
-std::vector<Texture> textures, Material material)
-:	vertices(vertices),
-	indices(indices),
-	textures(textures),
-	material(material)
+Mesh::Mesh(std::vector<VertexMat> vertices_, std::vector<u_int32_t> indices_, \
+std::vector<Texture> textures_, Material material_)
+:	vertices(vertices_),
+	indices(indices_),
+	textures(textures_),
+	material(material_)
 {}
 
 Mesh::Mesh(Mesh const &src) {
