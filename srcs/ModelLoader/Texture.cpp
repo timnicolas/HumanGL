@@ -48,7 +48,7 @@ u_int32_t	textureFromFile(const char *path, const std::string &directory) {
 
 void		textureFromFbx(const aiScene *scene, std::vector<Texture> &textures, TextureT textType) {
 	Texture			texture;
-	auto			textureIds = new GLuint[scene->mNumTextures];
+	GLuint			*textureIds = new GLuint[scene->mNumTextures];
 	aiString		str;
 	unsigned char	*image_data = nullptr;
 	int				components_per_pixel;
@@ -98,4 +98,5 @@ void		textureFromFbx(const aiScene *scene, std::vector<Texture> &textures, Textu
 		texture.type = textType;
 		textures.push_back(texture);
 	}
+	delete [] textureIds;
 }
