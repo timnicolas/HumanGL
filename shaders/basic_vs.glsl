@@ -11,12 +11,11 @@ layout (location = 4) in ivec4 bonesID;
 layout (location = 5) in vec4 bonesWeight;
 
 out VS_OUT {
-	vec3 FragPos;
 	vec2 TexCoords;
-	vec3 Normal;
 	vec3 TangentLightDir;
 	vec3 TangentViewPos;
 	vec3 TangentFragPos;
+	vec3 TangentNormal;
 } vs_out;
 
 uniform bool isAnimated;
@@ -49,9 +48,7 @@ void main() {
 
 	vec4 boneNormal = boneTransform * vec4(aNormal, 0);
 
-	vs_out.FragPos = vec3(modelScale * pos);
 	vs_out.TexCoords = aTexCoords;
-	vs_out.Normal = mat3(transpose(inverse(modelScale))) * boneNormal.xyz;
 
 	// calc TBN matrix to transforms vec from worldSpace to tangentSpace
 	mat3 normalMatrix = transpose(inverse(mat3(model)));
@@ -64,8 +61,9 @@ void main() {
 
 	vs_out.TangentLightDir = TBN * dirLight.direction;
 	vs_out.TangentViewPos  = TBN * viewPos;
-	vs_out.TangentFragPos  = TBN * vs_out.FragPos;
+	vs_out.TangentFragPos  = TBN * vec3(modelScale * pos);
 
+	vs_out.TangentNormal = TBN * mat3(transpose(inverse(modelScale))) * boneNormal.xyz;
 
 	gl_Position = projection * view * model * modelScale * pos;
 }

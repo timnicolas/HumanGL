@@ -67,7 +67,7 @@ void	Mesh::draw(Shader &sh) const {
 		sh.setVec3("material.specular.color", material.specular);
 	}
 	if (!normalText) {
-		sh.setBool("material.normalMap.isTexture", true);
+		sh.setBool("material.normalMap.isTexture", false);
 		sh.setVec3("material.normalMap.color", mat::Vec3(0, 0, 1));
 	}
 	sh.setFloat("material.shininess", material.shininess);

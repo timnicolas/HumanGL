@@ -2,12 +2,11 @@
 out vec4	fragColor;
 
 in VS_OUT {
-	vec3 FragPos;
 	vec2 TexCoords;
-	vec3 Normal;
 	vec3 TangentLightDir;
 	vec3 TangentViewPos;
 	vec3 TangentFragPos;
+	vec3 TangentNormal;
 } fs_in;
 
 struct	ColorData {
@@ -65,7 +64,7 @@ vec3 calcDirLight(DirLight light, vec3 norm, vec3 viewDir) {
 }
 
 void main() {
-	vec3	norm = normalize(fs_in.Normal);
+	vec3	norm = normalize(fs_in.TangentNormal);
 	if (material.normalMap.isTexture) {
 		// obtain normal from normal map in range [0,1]
 		norm  = texture(material.normalMap.texture, fs_in.TexCoords).rgb;
