@@ -31,6 +31,7 @@ Mesh &Mesh::operator=(Mesh const &rhs) {
 void	Mesh::draw(Shader &sh) const {
 	bool	diffuseText = false;
 	bool	specularText = false;
+	bool	normalText = false;
 
 	sh.use();
 	for (u_int16_t i = 0; i < textures.size(); ++i) {
@@ -48,6 +49,12 @@ void	Mesh::draw(Shader &sh) const {
 			sh.setInt("material.specular.texture", i);
 			glBindTexture(GL_TEXTURE_2D, textures[i].id);
 		}
+		else if (textures[i].type == TextureT::normal && !normalText) {
+			normalText = true;
+			sh.setBool("material.normalMap.isTexture", true);
+			sh.setInt("material.normalMap.texture", i);
+			glBindTexture(GL_TEXTURE_2D, textures[i].id);
+		}
 	}
 	glActiveTexture(GL_TEXTURE0);
 
@@ -58,6 +65,10 @@ void	Mesh::draw(Shader &sh) const {
 	if (!specularText) {
 		sh.setBool("material.specular.isTexture", false);
 		sh.setVec3("material.specular.color", material.specular);
+	}
+	if (!normalText) {
+		sh.setBool("material.normalMap.isTexture", true);
+		sh.setVec3("material.normalMap.color", mat::Vec3(0, 0, 1));
 	}
 	sh.setFloat("material.shininess", material.shininess);
 
@@ -75,6 +86,7 @@ void	Mesh::setupMesh() {
 			vertices[i].pos.x, vertices[i].pos.y, vertices[i].pos.z,
 			vertices[i].norm.x, vertices[i].norm.y, vertices[i].norm.z,
 			vertices[i].texCoords.x, vertices[i].texCoords.y,
+			vertices[i].tangents.x, vertices[i].tangents.y, vertices[i].tangents.z,
 			{0},
 			{0}
 		};
@@ -105,12 +117,15 @@ void	Mesh::setupMesh() {
 	// vertex textCoords
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, texCoordsx));
 	glEnableVertexAttribArray(2);
-	// vertex bones IDs
-	glVertexAttribIPointer(3, NUM_BONES_PER_VERTEX, GL_INT, sizeof(Vertex), (void *)offsetof(Vertex, bonesID));
+	// vertex tangent
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, tangentsx));
 	glEnableVertexAttribArray(3);
-	// vertex bones weight
-	glVertexAttribPointer(4, NUM_BONES_PER_VERTEX, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, bonesW));
+	// vertex bones IDs
+	glVertexAttribIPointer(4, NUM_BONES_PER_VERTEX, GL_INT, sizeof(Vertex), (void *)offsetof(Vertex, bonesID));
 	glEnableVertexAttribArray(4);
+	// vertex bones weight
+	glVertexAttribPointer(5, NUM_BONES_PER_VERTEX, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, bonesW));
+	glEnableVertexAttribArray(5);
 
     glBindVertexArray(0);
 }

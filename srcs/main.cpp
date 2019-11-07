@@ -10,7 +10,7 @@ void	setupDirLight(Shader &sh) {
 	sh.use();
 
 	sh.setVec3("dirLight.direction", -0.2f, -0.8f, -0.6f);
-	sh.setVec3("dirLight.ambient", 0.5, 0.5, 0.5);
+	sh.setVec3("dirLight.ambient", 0.6, 0.6, 0.6);
 	sh.setVec3("dirLight.diffuse", 0.99f, 0.98f, 0.94f);
 	sh.setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
 }
@@ -102,7 +102,7 @@ int		main(int argc, char const **argv) {
 
 	try {
 		Shader basicShader("shaders/basic_vs.glsl", "shaders/basic_fs.glsl");
-		Shader cubeShader("shaders/cube_vs.glsl", "shaders/basic_fs.glsl");
+		Shader cubeShader("shaders/cube_vs.glsl", "shaders/cube_fs.glsl");
 
 		std::vector<Model*> models = std::vector<Model*>();
 		Model	*model;

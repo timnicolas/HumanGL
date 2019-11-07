@@ -155,7 +155,8 @@ void	Model::loadModel(std::string path) {
 	aiProcess_FlipUVs | \
 	aiProcess_GenNormals | \
 	aiProcess_GenUVCoords | \
-	aiProcess_LimitBoneWeights);
+	aiProcess_LimitBoneWeights | \
+	aiProcess_CalcTangentSpace);
 
 	if (!_scene || _scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !_scene->mRootNode) {
 		std::cerr << "ERROR::ASSIMP::" << _importer.GetErrorString() << std::endl;
@@ -509,6 +510,7 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 	aiMaterial				*material;
 	std::vector<Texture>	diffuseMaps;
 	std::vector<Texture>	specularMaps;
+	std::vector<Texture>	normalMaps;
 
 	u_int32_t				boneIndex;
 	std::string				boneName;
@@ -533,6 +535,10 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 			vertex.texCoords.x = mesh->mTextureCoords[0][i].x;
 			vertex.texCoords.y = mesh->mTextureCoords[0][i].y;
 		}
+		// process vertex tangents (for normal map)
+		vertex.tangents.x = mesh->mTangents[i].x;
+		vertex.tangents.y = mesh->mTangents[i].y;
+		vertex.tangents.z = mesh->mTangents[i].z;
 
 		vertices.push_back(vertex);
 	}
@@ -566,9 +572,18 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 	catch (TextureFailToLoad &e) {
 		failedToLoadTex = true;
 	}
+	try {
+		// load specular textures
+		normalMaps = loadMaterialTextures(scene, material, aiTextureType_NORMALS, \
+		TextureT::normal);
+		textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+	}
+	catch (TextureFailToLoad &e) {
+		failedToLoadTex = true;
+	}
 
 	// create the mesh
-	Mesh ret = Mesh(vertices, indices, textures, loadMaterial(material));;
+	Mesh ret = Mesh(vertices, indices, textures, loadMaterial(material));
 	if (failedToLoadTex) {
 		ret = Mesh(vertices, indices, textures, Material());
 	}
@@ -608,39 +623,42 @@ Mesh	Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 std::vector<Texture>	Model::loadMaterialTextures(const aiScene *scene, aiMaterial *mat, \
 aiTextureType type, TextureT textType) {
     std::vector<Texture>	textures;
-	aiString				str;
+	aiString				textLocation;
+	std::string				location;
 	Texture					texture;
 	bool					skip;
+	int						loactionId;
 
-	if (scene->HasTextures()) {  // load texture in fbx
-		textureFromFbx(scene, textures, textType);
-	}
-	else {  // load textures in others files
-		for (u_int32_t i = 0; i < mat->GetTextureCount(type); ++i) {
-			mat->GetTexture(type, i, &str);
+	mat->Get(AI_MATKEY_TEXTURE(type, 0), textLocation);
+	location = textLocation.C_Str();
 
-			skip = false;
-
-			// verify if the texture has been loaded already
-			for (u_int32_t j = 0; j < _texturesLoaded.size(); ++j) {
-				if (std::strcmp(_texturesLoaded[j].path.data(), str.C_Str()) == 0) {
-					textures.push_back(_texturesLoaded[j]);
-					skip = true;
-					break;
-				}
-			}
-
-			// if not, load it
-			if (!skip) {
-				texture.id = textureFromFile(str.C_Str(), _directory);
-				texture.type = textType;
-				texture.path = str.C_Str();
-				textures.push_back(texture);
-				// save to _texturesLoaded array to skip duplicate textures loading later
-				_texturesLoaded.push_back(texture);
-			}
+	skip = false;
+	// verify if the texture has been loaded already
+	for (u_int32_t j = 0; j < _texturesLoaded.size(); ++j) {
+		if (location == _texturesLoaded[j].path) {
+			textures.push_back(_texturesLoaded[j]);
+			skip = true;
+			break;
 		}
 	}
+
+	if (!skip && location.length() != 0) {
+		// embedded texture type
+		if (location[0] == '*') {
+			loactionId = std::stoi(location.substr(1));
+			texture.id = textureFromFbx(scene, loactionId);
+		}
+		// regular file texture type
+		else {
+			texture.id = textureFromFile(location, _directory);
+		}
+		texture.type = textType;
+		texture.path = location;
+		textures.push_back(texture);
+		// save to _texturesLoaded array to skip duplicate textures loading later
+		_texturesLoaded.push_back(texture);
+	}
+
     return textures;
 }
 
