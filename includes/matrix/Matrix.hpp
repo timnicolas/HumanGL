@@ -84,7 +84,7 @@ namespace mat {
 			float &operator[](const int idx);
 			Vec &operator=(const Vec &other);
 			float dot(const Vec &v) const;
-			Vec &normalize() const;
+			Vec normalize() const;
 
 			/*
 			xyzw and rgb are 'shortcut' to acces to the datas

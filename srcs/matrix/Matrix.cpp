@@ -285,8 +285,8 @@ Vec &Vec::operator=(const Vec &other) {
 	return *this;
 }
 
-Vec &Vec::normalize() const {
-	Vec *norm = new Vec(getSize(), getData());
+Vec Vec::normalize() const {
+	Vec norm = Vec(getSize(), getData());
 	float len = 0;
 	for (int i=0; i < getSize(); i++) {
 		len += get(i) * get(i);
@@ -294,10 +294,10 @@ Vec &Vec::normalize() const {
 	if (len > 0) {
 		len = std::sqrt(len);
 		for (int i=0; i < getSize(); i++) {
-			norm->get(i) /= len;
+			norm.get(i) /= len;
 		}
 	}
-	return *norm;
+	return norm;
 }
 
 float Vec::dot(const Vec &v) const
