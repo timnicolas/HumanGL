@@ -182,6 +182,7 @@ bool	initWindow(GLFWwindow **window, const char *name, tWinUser *winU)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_SAMPLES, 4); // anti aliasing
 	*window = glfwCreateWindow(SCREEN_W, SCREEN_H, name, NULL, NULL);
 	if (!(*window))
 	{
@@ -199,6 +200,7 @@ bool	initWindow(GLFWwindow **window, const char *name, tWinUser *winU)
 	glfwSetInputMode(*window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_MULTISAMPLE); // anti aliasing
 
 	glfwSetWindowUserPointer(*window, winU);
 	return (true);
