@@ -1,4 +1,7 @@
 #version 410 core
+
+#define GAMMA 2.2
+
 out vec4	fragColor;
 
 in vec2		texCoords;
@@ -34,8 +37,8 @@ vec3 calcDirLight(DirLight light, vec3 norm, vec3 viewDir) {
 	// diffuse
 	float	diff = max(dot(norm, lightDir), 0.0);
 	// specular
-	vec3	reflectDir = reflect(-lightDir, norm);
-	float	spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+	vec3	halfwayDir = normalize(lightDir + viewDir);
+	float	spec = pow(max(dot(norm, halfwayDir), 0.0), material.shininess * 4);
 
 	// use texture or color for the diffuse
 	vec3	ambient = light.ambient;
@@ -45,8 +48,8 @@ vec3 calcDirLight(DirLight light, vec3 norm, vec3 viewDir) {
 		diffuse *= diff * vec3(texture(material.diffuse.texture, texCoords));
 	}
 	else {
-		ambient *= material.diffuse.color;
-		diffuse *= diff * material.diffuse.color;
+		ambient *= pow(material.diffuse.color, vec3(GAMMA));
+		diffuse *= diff * pow(material.diffuse.color, vec3(GAMMA));
 	}
 
 	// use texture or color for the specular
@@ -54,7 +57,7 @@ vec3 calcDirLight(DirLight light, vec3 norm, vec3 viewDir) {
 	if (material.specular.isTexture)
 		specular *= spec * vec3(texture(material.specular.texture, texCoords));
 	else
-		specular *= spec * material.specular.color;
+		specular *= spec * pow(material.specular.color, vec3(GAMMA));
 
 	return (ambient + diffuse + specular);
 }
@@ -68,4 +71,7 @@ void main() {
 
 	fragColor = vec4(result, 1.0);
 	// fragColor = vec4(0.2, 0.9, 0.2, 1.0);
+
+	// apply gamma correction
+    fragColor.rgb = pow(fragColor.rgb, vec3(1.0 / GAMMA));
 }

@@ -643,14 +643,15 @@ aiTextureType type, TextureT textType) {
 	}
 
 	if (!skip && location.length() != 0) {
+		bool inSpaceSRGB = textType == TextureT::difuse || textType == TextureT::specular;
 		// embedded texture type
 		if (location[0] == '*') {
 			loactionId = std::stoi(location.substr(1));
-			texture.id = textureFromFbx(scene, loactionId);
+			texture.id = textureFromFbx(scene, loactionId, inSpaceSRGB);
 		}
 		// regular file texture type
 		else {
-			texture.id = textureFromFile(location, _directory);
+			texture.id = textureFromFile(location, _directory, inSpaceSRGB);
 		}
 		texture.type = textType;
 		texture.path = location;

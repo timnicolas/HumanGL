@@ -10,9 +10,9 @@ void	setupDirLight(Shader &sh) {
 	sh.use();
 
 	sh.setVec3("dirLight.direction", -0.2f, -0.8f, -0.6f);
-	sh.setVec3("dirLight.ambient", 0.6, 0.6, 0.6);
-	sh.setVec3("dirLight.diffuse", 0.99f, 0.98f, 0.94f);
-	sh.setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
+	sh.setVec3("dirLight.ambient", 0.4f, 0.4f, 0.4f);
+	sh.setVec3("dirLight.diffuse", 1, 1, 1);
+	sh.setVec3("dirLight.specular", 1, 1, 1);
 }
 
 void	gameLoop(GLFWwindow *window, Camera &cam, Shader &sh, Shader &cubeSh, std::vector<Model*> &models) {
