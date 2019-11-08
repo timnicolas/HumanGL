@@ -132,7 +132,7 @@ int		main(int argc, char const **argv) {
 
 	try {
 		Shader skyboxShader("shaders/skybox_vs.glsl", "shaders/skybox_fs.glsl");
-		Shader modelShader("shaders/model_vs.glsl", "shaders/basic_fs.glsl");
+		Shader modelShader("shaders/model_vs.glsl", "shaders/model_fs.glsl");
 		Shader cubeShader("shaders/cube_vs.glsl", "shaders/cube_fs.glsl");
 
 		Skybox skybox(skyboxShader);
