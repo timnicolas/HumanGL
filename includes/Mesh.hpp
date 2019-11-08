@@ -10,17 +10,20 @@
 enum class TextureT {
 	difuse,
 	specular,
+	normal
 };
 
 static const std::string	gTextType[] =
 {
 	"diffuse",
-	"specular"
+	"specular",
+	"normal"
 };
 struct VertexMat {  // contain matrix objects
 	mat::Vec3	pos;
 	mat::Vec3	norm;
 	mat::Vec2	texCoords;
+	mat::Vec3	tangents;
 	int			bonesID[NUM_BONES_PER_VERTEX];
 	float		bonesW[NUM_BONES_PER_VERTEX];
 
@@ -28,6 +31,7 @@ struct VertexMat {  // contain matrix objects
 		pos(mat::Vec3()),
 		norm(mat::Vec3()),
 		texCoords(mat::Vec2()),
+		tangents(mat::Vec3()),
 		bonesID{0},
 		bonesW{0} {
 	}
@@ -36,6 +40,7 @@ struct Vertex {  // contain pointer on data on matrix object
 	float posx, posy, posz;
 	float normx, normy, normz;
 	float texCoordsx, texCoordsy;
+	float tangentsx, tangentsy, tangentsz;
 	int bonesID[NUM_BONES_PER_VERTEX];
 	float bonesW[NUM_BONES_PER_VERTEX];
 };

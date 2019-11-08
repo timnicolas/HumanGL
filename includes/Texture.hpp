@@ -5,8 +5,9 @@
 # include "commonInclude.hpp"
 #include "Mesh.hpp"
 
-u_int32_t	textureFromFile(const char *path, const std::string &directory);
-void		textureFromFbx(const aiScene *scene, std::vector<Texture> &textures, TextureT textType);
+u_int32_t	textureFromFile(const std::string path, const std::string &directory, \
+	bool inSpaceSRGB);
+u_int32_t	textureFromFbx(const aiScene *scene, int loactionId, bool inSpaceSRGB);
 
 class TextureFailToLoad : public std::exception {
 	public:
