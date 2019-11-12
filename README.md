@@ -1,9 +1,9 @@
 # humanGL [[42](https://www.42.fr/) project]
 
-<!-- ![](../media/scop_demo.gif?raw=true) -->
+![](../media/walk.gif?raw=true)
 
 ## Project
-A first introduction to hierarchical modelling and model animation with OpenGL.
+A first introduction to hierarchical modeling and model animation with OpenGL.
 
 We used `glfw3` API for creating windows and manage input and events,
 and `Assimp` to load the model.
@@ -40,6 +40,13 @@ and `Assimp` to load the model.
 ## Exemples
 
 <!-- ![42.png](../media/42.png?raw=true) -->
+paladin:
+
+![](../media/paladin.png?raw=true)
+
+paladin animation with cubes to show bones joints:
+
+![](../media/fightBones.gif?raw=true)
 
 ---
 
